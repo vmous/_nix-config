@@ -10,7 +10,7 @@
     ("ff02e8e37c9cfd192d6a0cb29054777f5254c17b1bf42023ba52b65e4307b76a" default)))
  '(package-selected-packages
    (quote
-    (irony-eldoc flycheck-irony flycheck company-irony-c-headers company-gtags company-irony company ggtags yasnippet sr-speedbar zenburn-theme which-key use-package smex ido-vertical-mode ido-ubiquitous flx-ido auto-complete))))
+    (highlight-symbol magit flycheck-tip irony-eldoc flycheck-irony flycheck company-irony-c-headers company-gtags company-irony company ggtags yasnippet sr-speedbar zenburn-theme which-key use-package smex ido-vertical-mode ido-ubiquitous flx-ido auto-complete))))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -42,7 +42,7 @@
 (require 'url-handlers) ;; TODO: This line is a workaround to fix a bug. Remove at some point!
 (require 'package)
 ;;(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/") t)
-(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/") t)
+;;(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/") t)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 ;;(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
 (package-initialize)
@@ -55,10 +55,10 @@
   (package-install 'use-package))
 (require 'use-package)
 
-;;;;;; themes
-;;;;(use-package solarized-theme
-;;;;  :ensure t)
-;;;;(load-theme 'solarized-dark)
+;;;; themes
+;;(use-package solarized-theme
+;;  :ensure t)
+;;(load-theme 'solarized-dark)
 ;;(use-package zenburn-theme
 ;;  :ensure t)
 ;;(load-theme 'zenburn)
@@ -323,7 +323,7 @@
 	company-backends                '((company-semantic company-irony-c-headers company-irony company-gtags))
 	;;company-backends                '((company-irony company-gtags))
 	)
-  :bind ("C-c ;" . company-complete-common))
+  :bind ("C-;" . company-complete-common))
 
 ;;;; yasnippet
 ;; https://github.com/capitaomorte/yasnippet
@@ -370,6 +370,13 @@
   :config
   (use-package flycheck-irony :ensure t :defer t)
   (add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
+
+;;;; flycheck-tip
+;; https://github.com/yuutayamada/flycheck-tip
+(use-package flycheck-tip
+  :ensure t
+  :config
+  (flycheck-tip-use-timer 'verbose))
 
 ;;;;; eldoc-mode
 ;; https://github.com/ikirill/irony-eldoc
@@ -436,6 +443,32 @@
         "--sys-path" "/usr/local/lib/python3.4/dist-packages"))
 (setq jedi:complete-on-dot t)
 
+;;;;;; Revision Control
+
+(if (version< "24.4" emacs-version)
+;;;; magit
+;; https://github.com/magit/magit
+;; http://daemianmack.com/magit-cheatsheet.html
+(use-package magit
+  :ensure t
+  :config
+  (setq magit-completing-read-function 'magit-ido-completing-read)
+  :bind ("<f9>" . magit-status))
+)
+
+;;;;;;; Editing
+
+
+
+(use-package highlight-symbol
+  :ensure t
+  :config
+  (set-face-attribute 'highlight-symbol-face nil
+		      :background "default")
+  (setq highlight-symbol-idle-delay 0)
+  (setq highlight-symbol-on-navigation-p t)
+  (add-hook 'prog-mode-hook #'highlight-symbol-mode)
+  (add-hook 'prog-mode-hook #'highlight-symbol-nav-mode))
 
 
 ;;;;;;; Networking
