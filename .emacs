@@ -127,15 +127,16 @@
   ;;(which-key-setup-side-window-right)
   (which-key-setup-side-window-bottom))
 
-;;;;;; Markdown
-;;;; TODO change to use the use-package
-;;;; TODO add doc
-;;(autoload 'markdown-mode "markdown-mode"
-;;   "Major mode for editing Markdown files" t)
-;;(add-to-list 'auto-mode-alist '("\\.text\\'" . markdown-mode))
-;;(add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
-;;(add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
-
+;;;; markdown-mode
+;; http://jblevins.org/projects/markdown-mode/ 
+;; For the preview required to install libtext-multimarkdown-perl
+(use-package markdown-mode
+  :ensure t
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "multimarkdown"))
 
 
 ;;;;;;;; Developement
