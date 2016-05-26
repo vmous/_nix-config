@@ -7,7 +7,7 @@
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
    (quote
-    ("ff02e8e37c9cfd192d6a0cb29054777f5254c17b1bf42023ba52b65e4307b76a" default)))
+    ("40f6a7af0dfad67c0d4df2a1dd86175436d79fc69ea61614d668a635c2cd94ab" default)))
  '(package-selected-packages
    (quote
     (highlight-symbol magit flycheck-tip irony-eldoc flycheck-irony flycheck company-irony-c-headers company-gtags company-irony company ggtags yasnippet sr-speedbar zenburn-theme which-key use-package smex ido-vertical-mode ido-ubiquitous flx-ido auto-complete))))
@@ -59,9 +59,9 @@
 ;;(use-package solarized-theme
 ;;  :ensure t)
 ;;(load-theme 'solarized-dark)
-;;(use-package zenburn-theme
-;;  :ensure t)
-;;(load-theme 'zenburn)
+(use-package zenburn-theme
+  :ensure t)
+(load-theme 'zenburn)
 
 ;;;; ido
 ;; http://wikemacs.org/wiki/Ido
@@ -136,7 +136,11 @@
   :mode (("README\\.md\\'" . gfm-mode)
          ("\\.md\\'" . markdown-mode)
          ("\\.markdown\\'" . markdown-mode))
-  :init (setq markdown-command "multimarkdown"))
+  :config
+  ;; splitting vertically when openning preview in eww
+  (setq split-height-threshold nil)
+  :init (setq markdown-command "multimarkdown")
+  :bind ("<f5>" . markdown-live-preview-mode))
 
 
 ;;;;;;;; Developement
@@ -444,9 +448,10 @@
         "--sys-path" "/usr/local/lib/python3.4/dist-packages"))
 (setq jedi:complete-on-dot t)
 
+
 ;;;;;; Revision Control
 
-(if (version< "24.4" emacs-version)
+
 ;;;; magit
 ;; https://github.com/magit/magit
 ;; http://daemianmack.com/magit-cheatsheet.html
@@ -455,10 +460,9 @@
   :config
   (setq magit-completing-read-function 'magit-ido-completing-read)
   :bind ("<f9>" . magit-status))
-)
+
 
 ;;;;;;; Editing
-
 
 
 (use-package highlight-symbol
