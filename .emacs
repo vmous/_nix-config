@@ -23,6 +23,8 @@
 (column-number-mode 1)
 (delete-selection-mode 1)
 (display-time)
+;; no startup msg
+(setq inhibit-splash-screen t)
 
 ;;;; General Key Bindings
 (global-set-key (kbd "C-x c") 'customize)
