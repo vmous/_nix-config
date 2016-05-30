@@ -7,7 +7,7 @@
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
    (quote
-    ("40f6a7af0dfad67c0d4df2a1dd86175436d79fc69ea61614d668a635c2cd94ab" default)))
+    ("40f6a7af0dfad67c0d4df2a1dd86175436d79fc69ea61614d668a635c2cd94ab" "ff02e8e37c9cfd192d6a0cb29054777f5254c17b1bf42023ba52b65e4307b76a" default)))
  '(package-selected-packages
    (quote
     (highlight-symbol magit flycheck-tip irony-eldoc flycheck-irony flycheck company-irony-c-headers company-gtags company-irony company ggtags yasnippet sr-speedbar zenburn-theme which-key use-package smex ido-vertical-mode ido-ubiquitous flx-ido auto-complete))))
@@ -18,6 +18,10 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
+;; Fixing exec-path discrepancy between shell and Max OSX Finder launch 
+(setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
+(setq exec-path (append exec-path '("/usr/local/bin")))
 
 ;;;; General Settings
 (column-number-mode 1)
@@ -131,7 +135,9 @@
 
 ;;;; markdown-mode
 ;; http://jblevins.org/projects/markdown-mode/ 
-;; For the preview required to install libtext-multimarkdown-perl
+;; For the preview required to install
+;;  - Ubuntu: sudo apt-get install libtext-multimarkdown-perl
+;;  - MacOSX: brew install multimarkdown
 (use-package markdown-mode
   :ensure t
   :commands (markdown-mode gfm-mode)
@@ -139,6 +145,9 @@
          ("\\.md\\'" . markdown-mode)
          ("\\.markdown\\'" . markdown-mode))
   :config
+  (use-package markdown-mode+ :ensure t :defer t)
+  (use-package markdown-preview-mode :ensure t :defer t)
+  (use-package markdown-preview-eww :ensure t :defer t)
   ;; splitting vertically when openning preview in eww
   (setq split-height-threshold nil)
   :init (setq markdown-command "multimarkdown")
@@ -476,6 +485,45 @@
   (setq highlight-symbol-on-navigation-p t)
   (add-hook 'prog-mode-hook #'highlight-symbol-mode)
   (add-hook 'prog-mode-hook #'highlight-symbol-nav-mode))
+
+
+
+
+;;;; CC-mode
+;;(add-hook 'nxml-mode-hook '(lambda ()
+;;        (setq ac-sources (append '(ac-source-semantic) ac-sources))
+;;	(local-set-key (kbd "RET") 'newline-and-indent)
+;;	(linum-mode t)
+;;	(semantic-mode t)
+;;	(hs-minor-mode t)
+;;	(local-set-key (kbd "C-h") 'hs-toggle-hiding)
+;;))
+
+
+(require 'hideshow)
+(require 'sgml-mode)
+(require 'nxml-mode)
+
+(add-to-list 'hs-special-modes-alist
+             '(nxml-mode
+               "<!--\\|<[^/>]*[^/]>"
+               "-->\\|</[^/>]*[^/]>"
+
+               "<!--"
+               sgml-skip-tag-forward
+               nil))
+
+
+
+(add-hook 'nxml-mode-hook 'hs-minor-mode)
+
+;; optional key bindings, easier than hs defaults
+(define-key nxml-mode-map (kbd "C-c h") 'hs-toggle-hiding)
+
+
+
+
+
 
 
 ;;;;;;; Networking
