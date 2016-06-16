@@ -1,3 +1,10 @@
+;;;;;
+;; Check to see if running on Mac OS X or some GNU/Linux distro
+(defvar macosx-p (string= system-name "f45c89ad1c47.ant.amazon.com"))
+(defvar linux-p (string= system-name "ifrit"))
+(defvar amazonbox-p (string= system-name "search-dev-relevance-vmous-64004.pdx4.amazon.com"))
+
+
 ;;;; customize
 ;; http://ergoemacs.org/emacs/emacs_custom_system.html
 (custom-set-variables
@@ -19,16 +26,18 @@
  ;; If there is more than one, they won't work right.
  )
 
-;; Fixing exec-path discrepancy between shell and Max OSX Finder launch 
-(setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
-(setq exec-path (append exec-path '("/usr/local/bin")))
+
+(when macosx-p
+  ;; Fixing exec-path discrepancy between shell and Max OSX Finder launch 
+  (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
+  (setq exec-path (append exec-path '("/usr/local/bin"))))
+
 
 ;;;; General Settings
 (column-number-mode 1)
 (delete-selection-mode 1)
 (display-time)
-;; no startup msg
-(setq inhibit-splash-screen t)
+
 
 ;;;; General Key Bindings
 (global-set-key (kbd "C-x c") 'customize)
@@ -53,6 +62,7 @@
 ;;(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
 (package-initialize)
 
+
 ;;;; use-package
 ;; https://github.com/jwiegley/use-package
 ;; Bootstrap `use-package'
@@ -61,6 +71,7 @@
   (package-install 'use-package))
 (require 'use-package)
 
+
 ;;;; themes
 ;;(use-package solarized-theme
 ;;  :ensure t)
@@ -68,6 +79,7 @@
 (use-package zenburn-theme
   :ensure t)
 (load-theme 'zenburn)
+
 
 ;;;; ido
 ;; http://wikemacs.org/wiki/Ido
@@ -87,17 +99,20 @@
 	;; disable ido faces to see flx highlights.
 	ido-use-faces nil))
 
+
 ;;;; flx-ido
 ;; https://github.com/lewang/flx
 (use-package flx-ido
   :ensure t
   :init (flx-ido-mode 1))
 
+
 ;;;; ido-vertical-mode
 ;; https://github.com/creichert/ido-vertical-mode.el
 (use-package ido-vertical-mode
   :ensure t
   :init (ido-vertical-mode))
+
 
 ;;;; ido-ubiquitous
 ;; https://github.com/DarwinAwardWinner/ido-ubiquitous
@@ -112,6 +127,7 @@
 	(let ((ido-ubiquitous-enable-compatibility nil))
 	  ad-do-it))))
 
+
 ;;;; Smex
 ;; https://github.com/nonsequitur/smex
 (use-package smex
@@ -121,6 +137,7 @@
   :bind ("M-x" . smex))
 
 (add-hook 'prog-mode-hook #'goto-address-prog-mode)
+
 
 ;;;; which-key
 ;; https://github.com/justbur/emacs-which-key
@@ -132,6 +149,7 @@
   ;;(which-key-setup-minibuffer)
   ;;(which-key-setup-side-window-right)
   (which-key-setup-side-window-bottom))
+
 
 ;;;; markdown-mode
 ;; http://jblevins.org/projects/markdown-mode/ 
@@ -156,118 +174,210 @@
 
 ;;;;;;;; Developement
 
-
-
 ;;;;;; Generic
 
+;;;; company-mode
+;; https://github.com/company-mode/company-mode
+(use-package company
+  :ensure t
+  :init (add-hook 'after-init-hook 'global-company-mode)
+  :config
+  (setq company-idle-delay              nil
+	company-minimum-prefix-length   2
+	company-show-numbers            t
+	company-tooltip-limit           20
+	company-dabbrev-downcase        nil
+	company-backends                '((company-semantic company-irony-c-headers company-irony company-gtags company-emacs-eclim))
+	)
+  :bind ("C-;" . company-complete-common))
+
+;;;; yasnippet
+;; https://github.com/capitaomorte/yasnippet
+;; http://capitaomorte.github.io/yasnippet/
+(use-package yasnippet :ensure t)
+(use-package java-snippets :ensure t)
+(yas-global-mode 1)
+
+;; Integrate YASnippet with IDO
+(defun jazzy/yasnipet-ido-expand ()
+  "Lets you select (and expand) a yasnippet key"
+  (interactive)
+    (let ((original-point (point)))
+      (while (and
+              (not (= (point) (point-min) ))
+              (not
+               (string-match "[[:space:]\n]" (char-to-string (char-before)))))
+        (backward-word 1))
+    (let* ((init-word (point))
+           (word (buffer-substring init-word original-point))
+           (list (yas-active-keys)))
+      (goto-char original-point)
+      (let ((key (remove-if-not
+                  (lambda (s) (string-match (concat "^" word) s)) list)))
+        (if (= (length key) 1)
+            (setq key (pop key))
+          (setq key (ido-completing-read "key: " list nil nil word)))
+        (delete-char (- init-word original-point))
+        (insert key)
+        (yas-expand)))))
+
+(define-key yas-minor-mode-map (kbd "<C-tab>") 'jazzy/yasnipet-ido-expand)
+
+;;;; flycheck
+;; http://www.flycheck.org/
+;; https://github.com/Sarcasm/flycheck-irony
+(use-package flycheck
+  :ensure t
+  :defer t
+  :init
+  (add-hook 'c++-mode-hook 'flycheck-mode)
+  (add-hook 'c-mode-hook 'flycheck-mode)
+  ;; flycheck-java
+  ;; https://github.com/akorobov/flycheck-java
+  ;; $ brew install ecj
+  (add-hook 'java-mode-hook
+          (lambda () (setq flycheck-java-ecj-jar-path "/usr/local/Cellar/ecj/4.9/share/java/ecj.jar")))
+  :config
+  (use-package flycheck-irony :ensure)
+  (add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
+
+;;;; flycheck-tip
+;; https://github.com/yuutayamada/flycheck-tip
+(use-package flycheck-tip
+  :ensure t
+  :config
+  (flycheck-tip-use-timer 'verbose))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;; CEDET
+;;;;;; Python
+
+
+;; To find out what to put in this list, do
+;; $ python3.5
+;; >>> import site; site.getsitepackages()
+;; ['x', 'y']
 ;;
-;; Semantic
-;;(use-package semantic
-;;  :ensure t)
-;;(semantic-mode 1)
-;;(global-semantic-idle-scheduler-mode t)
-;;(global-semantic-idle-completions-mode t)
-;;(global-semantic-decoration-mode t)
-;;(global-semantic-highlight-func-mode t)
-;;(global-semantic-show-unmatched-syntax-mode t)
+;; Use 'x' and 'y'
+(defvar jazzy/dist-packages)
+
+(when macosx-p
+  (setq jazzy/dist-packages
+	'("--sys-path" "/usr/local/Cellar/python3/3.5.1/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages"
+	  "--sys-path" "/Library/Python/3.5/site-packages")))
+
+(when linux-p
+  (setq jazzy/dist-packages
+	'("--sys-path" "/usr/lib/python3/dist-packages"
+	  "--sys-path" "/usr/local/lib/python3.4/dist-packages")))
+
+(when amazonbox-p
+  (setq jazzy/dist-packages
+	'("--sys-path" "")))
+
+;;;; Jedi
+;; The first time you need to install the Jedi server
+;; M-x jedi:install-server
 ;;
-;;;; CC-mode
-;;(add-hook 'c-mode-common-hook '(lambda ()
-;;        (setq ac-sources (append '(ac-source-semantic) ac-sources))
-;;	(local-set-key (kbd "RET") 'newline-and-indent)
-;;	(linum-mode t)
-;;	(semantic-mode t)
-;;	(hs-minor-mode t)
-;;	(local-set-key (kbd "C-h") 'hs-toggle-hiding)
-;;))
-
-;; Autocomplete
-;;(require 'auto-complete-config)
-;;(add-to-list 'ac-dictionary-directories (expand-file-name
-;;             "~/.emacs.d/elpa/auto-complete-20160310.2248/dict"))
-;;(setq ac-comphist-file (expand-file-name
-;;             "~/.emacs.d/ac-comphist.dat"))
-;;(ac-config-default)
-
-
-;;;; end CEDET
+;; In case it complains about virtualenv not being available, install it:
+;; $ pip3 install virtualenv
+(use-package jedi
+  :ensure t
+  :init
+  (autoload 'jedi:setup "jedi" nil t)
+  (add-hook 'python-mode-hook 'jedi:setup)
+  :config
+  (setq jedi:server-args jazzy/dist-packages)
+  (setq jedi:complete-on-dot t))
 
 
 
+;;;;;; Java
 
-;;;;;; Alternative CEDET
-;;(semantic-mode 1)
 
-;;(use-package auto-complete
-;;  :ensure t
-;;  :config
-;;  ;; replace the `completion-at-point' and `complete-symbol' bindings in
-;;  ;; irony-mode's buffers by irony-mode's function
-;;  (defun jazzy/mode-cedet-hook ()
-;;    (add-to-list 'ac-sources 'ac-source-gtags)
-;;    (add-to-list 'ac-sources 'ac-source-semantic))
-;;  (add-hook 'c-mode-common-hook 'jazzy/c-mode-cedet-hook))
 
-;;;; EDE
-;;(global-ede-mode 1)
-;;(ede-enable-generic-projects)
+(defvar jazzy/eclim-eclipse-dirs)
+(defvar jazzy/eclim-executable)
+(defvar jazzy/eclimd-executable)
+(defvar jazzy/eclimd-default-workspace)
+
+
+(defvar jazzy/JAVA_HOME)
+(defvar jazzy/JAVA)
+
+
+(when macosx-p
+  (setq jazzy/eclim-eclipse-dirs "/Users/vmous/Applications/Eclipse.app/Contents/Eclipse")
+  (setq jazzy/eclim-executable "/Users/vmous/Applications/Eclipse.app/Contents/Eclipse/eclim")
+  (setq jazzy/eclimd-executable "/Users/vmous/Applications/Eclipse.app/Contents/Eclipse/eclimd")
+  (setq jazzy/eclimd-default-workspace "/Users/vmous/Workspace/eclipsews")
+
+  (setq jazzy/JAVA_HOME "/Library/Java/JavaVirtualMachines/jdk1.8.0_91.jdk/Contents/Home")
+  (setq jazzy/JAVA "/Library/Java/JavaVirtualMachines/jdk1.8.0_91.jdk/Contents/Home/bin/java"))
+
+
+(when linux-p
+  (setq jazzy/eclim-eclipse-dirs "")
+  (setq jazzy/eclim-executable "")
+  (setq jazzy/eclimd-executable "")
+  (setq jazzy/eclimd-default-workspace "")
+
+  (setq jazzy/JAVA_HOME "")
+  (setq jazzy/JAVA ""))
+
+
+(when amazonbox-p
+  (setq jazzy/eclim-eclipse-dirs "")
+  (setq jazzy/eclim-executable "")
+  (setq jazzy/eclimd-executable "")
+  (setq jazzy/eclimd-default-workspace "")
+
+  (setq jazzy/JAVA_HOME "/apollo/env/JavaSE8/jdk1.8")
+  (setq jazzy/JAVA "/apollo/env/JavaSE8/jdk1.8/bin/java"))
+
+
+(setenv "JAVA_HOME" jazzy/JAVA_HOME)
+(setenv "JAVA" jazzy/JAVA)
+
+
+;;;; eclim
+;; http://eclim.org/
 ;;
-
-;;;;;; end Alternative CEDET
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-
-
-
-
-;;;; CSCOPE
+;; Install eclim as described at http://eclim.org/install.html
 ;;
+;; Install eclipse installer
+;; $ brew cask install eclipse-java
+;; Configure Eclipse root: /User/$USER/Applications/Eclipse.app (Mac) or /opt/eclipse (Linux)
+;; Configure Eclipse workspace: /User/$USER/Workspace/eclipsews (Mac) or /home/$USER/Workspace/eclipsews (Linux)
 ;;
-;; Installation
-;; - Mac
-;;   $ brew install cscope
-;; TODO
-
-;;;; GTAGS
-(use-package ggtags
-  :ensure t)
-(add-hook 'c-mode-common-hook
-          (lambda ()
-            (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'asm-mode)
-              (ggtags-mode 1))))
-
-(define-key ggtags-mode-map (kbd "C-c g s") 'ggtags-find-other-symbol)
-(define-key ggtags-mode-map (kbd "C-c g h") 'ggtags-view-tag-history)
-(define-key ggtags-mode-map (kbd "C-c g r") 'ggtags-find-reference)
-(define-key ggtags-mode-map (kbd "C-c g f") 'ggtags-find-file)
-(define-key ggtags-mode-map (kbd "C-c g c") 'ggtags-create-tags)
-(define-key ggtags-mode-map (kbd "C-c g u") 'ggtags-update-tags)
-
-(define-key ggtags-mode-map (kbd "M-,") 'pop-tag-mark)
-
-;;;; Find files in Tags File
-;;;; https://www.emacswiki.org/emacs/InteractivelyDoThings#toc12
-;;(setq ggtags-completing-read-function
-;;      (lambda (&rest args)
-;;        (apply #'ido-completing-read
-;;               (car args)
-;;               (all-completions "" ggtags-completion-table)
-;;               (cddr args))))
+;; Download official eclim installer
+;; $ java -Dvim.skip=true -Declipse.home=/Users/$USER/Applications/Eclipse.app/Contents/Eclipse -jar eclim_X.X.X.jar install
+;;
+;; Start the eclim daemon
+;; $ $ECLIPSE_HOME/eclimd
+;;
+;; Install headless Eclipse
+(use-package emacs-eclim
+  :ensure t
+  :commands
+  (eclim-mode global-eclim-mode)
+  :init
+  ;; Eclipse installation
+  ;; Mac
+  (custom-set-variables
+   '(eclim-eclipse-dirs '(jazzy/eclim-eclipse-dirs))
+   '(eclim-executable jazzy/eclim-executable)
+   '(eclimd-executable jazzy/eclimd-executable)
+   '(eclimd-default-workspace jazzy/eclimd-default-workspace))
+  (require 'eclimd)
+  ;; add eclim hook
+  (add-hook 'java-mode-hook 'eclim-mode)
+  :config
+  (setq help-at-pt-display-when-idle t)
+  (setq help-at-pt-timer-delay 0.1)
+  (help-at-pt-set-timer)
+  :bind
+  ("C-c C-e p o" . eclim-project-open)
+  ("C-c C-e p m" . eclim-project-manage))
 
 
 ;;;;;; C/C++/Obj-C
@@ -305,7 +415,6 @@
 ;;
 (use-package irony
   :ensure t
-  :defer t
   :init
   (add-hook 'c++-mode-hook 'irony-mode)
   (add-hook 'c-mode-hook 'irony-mode)
@@ -321,78 +430,8 @@
   (add-hook 'irony-mode-hook 'jazzy/irony-mode-hook)
   (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options))
 
-;;;; company-mode/company-irony
-;; https://github.com/company-mode/company-mode
-;; https://github.com/Sarcasm/company-irony
-(use-package company
-  :ensure t
-  :defer t
-  :init (add-hook 'after-init-hook 'global-company-mode)
-  :config
   (use-package company-irony :ensure t :defer t)
   (use-package company-irony-c-headers :ensure t :defer t)
-  (setq company-idle-delay              nil
-	company-minimum-prefix-length   2
-	company-show-numbers            t
-	company-tooltip-limit           20
-	company-dabbrev-downcase        nil
-	company-backends                '((company-semantic company-irony-c-headers company-irony company-gtags))
-	;;company-backends                '((company-irony company-gtags))
-	)
-  :bind ("C-;" . company-complete-common))
-
-;;;; yasnippet
-;; https://github.com/capitaomorte/yasnippet
-;; http://capitaomorte.github.io/yasnippet/
-(use-package yasnippet
-  :ensure t
-  :defer t)
-(yas-global-mode 1)
-
-;; Integrate YASnippet with IDO
-(defun jazzy/yasnipet-ido-expand ()
-  "Lets you select (and expand) a yasnippet key"
-  (interactive)
-    (let ((original-point (point)))
-      (while (and
-              (not (= (point) (point-min) ))
-              (not
-               (string-match "[[:space:]\n]" (char-to-string (char-before)))))
-        (backward-word 1))
-    (let* ((init-word (point))
-           (word (buffer-substring init-word original-point))
-           (list (yas-active-keys)))
-      (goto-char original-point)
-      (let ((key (remove-if-not
-                  (lambda (s) (string-match (concat "^" word) s)) list)))
-        (if (= (length key) 1)
-            (setq key (pop key))
-          (setq key (ido-completing-read "key: " list nil nil word)))
-        (delete-char (- init-word original-point))
-        (insert key)
-        (yas-expand)))))
-
-(define-key yas-minor-mode-map (kbd "<C-tab>") 'jazzy/yasnipet-ido-expand)
-
-;;;; flycheck/flycheck-irony
-;; http://www.flycheck.org/
-;; https://github.com/Sarcasm/flycheck-irony
-(use-package flycheck
-  :ensure t
-  :defer t
-  :init
-  (add-hook 'c++-mode-hook 'flycheck-mode)
-  (add-hook 'c-mode-hook 'flycheck-mode)
-  :config
-  (use-package flycheck-irony :ensure t :defer t)
-  (add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
-
-;;;; flycheck-tip
-;; https://github.com/yuutayamada/flycheck-tip
-(use-package flycheck-tip
-  :ensure t
-  :config
-  (flycheck-tip-use-timer 'verbose))
 
 ;;;;; eldoc-mode
 ;; https://github.com/ikirill/irony-eldoc
@@ -447,17 +486,32 @@
 ;;;(add-hook 'c-mode-common-hook 'irony-mode-keys)
 
 
-;;;;;; Python
 
+;;;; GTAGS
+(use-package ggtags
+  :ensure t)
+(add-hook 'c-mode-common-hook
+          (lambda ()
+            (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'asm-mode)
+              (ggtags-mode 1))))
 
-;;;; Jedi (python autocompletion)
-;; TODO change to use the use-package
-;; TODO add doc
-(add-hook 'python-mode-hook 'jedi:setup)
-(setq jedi:server-args
-      '("--sys-path" "/usr/lib/python3/dist-packages"
-        "--sys-path" "/usr/local/lib/python3.4/dist-packages"))
-(setq jedi:complete-on-dot t)
+(define-key ggtags-mode-map (kbd "C-c g s") 'ggtags-find-other-symbol)
+(define-key ggtags-mode-map (kbd "C-c g h") 'ggtags-view-tag-history)
+(define-key ggtags-mode-map (kbd "C-c g r") 'ggtags-find-reference)
+(define-key ggtags-mode-map (kbd "C-c g f") 'ggtags-find-file)
+(define-key ggtags-mode-map (kbd "C-c g c") 'ggtags-create-tags)
+(define-key ggtags-mode-map (kbd "C-c g u") 'ggtags-update-tags)
+
+(define-key ggtags-mode-map (kbd "M-,") 'pop-tag-mark)
+
+;;;; Find files in Tags File
+;;;; https://www.emacswiki.org/emacs/InteractivelyDoThings#toc12
+;;(setq ggtags-completing-read-function
+;;      (lambda (&rest args)
+;;        (apply #'ido-completing-read
+;;               (car args)
+;;               (all-completions "" ggtags-completion-table)
+;;               (cddr args))))
 
 
 ;;;;;; Revision Control
@@ -519,9 +573,6 @@
 
 ;; optional key bindings, easier than hs defaults
 (define-key nxml-mode-map (kbd "C-c h") 'hs-toggle-hiding)
-
-
-
 
 
 
