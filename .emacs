@@ -1,8 +1,74 @@
-;;;;;
-;; Check to see if running on Mac OS X or some GNU/Linux distro
+;;;;; System Conditionals
 (defvar macosx-p (string= system-name "f45c89ad1c47.ant.amazon.com"))
 (defvar linux-p (string= system-name "ifrit"))
 (defvar amazonbox-p (string= system-name "search-dev-relevance-vmous-64004.pdx4.amazon.com"))
+
+
+;;;;;; General Settings
+
+
+;;;; Font: Adobe Source Code Pro
+;; https://github.com/adobe-fonts/source-code-pro
+;;
+;; Note: You need to install the fonts on your system in order for this
+;; to take effect.
+(set-default-font "Source Code Pro-12")
+(column-number-mode 1)
+(delete-selection-mode 1)
+(display-time)
+
+
+;;;; General Key Bindings
+(global-set-key (kbd "C-x c") 'customize)
+(global-set-key (kbd "C-x r p") 'string-insert-rectangle)
+;; windmove
+(global-set-key (kbd "C-c <left>") 'windmove-left)
+(global-set-key (kbd "C-c <right>") 'windmove-right)
+(global-set-key (kbd "C-c <up>") 'windmove-up)
+(global-set-key (kbd "C-c <down>") 'windmove-down)
+;; sr-speedbar
+(global-set-key (kbd "<f1>") 'sr-speedbar-toggle)
+
+(defun jazzy/delete-word (arg)
+  "Delete characters forward until encountering the end of a word.
+With argument, do this that many times.
+This command does not push text to `kill-ring'."
+  (interactive "p")
+  (delete-region
+   (point)
+   (progn
+     (forward-word arg)
+     (point))))
+(global-set-key (kbd "M-d") 'jazzy/delete-word)
+
+(defun jazzy/backward-delete-word (arg)
+  "Delete characters backward until encountering the beginning of a word.
+With argument, do this that many times.
+This command does not push text to `kill-ring'."
+  (interactive "p")
+  (my-delete-word (- arg)))
+(global-set-key (kbd "<M-backspace>") 'jazzy/backward-delete-word)
+
+(defun jazzy/delete-line ()
+  "Delete text from current position to end of line char.
+This command does not push text to `kill-ring'."
+  (interactive)
+  (delete-region
+   (point)
+   (progn (end-of-line 1) (point)))
+  (delete-char 1))
+(global-set-key (kbd "C-k") 'jazzy/delete-line)
+
+(defun jazzy/delete-line-backward ()
+  "Delete text between the beginning of the line to the cursor position.
+This command does not push text to `kill-ring'."
+  (interactive)
+  (let (p1 p2)
+    (setq p1 (point))
+    (beginning-of-line 1)
+    (setq p2 (point))
+    (delete-region p1 p2)))
+(global-set-key (kbd "C-S-k") 'jazzy/delete-line-backward) ;; Ctrl+Shift+k
 
 
 ;;;; customize
@@ -12,9 +78,15 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(column-number-mode t)
  '(custom-safe-themes
    (quote
     ("40f6a7af0dfad67c0d4df2a1dd86175436d79fc69ea61614d668a635c2cd94ab" "ff02e8e37c9cfd192d6a0cb29054777f5254c17b1bf42023ba52b65e4307b76a" default)))
+ '(display-time-mode t)
+ '(eclim-eclipse-dirs (quote (jazzy/eclim-eclipse-dirs)))
+ '(eclim-executable jazzy/eclim-executable)
+ '(eclimd-default-workspace jazzy/eclimd-default-workspace)
+ '(eclimd-executable jazzy/eclimd-executable)
  '(package-selected-packages
    (quote
     (highlight-symbol magit flycheck-tip irony-eldoc flycheck-irony flycheck company-irony-c-headers company-gtags company-irony company ggtags yasnippet sr-speedbar zenburn-theme which-key use-package smex ido-vertical-mode ido-ubiquitous flx-ido auto-complete))))
@@ -31,24 +103,6 @@
   ;; Fixing exec-path discrepancy between shell and Max OSX Finder launch 
   (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
   (setq exec-path (append exec-path '("/usr/local/bin"))))
-
-
-;;;; General Settings
-(column-number-mode 1)
-(delete-selection-mode 1)
-(display-time)
-
-
-;;;; General Key Bindings
-(global-set-key (kbd "C-x c") 'customize)
-(global-set-key (kbd "C-x r p") 'string-insert-rectangle)
-;; windmove
-(global-set-key (kbd "C-c <left>") 'windmove-left)
-(global-set-key (kbd "C-c <right>") 'windmove-right)
-(global-set-key (kbd "C-c <up>") 'windmove-up)
-(global-set-key (kbd "C-c <down>") 'windmove-down)
-;; sr-speedbar
-(global-set-key (kbd "<f1>") 'sr-speedbar-toggle)
 
 
 ;;;; package
@@ -151,6 +205,40 @@
   (which-key-setup-side-window-bottom))
 
 
+;;;;;; Editing
+
+
+;;;; highlight-symbol
+;; https://github.com/nschum/highlight-symbol.el
+(use-package highlight-symbol
+  :ensure t
+  :config
+  (set-face-attribute 'highlight-symbol-face nil
+		      :background "default")
+  (setq highlight-symbol-idle-delay 0)
+  (setq highlight-symbol-on-navigation-p t)
+  (add-hook 'prog-mode-hook #'highlight-symbol-mode)
+  (add-hook 'prog-mode-hook #'highlight-symbol-nav-mode))
+
+
+;;;; flyspell
+;; https://www.emacswiki.org/emacs/FlySpell
+;;
+;; Bellow the ispell probram is hunspell. You need to install it on your system:
+;; MacOSX: brew install hunspell
+;; Debian: sudo apt-get install hunspell
+;;
+;; Note: you might need to install the respective dictionaries as well.
+(use-package flyspell
+  :diminish " 🔡" ;; 🐝
+  :init
+  (add-hook 'org-mode-hook 'flyspell-mode)
+  ;; this enables flyspell for prog-modes
+  (add-hook 'prog-mode-hook 'flyspell-prog-mode)
+  :config
+  (setq-default ispell-program-name "hunspell"))
+
+
 ;;;; markdown-mode
 ;; http://jblevins.org/projects/markdown-mode/ 
 ;; For the preview required to install
@@ -174,7 +262,16 @@
 
 ;;;;;;;; Developement
 
-;;;;;; Generic
+
+;;;; magit
+;; https://github.com/magit/magit
+;; http://daemianmack.com/magit-cheatsheet.html
+(use-package magit
+  :ensure t
+  :config
+  (setq magit-completing-read-function 'magit-ido-completing-read)
+  :bind ("<f9>" . magit-status))
+
 
 ;;;; company-mode
 ;; https://github.com/company-mode/company-mode
@@ -182,14 +279,17 @@
   :ensure t
   :init (add-hook 'after-init-hook 'global-company-mode)
   :config
-  (setq company-idle-delay              nil
-	company-minimum-prefix-length   2
-	company-show-numbers            t
-	company-tooltip-limit           20
-	company-dabbrev-downcase        nil
-	company-backends                '((company-semantic company-irony-c-headers company-irony company-gtags company-emacs-eclim))
-	)
+  (setq company-idle-delay                nil
+        company-minimum-prefix-length     2
+        company-tooltip-align-annotations t
+        company-tooltip-flip-when-above   t
+        ;; Easy navigation to candidates with M-<n>
+        company-show-numbers              t
+        company-tooltip-limit             20
+        company-dabbrev-downcase          nil
+        company-backends                  '((company-semantic company-irony-c-headers company-irony company-gtags company-emacs-eclim)))
   :bind ("C-;" . company-complete-common))
+
 
 ;;;; yasnippet
 ;; https://github.com/capitaomorte/yasnippet
@@ -222,6 +322,7 @@
         (yas-expand)))))
 
 (define-key yas-minor-mode-map (kbd "<C-tab>") 'jazzy/yasnipet-ido-expand)
+
 
 ;;;; flycheck
 ;; http://www.flycheck.org/
@@ -275,6 +376,8 @@
 	'("--sys-path" "")))
 
 ;;;; Jedi
+;; https://github.com/tkf/emacs-jedi
+;;
 ;; The first time you need to install the Jedi server
 ;; M-x jedi:install-server
 ;;
@@ -290,9 +393,7 @@
   (setq jedi:complete-on-dot t))
 
 
-
 ;;;;;; Java
-
 
 
 (defvar jazzy/eclim-eclipse-dirs)
@@ -514,35 +615,6 @@
 ;;               (cddr args))))
 
 
-;;;;;; Revision Control
-
-
-;;;; magit
-;; https://github.com/magit/magit
-;; http://daemianmack.com/magit-cheatsheet.html
-(use-package magit
-  :ensure t
-  :config
-  (setq magit-completing-read-function 'magit-ido-completing-read)
-  :bind ("<f9>" . magit-status))
-
-
-;;;;;;; Editing
-
-
-(use-package highlight-symbol
-  :ensure t
-  :config
-  (set-face-attribute 'highlight-symbol-face nil
-		      :background "default")
-  (setq highlight-symbol-idle-delay 0)
-  (setq highlight-symbol-on-navigation-p t)
-  (add-hook 'prog-mode-hook #'highlight-symbol-mode)
-  (add-hook 'prog-mode-hook #'highlight-symbol-nav-mode))
-
-
-
-
 ;;;; CC-mode
 ;;(add-hook 'nxml-mode-hook '(lambda ()
 ;;        (setq ac-sources (append '(ac-source-semantic) ac-sources))
@@ -575,10 +647,7 @@
 (define-key nxml-mode-map (kbd "C-c h") 'hs-toggle-hiding)
 
 
-
-
 ;;;;;;; Networking
-
 
 
 ;;;; TRAMP (Transparent Remote Access, Multiple Protocols)
