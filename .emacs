@@ -481,6 +481,19 @@ This command does not push text to `kill-ring'."
   ("C-c C-e p m" . eclim-project-manage))
 
 
+;;;;;; Scala
+
+
+;;;; ENhanced Scala Interaction Mode for Emacs
+;; https://github.com/ensime
+;; http://ensime.github.io/
+(use-package ensime
+  :ensure t
+  :commands ensime ensime-mode
+  :init
+  (add-hook 'scala-mode-hook 'ensime-mode))
+
+
 ;;;;;; C/C++/Obj-C
 
 
