@@ -255,6 +255,13 @@ This command does not push text to `kill-ring'."
   :config
   (setq-default ispell-program-name "hunspell"))
 
+;;;; flyspell-correct-popup
+;; https://github.com/xuchunyang/flyspell-popup
+(use-package flyspell-correct-popup
+  :ensure t
+  :bind (:map flyspell-mode-map
+              ("C-;" . flyspell-correct-word-generic)))
+
 
 ;;;; markdown-mode
 ;; http://jblevins.org/projects/markdown-mode/ 
