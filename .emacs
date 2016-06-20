@@ -519,6 +519,18 @@ This command does not push text to `kill-ring'."
 ;;;; ENhanced Scala Interaction Mode for Emacs
 ;; https://github.com/ensime
 ;; http://ensime.github.io/
+;;
+;; Add the following three lines in your global sbt,
+;; e.g., ~/.sbt/0.13/plugins/plugins.sbt
+;;
+;; 1 resolvers += Resolver.sonatypeRepo("snapshots")
+;; 2
+;; 3 addSbtPlugin("org.ensime" % "ensime-sbt" % "0.1.5-SNAPSHOT")
+;;
+;; Then, in you project directory run:
+;; $ sbt gen-ensime
+;;
+;; Lastly, open a Scala buffer and use ```M-x ensime``` to start a connection.
 (use-package ensime
   :ensure t
   :commands ensime ensime-mode
