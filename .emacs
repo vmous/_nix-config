@@ -263,6 +263,12 @@ This command does not push text to `kill-ring'."
               ("C-;" . flyspell-correct-word-generic)))
 
 
+(use-package visual-regexp
+  :ensure t
+  :bind (("C-c r" . vr/replace)
+         ("C-c q" . vr/query-replace)))
+
+
 ;;;; markdown-mode
 ;; http://jblevins.org/projects/markdown-mode/ 
 ;; For the preview required to install
