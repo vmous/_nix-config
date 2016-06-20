@@ -7,6 +7,24 @@
 ;;;;;; General Settings
 
 
+;;(setq initial-scratch-message ";;
+;;;; I'm sorry, Emacs failed to start correctly.
+;;;; Hopefully the issue will be simple to resolve.
+;;;;
+;;;;                _.-^^---....,,--
+;;;;            _--                  --_
+;;;;           <          SONIC         >)
+;;;;           |       BOOOOOOOOM!       |
+;;;;            \._                   _./
+;;;;               ```--. . , ; .--'''
+;;;;                     | |   |
+;;;;                  .-=||  | |=-.
+;;;;                  `-=#$%&%$#=-'
+;;;;                     | ;  :|
+;;;;            _____.,-#%&$@%#&#~,._____
+;;")
+
+
 ;;;; Font: Adobe Source Code Pro
 ;; https://github.com/adobe-fonts/source-code-pro
 ;;
@@ -108,12 +126,11 @@ This command does not push text to `kill-ring'."
 ;;;; package
 ;; http://wikemacs.org/wiki/Package.el
 ;; http://www.emacswiki.org/emacs/ELPA
+(setq load-prefer-newer t)
+
 (require 'url-handlers) ;; TODO: This line is a workaround to fix a bug. Remove at some point!
 (require 'package)
-;;(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/") t)
-;;(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/") t)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
-;;(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
 (package-initialize)
 
 
@@ -288,6 +305,8 @@ This command does not push text to `kill-ring'."
         company-tooltip-limit             20
         company-dabbrev-downcase          nil
         company-backends                  '((company-semantic company-irony-c-headers company-irony company-gtags company-emacs-eclim)))
+  ;; https://github.com/emacsmirror/diminish
+  :diminish company-mode
   :bind ("C-;" . company-complete-common))
 
 
