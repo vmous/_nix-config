@@ -775,6 +775,9 @@ This command does not push text to `kill-ring'."
 ;;     ControlMaster auto
 ;;     ControlPersist yes
 ;; #+END_EXAMPLE
+;;
+;; Note: You might need to reload the fs attributes for ido autocompletion to
+;;       work with newly created files with TRAMP. To do so hit C-l.
 (use-package tramp
   :config
   (setq tramp-remote-path '(tramp-default-remote-path "/bin" "/usr/bin" "/sbin" "/usr/sbin")
