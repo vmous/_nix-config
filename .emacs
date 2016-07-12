@@ -92,6 +92,24 @@ This command does not push text to `kill-ring'."
     (delete-region p1 p2)))
 (global-set-key (kbd "C-S-k") 'jazzy/delete-line-backward) ;; Ctrl+Shift+k
 
+(defun jazzy/move-this-buffer-and-file ()
+  "Renames current buffer and file it is visiting."
+  (interactive)
+  (let ((name (buffer-name))
+        (filename (buffer-file-name)))
+    (if (not (and filename (file-exists-p filename)))
+        (error "Buffer '%s' is not visiting a file!" name)
+      (let ((new-name (read-file-name "New name: " filename)))
+        (cond ((get-buffer new-name)
+               (error "A buffer named '%s' already exists!" new-name))
+	      (t
+	       (rename-file filename new-name 1)
+               (rename-buffer new-name)
+               (set-visited-file-name new-name)
+               (set-buffer-modified-p nil)
+               (message "File '%s' successfully renamed to '%s'" name (file-name-nondirectory new-name))))))))
+(global-set-key (kbd "C-c m") 'jazzy/move-this-buffer-and-file)
+
 
 ;;;; customize
 ;; http://ergoemacs.org/emacs/emacs_custom_system.html
