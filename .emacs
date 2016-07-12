@@ -173,6 +173,15 @@ This command does not push text to `kill-ring'."
   :ensure t)
 (load-theme 'zenburn)
 
+;;;; window-numbering
+;; https://github.com/nschum/window-numbering.el
+(use-package window-numbering
+  :ensure t
+  :config
+  ;; highlight the window number in pink color
+  (custom-set-faces '(window-numbering-face
+		      ((t(:foreground "DeepPink" :underline "DeepPink" :weight bold)))))
+  (window-numbering-mode))
 
 ;;;; ido
 ;; http://wikemacs.org/wiki/Ido
