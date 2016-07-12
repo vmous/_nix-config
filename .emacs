@@ -272,26 +272,41 @@ This command does not push text to `kill-ring'."
 ;;;; flyspell
 ;; https://www.emacswiki.org/emacs/FlySpell
 ;;
-;; Bellow the ispell probram is hunspell. You need to install it on your system:
-;; MacOSX: brew install hunspell
-;; Debian: sudo apt-get install hunspell
+;; Bellow the ispell probram is hunspell (http://hunspell.github.io/).
+;; You need to install it on your system:
+;; - MacOSX: brew install hunspell
+;; - Debian: sudo apt-get install hunspell
 ;;
-;; Note: you might need to install the respective dictionaries as well.
+;; Check the following:
+;; $ hunspell -D
+;; If you don't find the dictionary you want in the output then do it manually.
+;; Go to LibreOffice repo: https://cgit.freedesktop.org/libreoffice/dictionaries/tree
+;; and whet *.aff *.dic into location ~/Library/Spelling/
 (use-package flyspell
-  :diminish " 🔡" ;; 🐝
+;;  :diminish " 🔡" ;; 🐝
   :init
   (add-hook 'org-mode-hook 'flyspell-mode)
   ;; this enables flyspell for prog-modes
   (add-hook 'prog-mode-hook 'flyspell-prog-mode)
   :config
-  (setq-default ispell-program-name "hunspell"))
+  (setq-default ispell-program-name "hunspell")
+  (setq ispell-dictionary "en_US")
+  (setq ispell-dictionary-alist
+	;; Please note the list `("-d" "en_US")` contains ACTUAL parameters passed to hunspell
+	;; You could use `("-d" "en_US,en_US-med")` to check with multiple dictionaries
+	'(("en_US" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_US") nil utf-8)
+;;	  ("el_GR" "[a-zA-Z``A_long_list_of_octal_characters'']" "[^[:alpha:]]" "[']" nil ("-d" "el_GR") nil utf-8)
+	  ))
+  )
 
-;;;; flyspell-correct-popup
+;;;; flyspell-popup
 ;; https://github.com/xuchunyang/flyspell-popup
-(use-package flyspell-correct-popup
+(use-package flyspell-popup
   :ensure t
+  :config
+  (add-hook 'flyspell-mode-hook #'flyspell-popup-auto-correct-mode)
   :bind (:map flyspell-mode-map
-              ("C-;" . flyspell-correct-word-generic)))
+              ("C-;" . flyspell-popup-correct)))
 
 
 (use-package visual-regexp
