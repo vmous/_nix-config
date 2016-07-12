@@ -67,15 +67,19 @@ This command does not push text to `kill-ring'."
   (my-delete-word (- arg)))
 (global-set-key (kbd "<M-backspace>") 'jazzy/backward-delete-word)
 
-(defun jazzy/delete-line ()
-  "Delete text from current position to end of line char.
-This command does not push text to `kill-ring'."
-  (interactive)
-  (delete-region
-   (point)
-   (progn (end-of-line 1) (point)))
-  (delete-char 1))
-(global-set-key (kbd "C-k") 'jazzy/delete-line)
+;; Commenting out the delete-line function.
+;; Pros: Does not add the deleted text to `kill-ring'
+;; Cons: I don't like removing the line and its '\n' char in one go
+;;
+;;(defun jazzy/delete-line ()
+;;  "Delete text from current position to end of line char.
+;;This command does not push text to `kill-ring'."
+;;  (interactive)
+;;  (delete-region
+;;   (point)
+;;   (progn (end-of-line 1) (point)))
+;;  (delete-char 1))
+;;(global-set-key (kbd "C-k") 'jazzy/delete-line)
 
 (defun jazzy/delete-line-backward ()
   "Delete text between the beginning of the line to the cursor position.
