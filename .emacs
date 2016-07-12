@@ -579,9 +579,19 @@ This command does not push text to `kill-ring'."
 ;; Lastly, open a Scala buffer and use ```M-x ensime``` to start a connection.
 (use-package ensime
   :ensure t
+  :after scala-mode
   :commands ensime ensime-mode
   :init
-  (add-hook 'scala-mode-hook 'ensime-mode))
+  (add-hook 'scala-mode-hook 'ensime-mode)
+  :config
+  ;; Adding asterisk in newline for multiline comments.
+  (defun lunaryorn-newline-and-indent-with-asterisk ()
+    (interactive)
+    (newline-and-indent)
+    (scala-indent:insert-asterisk-on-multiline-comment))
+
+  (define-key scala-mode-map (kbd "RET")
+    #'lunaryorn-newline-and-indent-with-asterisk))
 
 
 ;;;;;; C/C++/Obj-C
