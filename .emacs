@@ -346,7 +346,7 @@ This command does not push text to `kill-ring'."
   :ensure t
   :config
   (setq magit-completing-read-function 'magit-ido-completing-read)
-  :bind ("<f9>" . magit-status))
+  :bind ("C-c g s" . magit-status))
 
 
 ;;;; company-mode
