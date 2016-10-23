@@ -352,22 +352,19 @@ This command does not push text to `kill-ring'."
 ;;;; company-mode
 ;; https://github.com/company-mode/company-mode
 (use-package company
+  ;; https://github.com/emacsmirror/diminish
+  :diminish company-mode
   :ensure t
   :init (add-hook 'after-init-hook 'global-company-mode)
   :config
-  (setq company-idle-delay                nil
+  (setq company-idle-delay                1
         company-minimum-prefix-length     2
         company-tooltip-align-annotations t
         company-tooltip-flip-when-above   t
         ;; Easy navigation to candidates with M-<n>
         company-show-numbers              t
         company-tooltip-limit             20
-        company-dabbrev-downcase          nil
-        company-backends                  '((company-semantic company-irony-c-headers company-irony company-gtags company-emacs-eclim)))
-  ;; https://github.com/emacsmirror/diminish
-  :diminish company-mode
-  :bind ("C-;" . company-complete-common))
-
+        company-dabbrev-downcase          nil))
 
 ;;;; yasnippet
 ;; https://github.com/capitaomorte/yasnippet
