@@ -208,13 +208,21 @@ This command does not push text to `kill-ring'."
   :ensure t
   :init (flx-ido-mode 1))
 
-
 ;;;; ido-vertical-mode
 ;; https://github.com/creichert/ido-vertical-mode.el
-(use-package ido-vertical-mode
-  :ensure t
-  :init (ido-vertical-mode))
+;;(use-package ido-vertical-mode
+;;  :ensure t
+;;  :init (ido-vertical-mode)
+;;  :config
+;;  (setq ido-vertical-define-keys 'C-n-C-p-up-down-left-right))
 
+;;;; ido-grid-mode
+;; https://github.com/larkery/ido-grid-mode.el
+(use-package ido-grid-mode
+  :ensure t
+  :init (ido-grid-mode)
+  :config
+  (setq-default ido-grid-mode-prefix-scrolls t))
 
 ;;;; ido-ubiquitous
 ;; https://github.com/DarwinAwardWinner/ido-ubiquitous
