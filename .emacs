@@ -237,6 +237,13 @@ This command does not push text to `kill-ring'."
 	(let ((ido-ubiquitous-enable-compatibility nil))
 	  ad-do-it))))
 
+;;;; ido-occur
+;; https://github.com/danil/ido-occur
+(use-package ido-occur
+  :ensure t
+  :config
+  (define-key isearch-mode-map (kbd "C-o") 'ido-occur-from-isearch))
+
 
 ;;;; Smex
 ;; https://github.com/nonsequitur/smex
