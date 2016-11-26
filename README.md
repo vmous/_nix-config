@@ -1,3 +1,3 @@
-# linux-config
+# _nix-config
 
-Remembering the configuration of my Linux installation.
+Remembering the configuration of my *nix installations.
