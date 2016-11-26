@@ -183,6 +183,15 @@ This command does not push text to `kill-ring'."
 		      ((t(:foreground "DeepPink" :underline "DeepPink" :weight bold)))))
   (window-numbering-mode))
 
+
+;;;; popup-imenu
+;; https://github.com/ancane/popup-imenu
+(use-package popup-imenu
+  :ensure t
+  :commands popup-imenu
+  :bind ("M-i" . popup-imenu))
+
+
 ;;;; ido
 ;; http://wikemacs.org/wiki/Ido
 ;; http://www.gnu.org/software/emacs/manual/html_mono/ido.html
