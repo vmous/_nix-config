@@ -152,7 +152,13 @@ This command does not push text to `kill-ring'."
 
 (require 'url-handlers) ;; TODO: This line is a workaround to fix a bug. Remove at some point!
 (require 'package)
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+(setq
+ package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
+                    ("org" . "http://orgmode.org/elpa/")
+                    ("melpa" . "http://melpa.org/packages/")
+                    ("melpa-stable" . "http://stable.melpa.org/packages/"))
+ package-archive-priorities '(("melpa-stable" . 1)))
+
 (package-initialize)
 
 
@@ -600,6 +606,7 @@ This command does not push text to `kill-ring'."
 ;; Lastly, open a Scala buffer and use ```M-x ensime``` to start a connection.
 (use-package ensime
   :ensure t
+  :pin melpa-stable
   :after scala-mode
   :commands ensime ensime-mode
   :init
