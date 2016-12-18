@@ -46,6 +46,12 @@
 (global-set-key (kbd "C-c <down>") 'windmove-down)
 ;; sr-speedbar
 (global-set-key (kbd "<f1>") 'sr-speedbar-toggle)
+;; window resize
+(global-set-key (kbd "C-s-<left>") 'shrink-window-horizontally)
+(global-set-key (kbd "C-s-<right>") 'enlarge-window-horizontally)
+(global-set-key (kbd "C-s-<down>") 'shrink-window)
+(global-set-key (kbd "C-s-<up>") 'enlarge-window)
+
 
 (defun jazzy/delete-word (arg)
   "Delete characters forward until encountering the end of a word.
