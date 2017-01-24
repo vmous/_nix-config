@@ -34,6 +34,22 @@
 (column-number-mode 1)
 (delete-selection-mode 1)
 (display-time)
+;; backup files
+;; https://www.emacswiki.org/emacs/BackupDirectory
+(setq
+ ;; don't clobber symlinks
+ backup-by-copying t
+ ;; don't litter my fs tree
+ backup-directory-alist '(("." . "~/.emacs.d/backup"))
+ delete-old-versions t
+ kept-new-versions 6
+ kept-old-versions 2
+ ;; use versioned backups
+ version-control t)
+;;smooth scrolling
+(setq scroll-margin 5
+      scroll-conservatively 9999
+      scroll-step 1)
 
 
 ;;;; General Key Bindings
