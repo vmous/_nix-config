@@ -404,7 +404,11 @@ This command does not push text to `kill-ring'."
 ;; $ hunspell -D
 ;; If you don't find the dictionary you want in the output then do it manually.
 ;; Go to LibreOffice repo: https://cgit.freedesktop.org/libreoffice/dictionaries/tree
-;; and whet *.aff *.dic into location ~/Library/Spelling/
+;; and wget *.aff *.dic into location a designated location in your machine.
+;; The above command (hunspell -D) will tell you the default locations it searches.
+;; e.g. Mac:    ~/Library/Spelling/
+;;      AL2002: ~/.openoffice.org2/user/wordbook/
+;;
 (use-package flyspell
 ;;  :diminish " 🔡" ;; 🐝
   :init
