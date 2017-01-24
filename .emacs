@@ -31,8 +31,8 @@
 ;; Note: You need to install the fonts on your system in order for this
 ;; to take effect.
 (set-default-font "Source Code Pro-12")
-(column-number-mode 1)
-(delete-selection-mode 1)
+(column-number-mode t)
+(delete-selection-mode t)
 (display-time)
 ;; backup files
 ;; https://www.emacswiki.org/emacs/BackupDirectory
@@ -61,7 +61,7 @@
 (global-set-key (kbd "C-c <up>") 'windmove-up)
 (global-set-key (kbd "C-c <down>") 'windmove-down)
 ;; sr-speedbar
-(global-set-key (kbd "<f1>") 'sr-speedbar-toggle)
+;;(global-set-key (kbd "<f1>") 'sr-speedbar-toggle)
 ;; window resize
 (global-set-key (kbd "C-s-<left>") 'shrink-window-horizontally)
 (global-set-key (kbd "C-s-<right>") 'enlarge-window-horizontally)
@@ -140,18 +140,13 @@ This command does not push text to `kill-ring'."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(column-number-mode t)
  '(custom-safe-themes
    (quote
     ("40f6a7af0dfad67c0d4df2a1dd86175436d79fc69ea61614d668a635c2cd94ab" "ff02e8e37c9cfd192d6a0cb29054777f5254c17b1bf42023ba52b65e4307b76a" default)))
  '(display-time-mode t)
- '(eclim-eclipse-dirs (quote (jazzy/eclim-eclipse-dirs)))
- '(eclim-executable jazzy/eclim-executable)
- '(eclimd-default-workspace jazzy/eclimd-default-workspace)
- '(eclimd-executable jazzy/eclimd-executable)
  '(package-selected-packages
    (quote
-    (highlight-symbol magit flycheck-tip irony-eldoc flycheck-irony flycheck company-irony-c-headers company-gtags company-irony company ggtags yasnippet sr-speedbar zenburn-theme which-key use-package smex ido-vertical-mode ido-ubiquitous flx-ido auto-complete))))
+    (highlight-symbol magit flycheck-tip irony-eldoc flycheck-irony flycheck company-irony-c-headers company-gtags company-irony company ggtags yasnippet zenburn-theme which-key use-package smex ido-vertical-mode ido-ubiquitous flx-ido auto-complete))))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -590,10 +585,10 @@ This command does not push text to `kill-ring'."
 ;;;;;; Java
 
 
-(defvar jazzy/eclim-eclipse-dirs)
-(defvar jazzy/eclim-executable)
-(defvar jazzy/eclimd-executable)
-(defvar jazzy/eclimd-default-workspace)
+;;(defvar jazzy/eclim-eclipse-dirs)
+;;(defvar jazzy/eclim-executable)
+;;(defvar jazzy/eclimd-executable)
+;;(defvar jazzy/eclimd-default-workspace)
 
 
 (defvar jazzy/JAVA_HOME)
@@ -601,30 +596,30 @@ This command does not push text to `kill-ring'."
 
 
 (when macosx-p
-  (setq jazzy/eclim-eclipse-dirs "/Users/vmous/Applications/Eclipse.app/Contents/Eclipse")
-  (setq jazzy/eclim-executable "/Users/vmous/Applications/Eclipse.app/Contents/Eclipse/eclim")
-  (setq jazzy/eclimd-executable "/Users/vmous/Applications/Eclipse.app/Contents/Eclipse/eclimd")
-  (setq jazzy/eclimd-default-workspace "/Users/vmous/Workspace/eclipsews")
+;;  (setq jazzy/eclim-eclipse-dirs "/Users/vmous/Applications/Eclipse.app/Contents/Eclipse")
+;;  (setq jazzy/eclim-executable "/Users/vmous/Applications/Eclipse.app/Contents/Eclipse/eclim")
+;;  (setq jazzy/eclimd-executable "/Users/vmous/Applications/Eclipse.app/Contents/Eclipse/eclimd")
+;;  (setq jazzy/eclimd-default-workspace "/Users/vmous/Workspace/eclipsews")
 
   (setq jazzy/JAVA_HOME "/Library/Java/JavaVirtualMachines/jdk1.8.0_101.jdk/Contents/Home")
   (setq jazzy/JAVA "/Library/Java/JavaVirtualMachines/jdk1.8.0_101.jdk/Contents/Home/bin/java"))
 
 
 (when linux-p
-  (setq jazzy/eclim-eclipse-dirs "")
-  (setq jazzy/eclim-executable "")
-  (setq jazzy/eclimd-executable "")
-  (setq jazzy/eclimd-default-workspace "")
+;;  (setq jazzy/eclim-eclipse-dirs "")
+;;  (setq jazzy/eclim-executable "")
+;;  (setq jazzy/eclimd-executable "")
+;;  (setq jazzy/eclimd-default-workspace "")
 
   (setq jazzy/JAVA_HOME "")
   (setq jazzy/JAVA ""))
 
 
 (when amazonbox-p
-  (setq jazzy/eclim-eclipse-dirs "")
-  (setq jazzy/eclim-executable "")
-  (setq jazzy/eclimd-executable "")
-  (setq jazzy/eclimd-default-workspace "")
+;;  (setq jazzy/eclim-eclipse-dirs "")
+;;  (setq jazzy/eclim-executable "")
+;;  (setq jazzy/eclimd-executable "")
+;;  (setq jazzy/eclimd-default-workspace "")
 
   (setq jazzy/JAVA_HOME "/apollo/env/JavaSE8/jdk1.8")
   (setq jazzy/JAVA "/apollo/env/JavaSE8/jdk1.8/bin/java"))
@@ -634,45 +629,45 @@ This command does not push text to `kill-ring'."
 (setenv "JAVA" jazzy/JAVA)
 
 
-;;;; eclim
-;; http://eclim.org/
-;;
-;; Install eclim as described at http://eclim.org/install.html
-;;
-;; Install eclipse installer
-;; $ brew cask install eclipse-java
-;; Configure Eclipse root: /User/$USER/Applications/Eclipse.app (Mac) or /opt/eclipse (Linux)
-;; Configure Eclipse workspace: /User/$USER/Workspace/eclipsews (Mac) or /home/$USER/Workspace/eclipsews (Linux)
-;;
-;; Download official eclim installer
-;; $ java -Dvim.skip=true -Declipse.home=/Users/$USER/Applications/Eclipse.app/Contents/Eclipse -jar eclim_X.X.X.jar install
-;;
-;; Start the eclim daemon
-;; $ $ECLIPSE_HOME/eclimd
-;;
-;; Install headless Eclipse
-(use-package emacs-eclim
-  :ensure t
-  :commands
-  (eclim-mode global-eclim-mode)
-  :init
-  ;; Eclipse installation
-  ;; Mac
-  (custom-set-variables
-   '(eclim-eclipse-dirs '(jazzy/eclim-eclipse-dirs))
-   '(eclim-executable jazzy/eclim-executable)
-   '(eclimd-executable jazzy/eclimd-executable)
-   '(eclimd-default-workspace jazzy/eclimd-default-workspace))
-  (require 'eclimd)
-  ;; add eclim hook
-  (add-hook 'java-mode-hook 'eclim-mode)
-  :config
-  (setq help-at-pt-display-when-idle t)
-  (setq help-at-pt-timer-delay 0.1)
-  (help-at-pt-set-timer)
-  :bind
-  ("C-c C-e p o" . eclim-project-open)
-  ("C-c C-e p m" . eclim-project-manage))
+;;;;;; eclim
+;;;; http://eclim.org/
+;;;;
+;;;; Install eclim as described at http://eclim.org/install.html
+;;;;
+;;;; Install eclipse installer
+;;;; $ brew cask install eclipse-java
+;;;; Configure Eclipse root: /User/$USER/Applications/Eclipse.app (Mac) or /opt/eclipse (Linux)
+;;;; Configure Eclipse workspace: /User/$USER/Workspace/eclipsews (Mac) or /home/$USER/Workspace/eclipsews (Linux)
+;;;;
+;;;; Download official eclim installer
+;;;; $ java -Dvim.skip=true -Declipse.home=/Users/$USER/Applications/Eclipse.app/Contents/Eclipse -jar eclim_X.X.X.jar install
+;;;;
+;;;; Start the eclim daemon
+;;;; $ $ECLIPSE_HOME/eclimd
+;;;;
+;;;; Install headless Eclipse
+;;(use-package emacs-eclim
+;;  :ensure t
+;;  :commands
+;;  (eclim-mode global-eclim-mode)
+;;  :init
+;;  ;; Eclipse installation
+;;  ;; Mac
+;;  (custom-set-variables
+;;   '(eclim-eclipse-dirs '(jazzy/eclim-eclipse-dirs))
+;;   '(eclim-executable jazzy/eclim-executable)
+;;   '(eclimd-executable jazzy/eclimd-executable)
+;;   '(eclimd-default-workspace jazzy/eclimd-default-workspace))
+;;  (require 'eclimd)
+;;  ;; add eclim hook
+;;  (add-hook 'java-mode-hook 'eclim-mode)
+;;  :config
+;;  (setq help-at-pt-display-when-idle t)
+;;  (setq help-at-pt-timer-delay 0.1)
+;;  (help-at-pt-set-timer)
+;;  :bind
+;;  ("C-c C-e p o" . eclim-project-open)
+;;  ("C-c C-e p m" . eclim-project-manage))
 
 
 ;;;;;; Scala
@@ -773,16 +768,16 @@ This command does not push text to `kill-ring'."
   (add-hook 'irony-mode-hook 'irony-eldoc))
 
 ;;;; SrSpeedbar
-(use-package sr-speedbar
-  :ensure t
-  :config
-  (setq speedbar-use-images nil
-	sr-speedbar-right-side nil
-	sr-speedbar-width-x 8
-	sr-speedbar-width-console 8
-	sr-speedbar-max-width 8
-	sr-speedbar-skip-other-window-p t
-	sr-speedbar-delete-windows t))
+;;(use-package sr-speedbar
+;;  :ensure t
+;;  :config
+;;  (setq speedbar-use-images nil
+;;	sr-speedbar-right-side nil
+;;	sr-speedbar-width-x 8
+;;	sr-speedbar-width-console 8
+;;	sr-speedbar-max-width 8
+;;	sr-speedbar-skip-other-window-p t
+;;	sr-speedbar-delete-windows t))
 
 ;;;; (optional) adds CC special commands to `company-begin-commands' in order to
 ;;;; trigger completion at interesting places, such as after scope operator
