@@ -1,7 +1,7 @@
 ;;;;; System Conditionals
 (defvar macosx-p (string= system-name "f45c89ad1c47.ant.amazon.com"))
 (defvar linux-p (string= system-name "ifrit"))
-(defvar amazonbox-p (string= system-name "search-dev-relevance-vmous-64004.pdx4.amazon.com"))
+(defvar amazonbox-p (string= system-name "dev-dsk-vmous-1a-e6e2518a.eu-west-1.amazon.com"))
 
 
 ;;;;;; General Settings
@@ -142,7 +142,7 @@ This command does not push text to `kill-ring'."
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
    (quote
-    ("40f6a7af0dfad67c0d4df2a1dd86175436d79fc69ea61614d668a635c2cd94ab" "ff02e8e37c9cfd192d6a0cb29054777f5254c17b1bf42023ba52b65e4307b76a" default)))
+    ("4e753673a37c71b07e3026be75dc6af3efbac5ce335f3707b7d6a110ecb636a3" "afbb40954f67924d3153f27b6d3399df221b2050f2a72eb2cfa8d29ca783c5a8" default)))
  '(ensime-goto-test-config-defaults
    (quote
     (:test-class-names-fn ensime-goto-test--test-class-names :test-class-suffixes
