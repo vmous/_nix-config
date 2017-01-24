@@ -143,10 +143,14 @@ This command does not push text to `kill-ring'."
  '(custom-safe-themes
    (quote
     ("40f6a7af0dfad67c0d4df2a1dd86175436d79fc69ea61614d668a635c2cd94ab" "ff02e8e37c9cfd192d6a0cb29054777f5254c17b1bf42023ba52b65e4307b76a" default)))
- '(display-time-mode t)
+ '(ensime-goto-test-config-defaults
+   (quote
+    (:test-class-names-fn ensime-goto-test--test-class-names :test-class-suffixes
+			  ("Suite" "Spec" "Test" "Check" "Specification")
+			  :impl-class-name-fn ensime-goto-test--impl-class-name :impl-to-test-dir-fn ensime-goto-test--impl-to-test-dir :is-test-dir-fn ensime-goto-test--is-test-dir :test-template-fn ensime-goto-test--test-template-scalatest-funsuite)))
  '(package-selected-packages
    (quote
-    (highlight-symbol magit flycheck-tip irony-eldoc flycheck-irony flycheck company-irony-c-headers company-gtags company-irony company ggtags yasnippet zenburn-theme which-key use-package smex ido-vertical-mode ido-ubiquitous flx-ido auto-complete))))
+    (minimap sublimity ensime markdown-preview-eww markdown-preview-mode markdown-mode+ jedi java-snippets projectile markdown-mode visual-regexp flyspell-popup smartparens ido-grid-mode popup-imenu neotree window-numbering scala-mode ido-occur impatient-mode flycheck-pos-tip highlight-symbol magit flycheck-tip irony-eldoc flycheck-irony flycheck company-irony-c-headers company-gtags company-irony company ggtags yasnippet sr-speedbar zenburn-theme which-key use-package smex ido-vertical-mode ido-ubiquitous flx-ido auto-complete))))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -363,10 +367,22 @@ This command does not push text to `kill-ring'."
   :bind ("<f7>" . minimap-mode))
 
 
+;;;; code/smartparens
+;; http://emacsredux.com/blog/2013/11/01/highlight-matching-delimiters-with-smartparens/
+(use-package smartparens-config
+  :ensure smartparens
+  ;; :diminish -mode "()")
+  :config
+  (smartparens-global-mode +1)
+  (show-smartparens-global-mode +1)
+  (sp-with-modes '(html-mode sgml-mode)
+    (sp-local-pair "<" ">")))
+
 ;;;; highlight-symbol
 ;; https://github.com/nschum/highlight-symbol.el
 (use-package highlight-symbol
   :ensure t
+  :diminish highlight-symbol-mode
   :config
   (set-face-attribute 'highlight-symbol-face nil
 		      :background "default")
@@ -466,13 +482,14 @@ This command does not push text to `kill-ring'."
   :init (add-hook 'after-init-hook 'global-company-mode)
   :config
   (setq company-idle-delay                1
-        company-minimum-prefix-length     2
+        company-minimum-prefix-length     1
         company-tooltip-align-annotations t
         company-tooltip-flip-when-above   t
         ;; Easy navigation to candidates with M-<n>
         company-show-numbers              t
         company-tooltip-limit             20
         company-dabbrev-downcase          nil))
+
 
 ;;;; yasnippet
 ;; https://github.com/capitaomorte/yasnippet
@@ -525,12 +542,12 @@ This command does not push text to `kill-ring'."
   (use-package flycheck-irony :ensure)
   (add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
 
-;;;; flycheck-tip
-;; https://github.com/yuutayamada/flycheck-tip
-(use-package flycheck-tip
+;;;; flycheck-pos-tip
+;; https://github.com/flycheck/flycheck-pos-tip
+(use-package flycheck-pos-tip
   :ensure t
   :config
-  (flycheck-tip-use-timer 'verbose))
+  (flycheck-pos-tip-mode))
 
 
 
@@ -673,6 +690,18 @@ This command does not push text to `kill-ring'."
 ;;;;;; Scala
 
 
+;;;; Scala mode
+;; https://github.com/ensime/emacs-scala-mode
+(use-package scala-mode
+  :ensure t
+  :init
+  (add-hook 'scala-mode-hook (lambda ()
+			       (setq prettify-symbols-alist scala-prettify-symbols-alist)
+			       (prettify-symbols-mode)))
+  :interpreter
+  ("scala" . scala-mode))
+
+
 ;;;; ENhanced Scala Interaction Mode for Emacs
 ;; https://github.com/ensime
 ;; http://ensime.github.io/
@@ -680,12 +709,16 @@ This command does not push text to `kill-ring'."
 ;; Add the following three lines in your global sbt,
 ;; e.g., ~/.sbt/0.13/plugins/plugins.sbt
 ;;
-;; 1 resolvers += Resolver.sonatypeRepo("snapshots")
-;; 2
-;; 3 addSbtPlugin("org.ensime" % "ensime-sbt" % "0.1.5-SNAPSHOT")
+;; ```sbt
+;; 1 if (sys.props("java.version").startsWith("1.6"))
+;; 2   addSbtPlugin("org.ensime" % "sbt-ensime" % "1.0.0")
+;; 3 else
+;; 4   addSbtPlugin("org.ensime" % "sbt-ensime" % "1.11.0")
+;; ```
 ;;
 ;; Then, in you project directory run:
-;; $ sbt gen-ensime
+;; $ sbt ensimeConfig
+;; $ sbt ensimeConfigProject
 ;;
 ;; Lastly, open a Scala buffer and use ```M-x ensime``` to start a connection.
 (use-package ensime
@@ -695,15 +728,69 @@ This command does not push text to `kill-ring'."
   :commands ensime ensime-mode
   :init
   (add-hook 'scala-mode-hook 'ensime-mode)
+  (defun ensime-goto-test--test-template-scalatest-wordspec-2 ()
+  "ENSIME template for ScalaCheck WordSpec style test."
+  "package %TESTPACKAGE%
+
+import org.scalatest.{ BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpec }
+
+class %TESTCLASS% extends WordSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll {
+
+  override def beforeAll() = {
+  }
+
+  after {
+  }
+
+  \"\" should {
+    \"\" in pending
+  }
+
+}
+")
+  (defun ensime-goto-test--test-template-scalatest-funsuite ()
+  "ENSIME template for ScalaCheck FunSuite style test."
+  "package %TESTPACKAGE%
+
+import org.scalatest.FunSuite
+
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+
+@RunWith(classOf[JUnitRunner])
+class %TESTCLASS% extends FunSuite {
+
+  test(\"Testing\") {
+    assert(true)
+  }
+
+}
+")
+  (custom-set-variables
+   '(ensime-goto-test-config-defaults
+     (quote (:test-class-names-fn ensime-goto-test--test-class-names
+				  :test-class-suffixes ("Suite" "Spec" "Test" "Check" "Specification")
+				  :impl-class-name-fn ensime-goto-test--impl-class-name
+				  :impl-to-test-dir-fn ensime-goto-test--impl-to-test-dir
+				  :is-test-dir-fn ensime-goto-test--is-test-dir
+				  :test-template-fn ensime-goto-test--test-template-scalatest-funsuite))))
   :config
+  ;; Disable message for tracking SNAPSHOT version of ensime-server
+  (setq ensime-startup-snapshot-notification nil
+	ensime-graphical-tooltips t
+	ensime-auto-generate-config t
+	ensime-completion-style 'company)
+  (push '(ensime-company) company-backends)
   ;; Adding asterisk in newline for multiline comments.
   (defun lunaryorn-newline-and-indent-with-asterisk ()
     (interactive)
     (newline-and-indent)
     (scala-indent:insert-asterisk-on-multiline-comment))
-
+  (define-key ensime-mode-map (kbd "C-c C-v m") 'ensime-import-type-at-point)
+  (define-key ensime-mode-map (kbd "C-c C-v M") 'ensime-imported-type-path-at-point)
   (define-key scala-mode-map (kbd "RET")
-    #'lunaryorn-newline-and-indent-with-asterisk))
+    #'lunaryorn-newline-and-indent-with-asterisk)
+  (define-key scala-mode-map (kbd "C-c C-v c") 'sbt-clear))
 
 
 ;;;;;; C/C++/Obj-C
