@@ -463,6 +463,12 @@ This command does not push text to `kill-ring'."
   (flycheck-tip-use-timer 'verbose))
 
 
+
+;;;;;; EMACS Lisp
+(add-hook 'emacs-lisp-mode-hook 'prettify-symbols-mode)
+
+
+
 ;;;;;; Python
 
 
