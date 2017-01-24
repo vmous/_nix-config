@@ -832,3 +832,12 @@ This command does not push text to `kill-ring'."
 ;;;; * auto encrypt/decrypt gpg files
 (require 'epa-file)
 (epa-file-enable)
+
+
+;;;;;; HTML
+
+
+;;;; impatient-mode
+;; https://github.com/skeeto/impatient-mode
+(use-package impatient-mode
+  :ensure t)
