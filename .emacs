@@ -203,6 +203,33 @@ This command does not push text to `kill-ring'."
   :ensure t)
 (load-theme 'zenburn)
 
+
+;;;; time
+;;
+(use-package time
+  :bind (("C-c a c" . display-time-world))
+  :config
+  (setq display-time-world-time-format "%H:%M %Z, %d. %b"
+        display-time-world-list '(("Europe/Berlin"    "Berlin")
+                                  ("Europe/London"    "London")
+                                  ("Europe/Istanbul"  "Istanbul")
+                                  ("America/Winnipeg" "Winnipeg (CA)")
+                                  ("America/New_York" "New York (USA)")
+                                  ("Asia/Tokyo"       "Tokyo (JP)"))))
+
+
+;;;; desktop
+;; https://www.emacswiki.org/emacs/Desktop
+(use-package desktop
+  :ensure t
+  :config
+  (setq desktop-auto-save-timeout 3600
+	desktop-file-not-to-save nil
+	desktop-buffers-not-to-save "^$")
+  (desktop-save-mode)
+  (save-place-mode 1))
+
+
 ;;;; window-numbering
 ;; https://github.com/nschum/window-numbering.el
 (use-package window-numbering
@@ -212,6 +239,27 @@ This command does not push text to `kill-ring'."
   (custom-set-faces '(window-numbering-face
 		      ((t(:foreground "DeepPink" :underline "DeepPink" :weight bold)))))
   (window-numbering-mode))
+
+
+(use-package shell
+  :ensure t
+  :config
+  (define-key comint-mode-map (kbd "<up>") 'comint-previous-input)
+  (define-key comint-mode-map (kbd "<down>") 'comint-next-input))
+
+
+;;;; neotree
+;; https://github.com/jaypei/emacs-neotree
+(use-package neotree
+  :ensure t
+  :config
+  (setq neo-smart-open t)
+  (setq-default neo-dont-be-alone t)
+  ;; work with projectile
+  (setq projectile-switch-project-action 'neotree-projectile-action)
+  (setq neo-theme 'ascii) ; 'classic, 'nerd, 'ascii, 'arrow
+  :bind
+  ("<f8>" . neotree-toggle))
 
 
 ;;;; popup-imenu
@@ -240,6 +288,10 @@ This command does not push text to `kill-ring'."
 	;; disable ido faces to see flx highlights.
 	ido-use-faces nil))
 
+;;(add-to-list 'load-path "~/.emacs.d/myels/")
+;;(load "ido-describe-prefix-bindings.el")
+;;(require 'ido-describe-prefix-bindings)
+;;(ido-describe-prefix-bindings-mode)
 
 ;;;; flx-ido
 ;; https://github.com/lewang/flx
@@ -296,6 +348,7 @@ This command does not push text to `kill-ring'."
 
 
 ;;;; which-key
+;; TODO: Check "ido-describe-prefix-bindings.el" for an alternative
 ;; https://github.com/justbur/emacs-which-key
 (use-package which-key
   :ensure t
@@ -308,6 +361,12 @@ This command does not push text to `kill-ring'."
 
 
 ;;;;;; Editing
+
+;;;; minimap
+;; https://github.com/dengste/minimap
+(use-package minimap
+  :ensure t
+  :bind ("<f7>" . minimap-mode))
 
 
 ;;;; highlight-symbol
