@@ -150,7 +150,7 @@ This command does not push text to `kill-ring'."
 			  :impl-class-name-fn ensime-goto-test--impl-class-name :impl-to-test-dir-fn ensime-goto-test--impl-to-test-dir :is-test-dir-fn ensime-goto-test--is-test-dir :test-template-fn ensime-goto-test--test-template-scalatest-funsuite)))
  '(package-selected-packages
    (quote
-    (minimap sublimity ensime markdown-preview-eww markdown-preview-mode markdown-mode+ jedi java-snippets projectile markdown-mode visual-regexp flyspell-popup smartparens ido-grid-mode popup-imenu neotree window-numbering scala-mode ido-occur impatient-mode flycheck-pos-tip highlight-symbol magit flycheck-tip irony-eldoc flycheck-irony flycheck company-irony-c-headers company-gtags company-irony company ggtags yasnippet sr-speedbar zenburn-theme which-key use-package smex ido-vertical-mode ido-ubiquitous flx-ido auto-complete))))
+    (minimap sublimity ensime markdown-preview-eww markdown-preview-mode markdown-mode+ jedi java-snippets projectile markdown-mode visual-regexp flyspell-popup smartparens ido-grid-mode popup-imenu window-numbering scala-mode ido-occur impatient-mode flycheck-pos-tip highlight-symbol magit flycheck-tip irony-eldoc flycheck-irony flycheck company-irony-c-headers company-gtags company-irony company ggtags yasnippet sr-speedbar zenburn-theme which-key use-package smex ido-vertical-mode ido-ubiquitous flx-ido auto-complete))))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -246,18 +246,18 @@ This command does not push text to `kill-ring'."
   (define-key comint-mode-map (kbd "<down>") 'comint-next-input))
 
 
-;;;; neotree
-;; https://github.com/jaypei/emacs-neotree
-(use-package neotree
-  :ensure t
-  :config
-  (setq neo-smart-open t)
-  (setq-default neo-dont-be-alone t)
-  ;; work with projectile
-  (setq projectile-switch-project-action 'neotree-projectile-action)
-  (setq neo-theme 'ascii) ; 'classic, 'nerd, 'ascii, 'arrow
-  :bind
-  ("<f8>" . neotree-toggle))
+;;;;;; neotree
+;;;; https://github.com/jaypei/emacs-neotree
+;;(use-package neotree
+;;  :ensure t
+;;  :config
+;;  (setq neo-smart-open t)
+;;  (setq-default neo-dont-be-alone t)
+;;  ;; work with projectile
+;;  (setq projectile-switch-project-action 'neotree-projectile-action)
+;;  (setq neo-theme 'ascii) ; 'classic, 'nerd, 'ascii, 'arrow
+;;  :bind
+;;  ("<f8>" . neotree-toggle))
 
 
 ;;;; popup-imenu
