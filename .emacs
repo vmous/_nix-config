@@ -360,12 +360,6 @@ This command does not push text to `kill-ring'."
 
 ;;;;;; Editing
 
-;;;; minimap
-;; https://github.com/dengste/minimap
-(use-package minimap
-  :ensure t
-  :bind ("<f7>" . minimap-mode))
-
 
 ;;;; code/smartparens
 ;; http://emacsredux.com/blog/2013/11/01/highlight-matching-delimiters-with-smartparens/
