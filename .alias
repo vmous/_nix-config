@@ -154,4 +154,19 @@ alias j-aws-relcon-admin='/apollo/bin/env -e envImprovement aws-console-access c
 #-------------------------------------------------------------
 alias jssh_tunnel_fresca='ssh -N -D 2600 -f security-bastions-prod-iad.amazon.com -o ServerAliveInterval=60'
 alias jssh_tunnel_spark_gamma='ssh -i ~/emr-gamma -N -D 8157 hadoop@ec2-54-147-186-124.compute-1.amazonaws.com -o ServerAliveInterval=60'
-alias j-aws-ship-emr-gamma='/usr/bin/scp -i ~/emr-gamma ./build/assembly/*.uber.jar hadoop@ec2-54-147-186-124.compute-1.amazonaws.com:~/vmous/'
+function_jscp_ship_spark_gamma() {
+  local _source_jar="./build/Scala2.11/*.jar"
+  local _target_dir="hadoop@ec2-54-147-186-124.compute-1.amazonaws.com:~/vmous/"
+  if [ ! $# -eq 0 ]; then
+    if [ $1 = "jarjar" ]; then
+      _source_jar="./build/assembly/*.uber.jar"
+    else
+      echo "Cannot understand $1. Aborting"
+      return
+    fi
+  fi
+  echo "Shipping ${_source_jar} to ${_target_dir}."
+  /usr/bin/scp -i ~/emr-gamma ${_source_jar} ${_target_dir}
+
+}
+alias jscp_ship_spark_gamma=function_jscp_ship_spark_gamma
