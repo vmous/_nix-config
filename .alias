@@ -60,6 +60,10 @@ function_jtmux() {
 }
 alias jtmux=function_jtmux
 
+# 
+alias du-hog-f='du -h . | sort -nr | head -n10'
+alias du-hog-d='du -hs * | sort -nr | head -n10'
+
 alias simpleserver='python -m SimpleHTTPServer'
 
 #-------------------------------------------------------------
