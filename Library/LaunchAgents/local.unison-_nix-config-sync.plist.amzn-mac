@@ -10,7 +10,7 @@
 	<key>KeepAlive</key>
 	<true/>
 	<key>Label</key>
-	<string>local.unison-amzn-workplace-sync</string>
+	<string>local.unison-_nix-config-sync</string>
 	<key>Program</key>
 	<string>/usr/local/bin/unison</string>
 	<key>ProgramArguments</key>
@@ -18,7 +18,7 @@
 		<string>/usr/local/bin/unison</string>
 		<string>-ui</string>
 		<string>text</string>
-		<string>amzn-workplace-sync</string>
+		<string>_nix-conf-sync</string>
 	</array>
 	<key>StartInterval</key>
 	<integer>30</integer>
