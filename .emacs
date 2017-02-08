@@ -150,7 +150,7 @@ This command does not push text to `kill-ring'."
 			  :impl-class-name-fn ensime-goto-test--impl-class-name :impl-to-test-dir-fn ensime-goto-test--impl-to-test-dir :is-test-dir-fn ensime-goto-test--is-test-dir :test-template-fn ensime-goto-test--test-template-scalatest-funsuite)))
  '(package-selected-packages
    (quote
-    (minimap sublimity ensime markdown-preview-eww markdown-preview-mode markdown-mode+ jedi java-snippets projectile markdown-mode visual-regexp flyspell-popup smartparens ido-grid-mode popup-imenu window-numbering scala-mode ido-occur impatient-mode flycheck-pos-tip highlight-symbol magit flycheck-tip irony-eldoc flycheck-irony flycheck company-irony-c-headers company-gtags company-irony company ggtags yasnippet sr-speedbar zenburn-theme which-key use-package smex ido-vertical-mode ido-ubiquitous flx-ido auto-complete))))
+    (json-mode minimap sublimity ensime markdown-preview-eww markdown-preview-mode markdown-mode+ jedi java-snippets projectile markdown-mode visual-regexp flyspell-popup smartparens ido-grid-mode popup-imenu window-numbering scala-mode ido-occur impatient-mode flycheck-pos-tip highlight-symbol magit flycheck-tip irony-eldoc flycheck-irony flycheck company-irony-c-headers company-gtags company-irony company ggtags yasnippet sr-speedbar zenburn-theme which-key use-package smex ido-vertical-mode ido-ubiquitous flx-ido auto-complete))))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -553,7 +553,6 @@ This command does not push text to `kill-ring'."
 (add-hook 'emacs-lisp-mode-hook 'prettify-symbols-mode)
 
 
-
 ;;;;;; Python
 
 
@@ -684,6 +683,18 @@ This command does not push text to `kill-ring'."
 ;;  ("C-c C-e p o" . eclim-project-open)
 ;;  ("C-c C-e p m" . eclim-project-manage))
 
+
+;;;;;; Javascript
+
+;;;; JSON mode
+(use-package json-mode
+  :ensure t
+  :mode "\\.json"
+  :init
+  (add-hook 'json-mode-hook #'flycheck-mode)
+  :config
+  (setq json-reformat:indent-width 2)
+  (setq js-indent-level 2))
 
 ;;;;;; Scala
 
