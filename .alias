@@ -32,6 +32,8 @@ function_jtmux() {
   local _legal=true
   if [ $# -eq 0 ]; then
     tmux ls
+  elif [ $# -eq 1 ]; then
+    tmux attach -t "$1"
   elif [ $1 = "n" ] && [ ! -z "$2" ]; then
     tmux new -s "$2"
   elif [ $1 = "a" ] && [ ! -z "$2" ]; then
@@ -55,7 +57,7 @@ function_jtmux() {
 
   if [ "$_legal" = false ]; then
     echo "Illegal use of jtmux. Try:"
-    echo "tmux [n|a|r] <session>"
+    echo "tmux [n|a|r|] <session>"
   fi
 }
 alias jtmux=function_jtmux
@@ -92,8 +94,11 @@ alias jbws='jbw --show'
 alias jbwsm='jbw --sync --md'
 alias jbwu='jbw --use'
 alias jbwr='jbw --remove'
+alias jbwea='jbw attachenvironment --alias'
+alias jbwed='brazil ws detachenvironment --alias'
 alias jbwc-a9='jbwc -vs A9Search/main'
 alias jbwc-a9-meta='jbwc -vs A9Search/QueryConfigRelease-certified'
+alias jbwc-bdm-predict='jbwc -vs A9SearchBDMPredictionBuild/release'
 
 alias jbb='brazil-build'
 alias bb='jbb'
@@ -123,25 +128,8 @@ alias fresh='cd $PWD'
 alias jawdb='watch -t '\''ls -drt /apollo/var/logs/apollo-update* | xargs tail | strings | fold -w $COLUMNS | tail -n $LINES'\'''
 alias jaghc='/apollo/bin/getmyhostclass'
 alias jahc='/apollo/env/ApolloCommandLine/bin/apolloHostControlCLI --print'
-
-function_jaea() {
-  if [ $# -eq 0 ]; then
-    echo "Please provide the Apollo environment as argument"
-  else
-    sudo /apollo/bin/runCommand -e $1 -a Activate
-  fi
-}
-alias jaea=function_jaea
-
-function_jaed() {
-  if [ $# -eq 0 ]; then
-    echo "Please provide the Apollo environment as argument"
-  else
-    sudo /apollo/bin/runCommand -e $1 -a Activate
-  fi
-  sudo /apollo/bin/runCommand -e $1 -a Deactivate
-}
-alias jaed=function_jaed
+alias jaea='sudo /apollo/bin/runCommand -a Activate -e'
+alias jaed='sudo /apollo/bin/runCommand -a Deactivate -e'
 
 #-------------------------------------------------------------
 # AMAZON TOOLS
@@ -160,7 +148,7 @@ alias jssh_tunnel_fresca='ssh -N -D 2600 -f security-bastions-prod-iad.amazon.co
 alias jssh_tunnel_spark_gamma='ssh -i ~/emr-gamma -N -D 8157 hadoop@ec2-54-147-186-124.compute-1.amazonaws.com -o ServerAliveInterval=60'
 function_jscp_ship_spark_gamma() {
   local _source_jar="./build/Scala2.11/*.jar"
-  local _target_dir="hadoop@ec2-54-147-186-124.compute-1.amazonaws.com:~/vmous/"
+  local _target_dir="hadoop@ec2-54-147-186-124.compute-1.amazonaws.com:/mnt/user/vmous/"
   if [ ! $# -eq 0 ]; then
     if [ $1 = "jarjar" ]; then
       _source_jar="./build/assembly/*.uber.jar"
@@ -169,8 +157,9 @@ function_jscp_ship_spark_gamma() {
       return
     fi
   fi
-  echo "Shipping ${_source_jar} to ${_target_dir}."
-  /usr/bin/scp -i ~/emr-gamma ${_source_jar} ${_target_dir}
+  local _cmd="/usr/bin/scp -i ~/emr-gamma ${_source_jar} ${_target_dir}"
+  echo "Executing: ${_cmd}"
+  eval ${_cmd}
 
 }
 alias jscp_ship_spark_gamma=function_jscp_ship_spark_gamma
