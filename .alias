@@ -145,7 +145,7 @@ alias j-aws-relcon-admin='/apollo/bin/env -e envImprovement aws-console-access c
 # HADOOP/SPARK TOOLS
 #-------------------------------------------------------------
 alias jssh_tunnel_fresca='ssh -N -D 2600 -f security-bastions-prod-iad.amazon.com -o ServerAliveInterval=60'
-alias jssh_tunnel_spark_gamma='ssh -i ~/emr-gamma -N -D 8157 hadoop@ec2-54-147-186-124.compute-1.amazonaws.com -o ServerAliveInterval=60'
+alias jssh_tunnel_spark_gamma='ssh -N -D 8157 -f -i ~/emr-gamma hadoop@ec2-54-147-186-124.compute-1.amazonaws.com -o ServerAliveInterval=60'
 function_jscp_ship_spark_gamma() {
   local _source_jar="./build/Scala2.11/*.jar"
   local _target_dir="hadoop@ec2-54-147-186-124.compute-1.amazonaws.com:/mnt/user/vmous/"
