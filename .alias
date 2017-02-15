@@ -23,9 +23,18 @@ alias ups='ps axo pid,user,args'
 alias aps='ps axo pid,ppid,user,pcpu,vsz,etime,args'
 alias ptree='pstree -ap'
 alias rw='rename_window'
+alias sdr='screen -d -r'
 #alias jlast='last | cut -f1 -d' ' | sort | uniq -c | sort -k1gr'
 alias rgrep='grep -RnsI'
-alias sdr='screen -d -r'
+function_rfind() {
+  if [ ! $# -eq 2 ]; then
+    echo "Usage: rfind <dir> <regex>"
+  else
+    find "$1" -follow -name "$2"
+  fi
+}
+alias rfind=function_rfind
+
 function_jtmux() {
   command -v tmux >/dev/null 2>&1 || { echo >&2 "Cannot find tmux. Aborting."; return; }
 
@@ -160,6 +169,5 @@ function_jscp_ship_spark_gamma() {
   local _cmd="/usr/bin/scp -i ~/emr-gamma ${_source_jar} ${_target_dir}"
   echo "Executing: ${_cmd}"
   eval ${_cmd}
-
 }
 alias jscp_ship_spark_gamma=function_jscp_ship_spark_gamma
