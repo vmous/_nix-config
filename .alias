@@ -81,12 +81,15 @@ alias simpleserver='python -m SimpleHTTPServer'
 # AUTHENTICATION
 #-------------------------------------------------------------
 function_yubikey() {
-  if mwinit; then
-    ssh-add -D ~/.ssh/*_rsa
-    ssh-add ~/.ssh/*_rsa
-  else
-    echo "Failed to authenticate."
-    exit 1
+  # https://w.amazon.com/index.php/NextGenMidway/UserGuide#If_you_need_to_SSH_to_hosts_or_execute_scripts_with_Midway_auth
+  if test `find ~/.ssh/id_rsa-cert.pub -mmin +1220`; then
+    if mwinit; then
+      ssh-add -D ~/.ssh/*_rsa
+      ssh-add ~/.ssh/*_rsa
+    else
+      echo "Failed to authenticate."
+      exit 1
+    fi
   fi
 }
 alias j-yubikey=function_yubikey
@@ -147,10 +150,33 @@ alias jaed='sudo /apollo/bin/runCommand -a Deactivate -e'
 #-------------------------------------------------------------
 # alternative: /apollo/bin/env -e SDETools /apollo/env/SDETools/bin/curl --url %s -k --negotiate -u :
 alias jcurl='/apollo/bin/env -e SDETools /apollo/env/SDETools/bin/curl --anyauth --location-trusted -u: -c /tmp/cookies.txt -b /tmp/cookies.txt -k'
-alias j-aws-rel-odin='export AWS_CREDENTIALS_ODIN=com.a9.relevance.common.aws'
-alias j-aws-relcon-ro='/apollo/bin/env -e envImprovement aws-console-access com.a9.relevance.common.aws --with-read-only'
-alias j-aws-relcon-power='/apollo/bin/env -e envImprovement aws-console-access com.a9.relevance.common.aws --with-power-user'
-alias j-aws-relcon-admin='/apollo/bin/env -e envImprovement aws-console-access com.a9.relevance.common.aws --with-admin'
+alias jaws-rel-odin='export AWS_CREDENTIALS_ODIN=com.a9.relevance.common.aws'
+alias jaws-relcon-ro='/apollo/bin/env -e envImprovement aws-console-access com.a9.relevance.common.aws --with-read-only'
+alias jaws-relcon-power='/apollo/bin/env -e envImprovement aws-console-access com.a9.relevance.common.aws --with-power-user'
+alias jaws-relcon-admin='/apollo/bin/env -e envImprovement aws-console-access com.a9.relevance.common.aws --with-admin'
+function_jaws_emrcluster_webuis() {
+  if [ $# -eq 0 ]; then
+    echo "Please provide the master node public DNS.\nExample: jaws_emrcluster_webuis <master node public DNS"
+  else
+    local _ssh_cmd="ssh -i ~/emr-gamma -ND 8157 hadoop@${1} &"
+    eval ${_ssh_cmd}
+    local _sleep_secs="sleep 2"
+    eval ${_sleep_secs}
+    echo "---------------------------------------------"
+    echo "| Interface             | URI"
+    echo "---------------------------------------------"
+    echo "| Yarn Resource Manager | http://$1:8088/"; open http://$1:8088
+    echo "| Yarn Node Manager     | http://$1:8042/ *"
+    echo "| Hadoop HDFS NameNode  | http://$1:50070/"; open http://$1:50070/
+    echo "| Hadoop HDFS DataNode  | http://$1:50075/ *"
+    echo "| Spark HistoryServer   | http://$1:18080/"; open http://$1:18080/
+    echo "| Zeppellin             | http://$1:8890/"; open http://$1:8890/
+    echo "| Hue                   | http://$1:8888/"; open http://$1:8888/
+    echo "| Ganglia               | http://$1/ganglia/"; open http://$1/ganglia/
+    echo "| HBase UI              | http://$1:16010/"; open http://$1:16010/
+  fi
+}
+alias jaws_emrcluster_webuis=function_jaws_emrcluster_webuis
 
 #-------------------------------------------------------------
 # HADOOP/SPARK TOOLS
