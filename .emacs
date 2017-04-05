@@ -150,7 +150,7 @@ This command does not push text to `kill-ring'."
 			  :impl-class-name-fn ensime-goto-test--impl-class-name :impl-to-test-dir-fn ensime-goto-test--impl-to-test-dir :is-test-dir-fn ensime-goto-test--is-test-dir :test-template-fn ensime-goto-test--test-template-scalatest-funsuite)))
  '(package-selected-packages
    (quote
-    (json-mode minimap sublimity ensime markdown-preview-eww markdown-preview-mode markdown-mode+ jedi java-snippets projectile markdown-mode visual-regexp flyspell-popup smartparens ido-grid-mode popup-imenu window-numbering scala-mode ido-occur impatient-mode flycheck-pos-tip highlight-symbol magit flycheck-tip irony-eldoc flycheck-irony flycheck company-irony-c-headers company-gtags company-irony company ggtags yasnippet sr-speedbar zenburn-theme which-key use-package smex ido-vertical-mode ido-ubiquitous flx-ido auto-complete))))
+    (org-mode json-mode minimap sublimity ensime markdown-preview-eww markdown-preview-mode markdown-mode+ jedi java-snippets projectile markdown-mode visual-regexp flyspell-popup smartparens ido-grid-mode popup-imenu window-numbering scala-mode ido-occur impatient-mode flycheck-pos-tip highlight-symbol magit flycheck-tip irony-eldoc flycheck-irony flycheck company-irony-c-headers company-gtags company-irony company ggtags yasnippet sr-speedbar zenburn-theme which-key use-package smex ido-vertical-mode ido-ubiquitous flx-ido auto-complete))))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -361,6 +361,14 @@ This command does not push text to `kill-ring'."
 ;;;;;; Editing
 
 
+;;;; org-mode
+(use-package org
+  :ensure t
+  :init
+  (setq visual-line-mode t
+	adaptive-wrap-prefix-mode t))
+
+
 ;;;; code/smartparens
 ;; http://emacsredux.com/blog/2013/11/01/highlight-matching-delimiters-with-smartparens/
 (use-package smartparens-config
@@ -458,6 +466,37 @@ This command does not push text to `kill-ring'."
 
 
 ;;;;;;;; Developement
+
+;;;; TABS
+;; https://www.emacswiki.org/emacs/NoTabs
+;; https://www.emacswiki.org/emacs/TabsAreEvil
+;; https://www.emacswiki.org/emacs/IndentationBasics
+;; https://www.masteringemacs.org/article/converting-tabs-whitespace
+;;
+;;;; I prefer NoTabs, but sometimes I work on a project that does use tab indentation. I don’t want to cause problems for these source files. As a result, I use the following snippet to default to no tabs, but to use tabs if that’s what a pre-existing file is primarily using for indentation:
+;;(defun how-many-region (begin end regexp &optional interactive)
+;;  "Print number of non-trivial matches for REGEXP in region.
+;;Non-interactive arguments are Begin End Regexp"
+;;  (interactive "r\nsHow many matches for (regexp): \np")
+;;  (let ((count 0) opoint)
+;;    (save-excursion
+;;      (setq end (or end (point-max)))
+;;      (goto-char (or begin (point)))
+;;      (while (and (< (setq opoint (point)) end)
+;;                  (re-search-forward regexp end t))
+;;        (if (= opoint (point))
+;;            (forward-char 1)
+;;          (setq count (1+ count))))
+;;      (if interactive (message "%d occurrences" count))
+;;      count)))
+;;
+;;(defun infer-indentation-style ()
+;;  ;; if our source file uses tabs, we use tabs, if spaces spaces, and if
+;;  ;; neither, we use the current indent-tabs-mode
+;;  (let ((space-count (how-many-region (point-min) (point-max) "^  "))
+;;        (tab-count (how-many-region (point-min) (point-max) "^\t")))
+;;    (if (> space-count tab-count) (setq indent-tabs-mode nil))
+;;    (if (> tab-count space-count) (setq indent-tabs-mode t))))
 
 
 ;;;; magit
@@ -693,8 +732,9 @@ This command does not push text to `kill-ring'."
   :init
   (add-hook 'json-mode-hook #'flycheck-mode)
   :config
-  (setq json-reformat:indent-width 2)
-  (setq js-indent-level 2))
+  (setq indent-tabs-mode t)
+  (setq json-reformat:indent-width 4)
+  (setq js-indent-level 4))
 
 ;;;;;; Scala
 
