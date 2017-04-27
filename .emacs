@@ -239,6 +239,13 @@ This command does not push text to `kill-ring'."
   (window-numbering-mode))
 
 
+;;;; expand-region
+;; https://github.com/magnars/expand-region.el
+(use-package expand-region
+  :ensure t
+  :bind (("M-r" . er/expand-region)))
+
+
 (use-package shell
   :ensure t
   :config
@@ -498,6 +505,8 @@ This command does not push text to `kill-ring'."
 ;;    (if (> space-count tab-count) (setq indent-tabs-mode nil))
 ;;    (if (> tab-count space-count) (setq indent-tabs-mode t))))
 
+;; Since indent-tabs-mode is a buffer-local we need to setq-default
+(setq-default indent-tabs-mode nil)
 
 ;;;; magit
 ;; https://github.com/magit/magit
@@ -732,7 +741,6 @@ This command does not push text to `kill-ring'."
   :init
   (add-hook 'json-mode-hook #'flycheck-mode)
   :config
-  (setq indent-tabs-mode t)
   (setq json-reformat:indent-width 4)
   (setq js-indent-level 4))
 
