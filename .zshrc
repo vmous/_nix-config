@@ -7,7 +7,7 @@
 ############################## utility functions ################################
 exists() { which "$1" > /dev/null 2>&1; }
 
-############################## platform ########################################
+############################## platform #########################################
 JUNAME=`uname`
 JMACHINE="unknown"
 if [[ "$JUNAME" == "Linux" ]]; then
@@ -96,11 +96,11 @@ if [[ "$JMACHINE" != "worklinux" ]]; then
     compinit
 fi
 
-############################## zsh ####################################
+############################## zsh ##############################################
 setopt AUTO_PUSHD # push directories on every cd
 setopt NO_BEEP    # never ever beep ever
 
-############################## history options ##############################
+############################## history options ##################################
 setopt EXTENDED_HISTORY        # store time in history
 setopt HIST_EXPIRE_DUPS_FIRST  # unique events are more usefull to me
 setopt HIST_VERIFY             # Make those history commands nice
@@ -110,11 +110,13 @@ SAVEHIST=15000                 # unique events guarenteed
 HISTFILE=~/.history
 setopt histignoredups          # ignore duplicates of the previous event
 
-############################## misc. ############################################
+############################## key bindings #####################################
 
-# Make Emacs the default editor
-export EDITOR=emacs
-export VISUAL=emacs
+#
+# Pushes current command on command stack and gives blank line, after that line
+# uns command stack is popped
+#
+bindkey "^t" push-line-or-edit
 
 #
 # Time to time you just need to quickly execute some command line from history
@@ -130,6 +132,12 @@ export VISUAL=emacs
 autoload edit-command-line
 zle -N edit-command-line
 bindkey -e '^x^e' edit-command-line
+
+############################## misc. ############################################
+
+# Make Emacs the default editor
+export EDITOR=emacs
+export VISUAL=emacs
 
 ## keep background processes at full speed
 #setopt NOBGNICE
