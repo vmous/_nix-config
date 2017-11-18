@@ -107,7 +107,7 @@ setopt HIST_VERIFY             # Make those history commands nice
 setopt INC_APPEND_HISTORY      # immediatly insert history into history file
 HISTSIZE=16000                 # spots for duplicates/uniques
 SAVEHIST=15000                 # unique events guarenteed
-HISTFILE=~/.history
+HISTFILE=~/.zsh_history
 setopt histignoredups          # ignore duplicates of the previous event
 
 ############################## key bindings #####################################
