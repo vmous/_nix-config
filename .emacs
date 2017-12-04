@@ -1,7 +1,7 @@
 ;;;;; System Conditionals
 (defvar macosx-p (string= system-name "f45c89ad1c47.ant.amazon.com"))
 (defvar linux-p (string= system-name "ifrit"))
-(defvar amazonbox-p (string= system-name "dev-dsk-vmous-1a-e6e2518a.eu-west-1.amazon.com"))
+(defvar amznlinux-p (string= system-name "dev-dsk-vmous-1c-f558cb86.eu-west-1.amazon.com"))
 
 
 ;;;;;; General Settings
@@ -622,7 +622,7 @@ This command does not push text to `kill-ring'."
 	'("--sys-path" "/usr/lib/python3/dist-packages"
 	  "--sys-path" "/usr/local/lib/python3.4/dist-packages")))
 
-(when amazonbox-p
+(when amznlinux-p
   (setq jazzy/dist-packages
 	'("--sys-path" "")))
 
@@ -674,17 +674,19 @@ This command does not push text to `kill-ring'."
 ;;  (setq jazzy/eclimd-default-workspace "")
 
   (setq jazzy/JAVA_HOME "")
-  (setq jazzy/JAVA ""))
+  (setq jazzy/JAVA "")
+)
 
 
-(when amazonbox-p
+(when amznlinux-p
 ;;  (setq jazzy/eclim-eclipse-dirs "")
 ;;  (setq jazzy/eclim-executable "")
 ;;  (setq jazzy/eclimd-executable "")
 ;;  (setq jazzy/eclimd-default-workspace "")
 
   (setq jazzy/JAVA_HOME "/apollo/env/JavaSE8/jdk1.8")
-  (setq jazzy/JAVA "/apollo/env/JavaSE8/jdk1.8/bin/java"))
+  (setq jazzy/JAVA "/apollo/env/JavaSE8/jdk1.8/bin/java")
+)
 
 
 (setenv "JAVA_HOME" jazzy/JAVA_HOME)
