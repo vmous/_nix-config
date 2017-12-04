@@ -139,6 +139,11 @@ bindkey -e '^x^e' edit-command-line
 export EDITOR=emacs
 export VISUAL=emacs
 
+# Enabling "smarter" word selection (bash-style)
+# Particularly helpful for `backward-kill-word`
+autoload -U select-word-style
+select-word-style bash
+
 ## keep background processes at full speed
 #setopt NOBGNICE
 ## restart running processes on exit
