@@ -321,8 +321,8 @@ This command does not push text to `kill-ring'."
   (setq-default ido-grid-mode-prefix-scrolls t))
 
 ;;;; ido-ubiquitous
-;; https://github.com/DarwinAwardWinner/ido-ubiquitous
-(use-package ido-ubiquitous
+;; https://github.com/DarwinAwardWinner/ido-completing-read-plus
+(use-package ido-completing-read+
   :ensure t
   :init (ido-ubiquitous-mode 1))
 
