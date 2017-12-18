@@ -5,32 +5,32 @@
 #
 
 ############################## utility functions ################################
-exists() { which "$1" > /dev/null 2>&1; }
+exists() { which "${1}" > /dev/null 2>&1; }
 
 ############################## platform #########################################
 JUNAME=`uname`
 JMACHINE="unknown"
-if [[ "$JUNAME" == "Linux" ]]; then
+if [[ "${JUNAME}" == "Linux" ]]; then
     JMACHINEID=`cat /var/lib/dbus/machine-id`
-    if [[ "$JMACHINEID" == "3a5887098fa63dfdbfe53d660000067c" ]]; then
+    if [[ "${JMACHINEID}" == "3a5887098fa63dfdbfe53d660000067c" ]]; then
         JMACHINE="worklinux"
     else
         JMACHINE="homelinux"
     fi
-elif [[ "$JUNAME" == "Darwin" ]]; then
+elif [[ "${JUNAME}" == "Darwin" ]]; then
     JMACHINE="mac"
 fi
 
-if [[ "$JMACHINE" == "homelinux" ]]; then
+if [[ "${JMACHINE}" == "homelinux" ]]; then
     # Home Linux only
-elif [[ "$JMACHINE" == "worklinux" ]]; then
+elif [[ "${JMACHINE}" == "worklinux" ]]; then
     # Work Linux only
     source ~/.zshrc_personal_amzn-dev-dsk
-elif [[ "$JMACHINE" == "mac" ]]; then
+elif [[ "${JMACHINE}" == "mac" ]]; then
     # Mac only
-    export PATH="/usr/local/sbin:$PATH"
+    export PATH="/usr/local/sbin:${PATH}"
     if exists cowsay; then
-        /usr/local/bin/cowsay -f eyes "Welcome $USER"
+        /usr/local/bin/cowsay -f eyes "Welcome ${USER}"
     fi
 else
     echo "I don't recognize this machine!"
@@ -40,13 +40,13 @@ fi
 source ~/.alias
 
 ############################## colours ##########################################
-if [[ "$JMACHINE" != "worklinux" ]]; then
+if [[ "${JMACHINE}" != "worklinux" ]]; then
     autoload -U colors
     colors
 fi
 
 ############################## path #############################################
-export PATH=~/wrappers:$PATH
+export PATH=~/wrappers:${PATH}
 
 ############################## prompts ##########################################
 export PROMPT="
@@ -60,13 +60,13 @@ export PROMPT="
 export RPROMPT=
 
 set-title() {
-    echo -e "\e]0;$*\007"
+    echo -e "\e]0;${*}\007"
 }
 
 ssh() {
-    set-title $*;
-    /usr/bin/ssh -2 $*;
-    set-title $HOST;
+    set-title ${*};
+    /usr/bin/ssh -2 ${*};
+    set-title ${HOST};
 }
 
 ############################## autocomplete ####################################
@@ -91,7 +91,7 @@ zstyle -e ':completion:*:ssh:*' users 'reply=()'
 # in awscli completion with
 # source ~/.zshrc_personal_amzn-dev-dsk
 # if you do a below commands again it will break
-if [[ "$JMACHINE" != "worklinux" ]]; then
+if [[ "${JMACHINE}" != "worklinux" ]]; then
     autoload -U compinit
     compinit
 fi
