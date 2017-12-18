@@ -33,6 +33,19 @@ function is_text_file() {
   [[ -f "$1" ]] && file -bL --mime "$1" | grep -q "^text"
 }
 
+function yes_or_no() {
+  local _yn
+  while true; do
+    read _yn\?"$1 [y/n] "
+    if [[ ${_yn} == "y" ]] || [[ ${_yn} == "n" ]]; then
+      break
+    else
+      echo "Please answer 'y' or 'n." >&2
+    fi
+  done
+  echo ${_yn}
+}
+
 function date_time_timestamp() {
   echo $(date +%Y%m%d%H%M%S)
 }
