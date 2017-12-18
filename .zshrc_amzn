@@ -1,0 +1,24 @@
+#
+# Personal zshrc configuration for Amzn Dev Desktop
+#
+# Add the following line on the very top of your .zshrc file
+# source /home/$USER/.zshrc_amzn
+#
+
+source /apollo/env/envImprovement/var/zshrc
+
+export BRAZIL_WORKSPACE_DEFAULT_LAYOUT=short
+
+# ZSH Autocomplete for bin/aws
+# https://w.amazon.com/index.php/AmazonAwsCli/GettingStarted#ZSH_Autocomplete_for_bin.2Faws
+source /apollo/env/AmazonAwsCli/bin/aws_zsh_completer.sh
+
+for f in SDETools envImprovement AmazonAwsCli OdinTools JavaSE8; do
+    if [[ -d /apollo/env/$f ]]; then
+        export PATH=$PATH:/apollo/env/$f/bin
+    fi
+done
+
+# override brazil platform to use RHEL5 artifacts by default
+# according to: https://w.amazon.com/index.php/Search/A9/Infra/CorpDevBoxes#Amazon_Linux
+#export BRAZIL_PLATFORM_OVERRIDE=RHEL5_64

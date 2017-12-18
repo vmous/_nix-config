@@ -67,7 +67,7 @@ if [[ "${JMACHINE}" == "homelinux" ]]; then
     # Home Linux only
 elif [[ "${JMACHINE}" == "worklinux" ]]; then
     # Work Linux only
-    source ~/.zshrc_personal_amzn-dev-dsk
+    source ~/.zshrc_amzn
     source ~/.alias_amzn
 elif [[ "${JMACHINE}" == "mac" ]]; then
     # Mac only
@@ -133,7 +133,7 @@ zstyle -e ':completion:*:ssh:*' users 'reply=()'
 
 # WARNING: This 'if' is needed because there is a conflict
 # in awscli completion with
-# source ~/.zshrc_personal_amzn-dev-dsk
+# source ~/.zshrc_amzn
 # if you do a below commands again it will break
 if [[ "${JMACHINE}" != "worklinux" ]]; then
     autoload -U compinit
