@@ -101,3 +101,118 @@ function j-del-line-in-file {
       fi
   fi
 }
+
+############################## crazy ############################################
+function terminal-benchmark() {
+  # https://en.wikipedia.org/wiki/ANSI_escape_code
+  # https://unix.stackexchange.com/questions/17680/italics-in-emacs-on-a-text-terminal-rxvt-unicode
+  # https://unix.stackexchange.com/questions/269077/tput-setaf-color-table-how-to-determine-color-codes
+
+  # TBD some colors are equal? 5==12 6==13
+  # TBD color 0 == bg fix it
+  echo "# General"
+  echo "TERM=${TERM}"
+  echo
+  echo "# Terminal colors"
+  echo Colors available: $(tput colors)
+  echo "foregrounds:" $(printf '\e[%sm▒' {30..37} 0)
+  echo "backgrounds:" $(printf '\e[%sm ' {40..47} 0)
+  #echo
+  #printf '\e[48;5;%dm ' {0..255}; printf '\e[0m \n'
+  #echo
+  color() {
+    for c; do
+      printf ' \e[48;5;%dm%03d\e[0m' $c $c
+    done
+    printf '\n'
+  }
+
+  IFS=$' \t\n'
+  color {0..15}
+  for ((i=0;i<6;i++)); do
+    color $(seq $((i*36+16)) $((i*36+51)))
+  done
+  color {232..255}
+  #for i in {0..255} ; do printf "\x1b[38;5;${i}mcolour${i}\n"; done
+
+  # fg 42 over bg 17
+  # printf '\033[38;5;%dm\033[48;5;%dm%s\033[0m\n' 42 17 "Hello, world."
+
+  # 24bit support?
+  # for ((r=0;r<255;r++)); do
+  #   for ((g=0;g<255;g++)); do
+  #     for ((b=0;b<255;b++)); do
+  #       printf '\e[48;2;%d;%d;%dma' $r $g $b
+  #     done
+  #   done
+  # done
+  echo
+  echo "# Fonts"
+  echo Styles: '\e[3mitalic\e[0m' '\e[1mbold\e[0m' '\e[4munderline\e[0m' '\e[1m\e[3mbolditalics\e[0m'
+  printf "More examples: \e[5mblink\e[0m \e[5m\e[1;38;2;255;0;0mFATAL\e[0m\n"
+  echo Does not work in URxvt/tmux: "\e[9mstrikethrough\e[0m" "\e[2mfaint\e[0m"
+  echo URxvt matcher links: http://www.megalogy.org tramp://.
+  STR=pa
+  echo "normal  0-7 " $(printf "\e[38;5;%sm$STR\e[0m" {0..7})
+  echo "bold    0-7 " $(printf "\e[1;38;5;%sm$STR\e[0m" {0..7})
+  echo "normal 8-15 " $(printf "\e[38;5;%sm$STR\e[0m" {8..15})
+  echo "bold   8-15 " $(printf "\e[1;38;5;%sm$STR\e[0m" {8..15})
+  echo
+  echo "# Other terminal features"
+  echo "## WM Urgent on BEL (ascii 0x7)"
+  printf "\007"
+
+  echo "## UTF-8 support"
+  echo "Greek: αάΑΆβΒγΓδΔεέΕΈζΖηήΗΉθΘιίϊΐΙΊκΚλΛμΜνΝξΞοόΟΌπΠρΡσΣτΤυύϋΰΥΎφΦχΧψΨωώΩω"
+  echo "Greek (polytonic): ἊῳᾧὸόῩ"
+  echo "Arabic: ﷽"
+  echo "Spanish: ñ áéíóú"
+  echo "Katakana: イロハニホヘト"
+  echo "Hebrew: מצא"
+  echo "Russian: В чащах юга жил бы цитрус? Да, но фальшивый экземпляр!"
+  echo "German: Heizölrückstoßabdämpfung"
+  echo "Emoji: 📅"
+  echo "Symbols: ∅∇∀∃"
+
+  echo "## TBD SIXEL support"
+  #cat ~/share/t/console/sfa3.sixel
+
+  echo "## OSC 52: Clipboard setting"
+  # Ms in terminfo
+
+  ORIG="This is a clipoard test"
+  BASE64=$(echo $ORIG |base64)
+  printf "\e]52;;$BASE64\007"
+  CLP=$(xsel -p -o)
+
+  if [[ "$ORIG" = "$CLP" ]]; then
+    echo "OSC 52 supported :)"
+  else
+    echo "OSC 52 not supported :("
+  fi
+
+  echo "## OSC 4: Set colors"
+  printf "\e]4;00;rgb:3f/3f/3f\007"
+  printf "\e]4;01;rgb:70/50/50\007"
+  printf "\e]4;02;rgb:60/b4/8a\007"
+  printf "\e]4;03;rgb:df/af/8f\007"
+  printf "\e]4;04;rgb:50/60/70\007"
+  printf "\e]4;05;rgb:dc/8c/c3\007"
+  printf "\e]4;06;rgb:8c/d0/d3\007"
+  printf "\e]4;07;rgb:dc/dc/cc\007"
+
+  printf "\e]4;08;rgb:70/90/80\007"
+  printf "\e]4;09;rgb:cc/93/93\007"
+  printf "\e]4;10;rgb:7f/9f/7f\007"
+  printf "\e]4;11;rgb:f0/df/af\007"
+  printf "\e]4;12;rgb:94/bf/f3\007"
+  printf "\e]4;13;rgb:ec/93/d3\007"
+  printf "\e]4;14;rgb:93/e0/e3\007"
+  printf "\e]4;15;rgb:ff/ff/ff\007"
+
+  echo "## Hyperlinks"
+  URL=http://jazzman.webhop.net
+  printf "   \e]8;;$URL\007$URL\e]8;;\007\n"
+  URL=file://localhost/
+  echo "   \e]8;;$URL\007$URL\e]8;;\007"
+}
