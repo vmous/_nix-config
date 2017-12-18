@@ -29,6 +29,10 @@ function is_unsigned_real() {
   [[ $1 =~ "$re" ]]
 }
 
+function is_text_file() {
+  [[ -f "$1" ]] && file -bL --mime "$1" | grep -q "^text"
+}
+
 ############################## platform #########################################
 JUNAME=`uname`
 JMACHINE="unknown"
