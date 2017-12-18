@@ -5,7 +5,12 @@
 #
 
 ############################## utility functions ################################
-exists() { which "${1}" > /dev/null 2>&1; }
+
+function cmd_exists() {
+  # Can also be done with the following:
+  # which "${1}" > /dev/null 2>&1;
+  command -v "${1}" >/dev/null 2>&1
+}
 
 ############################## platform #########################################
 JUNAME=`uname`
@@ -29,7 +34,7 @@ elif [[ "${JMACHINE}" == "worklinux" ]]; then
 elif [[ "${JMACHINE}" == "mac" ]]; then
     # Mac only
     export PATH="/usr/local/sbin:${PATH}"
-    if exists cowsay; then
+    if cmd_exists cowsay; then
         /usr/local/bin/cowsay -f eyes "Welcome ${USER}"
     fi
 else
