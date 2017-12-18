@@ -5,7 +5,6 @@
 #
 
 ############################## utility functions ################################
-
 function cmd_exists() {
   # Can also be done with the following:
   # which "${1}" > /dev/null 2>&1;
@@ -69,12 +68,14 @@ if [[ "${JMACHINE}" == "homelinux" ]]; then
 elif [[ "${JMACHINE}" == "worklinux" ]]; then
     # Work Linux only
     source ~/.zshrc_personal_amzn-dev-dsk
+    source ~/.alias_amzn
 elif [[ "${JMACHINE}" == "mac" ]]; then
     # Mac only
     export PATH="/usr/local/sbin:${PATH}"
     if cmd_exists cowsay; then
         /usr/local/bin/cowsay -f eyes "Welcome ${USER}"
     fi
+    source ~/.alias_amzn
 else
     echo "I don't recognize this machine!"
 fi
@@ -154,7 +155,6 @@ HISTFILE=~/.zsh_history
 setopt histignoredups          # ignore duplicates of the previous event
 
 ############################## key bindings #####################################
-
 #
 # Pushes current command on command stack and gives blank line, after that line
 # uns command stack is popped
@@ -177,7 +177,6 @@ zle -N edit-command-line
 bindkey -e '^x^e' edit-command-line
 
 ############################## misc. ############################################
-
 # Make Emacs the default editor
 export EDITOR=emacs
 export VISUAL=emacs

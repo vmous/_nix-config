@@ -1,6 +1,5 @@
-#-------------------------------------------------------------
-# The 'ls' family (this assumes you use a recent GNU ls)
-#-------------------------------------------------------------
+############################## 'ls' family ######################################
+# The above assumes you use a recent version of GNU ls
 alias ll="ls -l"
 alias ls='ls -hFG'         # add colors for filetype recognition
 alias la='ls -Al'          # show hidden files
@@ -12,9 +11,7 @@ alias lt='ls -ltr'         # sort by date, most recent last
 alias lr='ls -lR'          # recursive ls
 alias tree='tree -Csu'     # nice alternative to 'recursive ls'
 
-#-------------------------------------------------------------
-# Misc.
-#-------------------------------------------------------------
+############################## other ############################################
 alias c='clear'
 alias e='emacs'
 alias h='history'
@@ -24,30 +21,34 @@ alias aps='ps axo pid,ppid,user,pcpu,vsz,etime,args'
 alias ptree='pstree -ap'
 alias rw='rename_window'
 alias sdr='screen -d -r'
-#alias jlast='last | cut -f1 -d' ' | sort | uniq -c | sort -k1gr'
+#alias j-last='last | cut -f1 -d' ' | sort | uniq -c | sort -k1gr'
 alias rgrep='grep -RnsI'
-function_rfind() {
-  if [ ! $# -eq 2 ]; then
-    echo "Usage: rfind <dir> <regex>"
+function rfind {
+  if [[ ! $# -eq 2 ]]; then
+    echo "Usage: $0 <dir> <regex>"
   else
     find "$1" -follow -name "$2"
   fi
 }
-alias rfind=function_rfind
+alias du-hog-f='du -h . | sort -nr | head -n10'
+alias du-hog-d='du -hs * | sort -nr | head -n10'
+alias pgrep='pgrep -fl'
+alias j-listeners='sudo lsof -PiTCP -sTCP:LISTEN'
+alias simpleserver='python -m SimpleHTTPServer'
 
-function_jtmux() {
-  command -v tmux >/dev/null 2>&1 || { echo >&2 "Cannot find tmux. Aborting."; return; }
+function j-tmux() {
+  cmd_exists tmux || { echo >&2 "Cannot find tmux. Aborting."; return; }
 
   local _legal=true
-  if [ $# -eq 0 ]; then
+  if [[ $# -eq 0 ]]; then
     tmux ls
-  elif [ $# -eq 1 ]; then
+  elif [[ $# -eq 1 ]]; then
     tmux attach -t "$1"
-  elif [ $1 = "n" ] && [ ! -z "$2" ]; then
+  elif [[ $1 = "n" ]] && [[ ! -z "$2" ]]; then
     tmux new -s "$2"
-  elif [ $1 = "a" ] && [ ! -z "$2" ]; then
+  elif [[ $1 = "a" ]] && [[ ! -z "$2" ]]; then
     tmux attach -t "$2"
-  elif [ $1 = "r" ] && [ ! -z "$2" ]; then
+  elif [[ $1 = "r" ]] && [[ ! -z "$2" ]]; then
     # Attach to a tmux session and make sure you refresh ssh-agent forwarding
     # on each window.
     # Note: this part requires all windows are "waiting" on shell prompt. If a
@@ -66,136 +67,37 @@ function_jtmux() {
 
   if [ "$_legal" = false ]; then
     echo "Illegal use of jtmux. Try:"
-    echo "tmux [n|a|r|] <session>"
+    echo "Example: $0 [n|a|r|] <session_name>"
   fi
 }
-alias jtmux=function_jtmux
 
-# 
-alias du-hog-f='du -h . | sort -nr | head -n10'
-alias du-hog-d='du -hs * | sort -nr | head -n10'
+function j-del-line-in-file {
+  if [ $# -ne 2 ]; then
+    echo "Please provide the line an the file you wish to delete."
+    echo "Example: $0 <line> <file>"
+    return 1
+  fi
 
-alias simpleserver='python -m SimpleHTTPServer'
+  local _line=$1
+  local _file=$2
+  if ! is_unsigned_integer "${_line}"; then
+    echo "ERROR: <line> (first argument) must be a positive integer."
+    return 1
+  fi
 
-#-------------------------------------------------------------
-# AUTHENTICATION
-#-------------------------------------------------------------
-function_yubikey() {
-  # https://w.amazon.com/index.php/NextGenMidway/UserGuide#If_you_need_to_SSH_to_hosts_or_execute_scripts_with_Midway_auth
-  if test `find ~/.ssh/id_rsa-cert.pub -mmin +1220`; then
-    if mwinit; then
-      ssh-add -D ~/.ssh/*_rsa
-      ssh-add ~/.ssh/*_rsa
-    else
-      echo "Failed to authenticate."
-      exit 1
-    fi
+  if ! is_text_file "${_file}"; then
+    echo "ERROR: <file> (second argument) must be an existing, text file."
+    return 1
+  fi
+
+  echo "${_file}:${_line}: " $(sed -n "${_line}"p "${_file}")
+
+  if [[ $(yes_or_no "Do you want to delete the above line?") == "y" ]]; then
+      $(backup_file "${_file}")
+      if [[ ${JMACHINE} == "mac" ]]; then
+        $(sed -i "" ${_line}'d' ${_file})
+      else
+        $(sed -i ${_line}'d' ${_file})
+      fi
   fi
 }
-alias j-yubikey=function_yubikey
-
-#-------------------------------------------------------------
-# BRAZIL
-#-------------------------------------------------------------
-alias jj2bw='cd /workplace/vmous/'
-
-alias jbw='brazil ws'
-alias jbwc='jbw --create'
-alias jbwd='jbw --delete'
-alias jbwdr='jbw --dryrun'
-alias jbwdru='jbwdr --unoptimized'
-alias jbws='jbw --show'
-alias jbwsm='jbw --sync --md'
-alias jbwu='jbw --use'
-alias jbwr='jbw --remove'
-alias jbwea='jbw attachenvironment --alias'
-alias jbwed='brazil ws detachenvironment --alias'
-alias jbwc-a9='jbwc -vs A9Search/main'
-alias jbwc-a9-meta='jbwc -vs A9Search/QueryConfigRelease-certified'
-alias jbwc-bdm-predict='jbwc -vs A9SearchBDMPredictionBuild/release'
-
-alias jbb='brazil-build'
-alias bb='jbb'
-alias jbbc='brazil-build clean'
-alias jbbt='brazil-build test'
-alias jbbtv='brazil-build test-valgrind'
-alias jbba='brazil-build apollo-pkg'
-alias jbbr='brazil-build release'
-alias jbb-cbtr='jbbc 2>&1 | tee clean.log && jbb 2>&1 | tee build.log && jbbt 2>&1 | tee test.log && jbbr 2>&1 | tee release.log'
-
-alias jbrc='brazil-recursive-cmd'
-alias jbrc-all='jbrc --allPackages'
-
-alias jbrcp='brazil-recursive-cmd-parallel -j 8'
-alias jbrcp-all='jbrcp --allPackages'
-
-alias jbre='brazil-runtime-exec'
-
-alias SHUTUP='export MAKE_OUTPUT_LEVEL=QUIET'
-
-#-------------------------------------------------------------
-# APOLLO
-#-------------------------------------------------------------
-# useful inside the apollo symlink farms
-alias fresh='cd $PWD'
-
-alias jawdb='watch -t '\''ls -drt /apollo/var/logs/apollo-update* | xargs tail | strings | fold -w $COLUMNS | tail -n $LINES'\'''
-alias jaghc='/apollo/bin/getmyhostclass'
-alias jahc='/apollo/env/ApolloCommandLine/bin/apolloHostControlCLI --print'
-alias jaea='sudo /apollo/bin/runCommand -a Activate -e'
-alias jaed='sudo /apollo/bin/runCommand -a Deactivate -e'
-
-#-------------------------------------------------------------
-# AMAZON TOOLS
-#-------------------------------------------------------------
-# alternative: /apollo/bin/env -e SDETools /apollo/env/SDETools/bin/curl --url %s -k --negotiate -u :
-alias jcurl='/apollo/bin/env -e SDETools /apollo/env/SDETools/bin/curl --anyauth --location-trusted -u: -c /tmp/cookies.txt -b /tmp/cookies.txt -k'
-alias jaws-rel-odin='export AWS_CREDENTIALS_ODIN=com.a9.relevance.common.aws'
-alias jaws-relcon-ro='/apollo/bin/env -e envImprovement aws-console-access com.a9.relevance.common.aws --with-read-only'
-alias jaws-relcon-power='/apollo/bin/env -e envImprovement aws-console-access com.a9.relevance.common.aws --with-power-user'
-alias jaws-relcon-admin='/apollo/bin/env -e envImprovement aws-console-access com.a9.relevance.common.aws --with-admin'
-function_jaws_emrcluster_webuis() {
-  if [ $# -eq 0 ]; then
-    echo "Please provide the master node public DNS.\nExample: jaws_emrcluster_webuis <master node public DNS"
-  else
-    local _ssh_cmd="ssh -i ~/emr-gamma -ND 8157 hadoop@${1} &"
-    eval ${_ssh_cmd}
-    local _sleep_secs="sleep 2"
-    eval ${_sleep_secs}
-    echo "---------------------------------------------"
-    echo "| Interface             | URI"
-    echo "---------------------------------------------"
-    echo "| Yarn Resource Manager | http://$1:8088/"; open http://$1:8088
-    echo "| Yarn Node Manager     | http://$1:8042/ *"
-    echo "| Hadoop HDFS NameNode  | http://$1:50070/"; open http://$1:50070/
-    echo "| Hadoop HDFS DataNode  | http://$1:50075/ *"
-    echo "| Spark HistoryServer   | http://$1:18080/"; open http://$1:18080/
-    echo "| Zeppellin             | http://$1:8890/"; open http://$1:8890/
-    echo "| Hue                   | http://$1:8888/"; open http://$1:8888/
-    echo "| Ganglia               | http://$1/ganglia/"; open http://$1/ganglia/
-    echo "| HBase UI              | http://$1:16010/"; open http://$1:16010/
-  fi
-}
-alias jaws_emrcluster_webuis=function_jaws_emrcluster_webuis
-
-#-------------------------------------------------------------
-# HADOOP/SPARK TOOLS
-#-------------------------------------------------------------
-alias jssh_tunnel_fresca='ssh -N -D 2600 -f security-bastions-prod-iad.amazon.com -o ServerAliveInterval=60'
-alias jssh_tunnel_spark_gamma='ssh -N -D 8157 -f -i ~/emr-gamma hadoop@ec2-54-147-186-124.compute-1.amazonaws.com -o ServerAliveInterval=60'
-function_jscp_ship_spark_gamma() {
-  local _source_jar="./build/Scala2.11/*.jar"
-  local _target_dir="hadoop@ec2-54-147-186-124.compute-1.amazonaws.com:/mnt/user/vmous/"
-  if [ ! $# -eq 0 ]; then
-    if [ $1 = "jarjar" ]; then
-      _source_jar="./build/assembly/*.uber.jar"
-    else
-      echo "Cannot understand $1. Aborting"
-      return
-    fi
-  fi
-  local _cmd="/usr/bin/scp -i ~/emr-gamma ${_source_jar} ${_target_dir}"
-  echo "Executing: ${_cmd}"
-  eval ${_cmd}
-}
-alias jscp_ship_spark_gamma=function_jscp_ship_spark_gamma
