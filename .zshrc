@@ -33,6 +33,10 @@ function is_text_file() {
   [[ -f "$1" ]] && file -bL --mime "$1" | grep -q "^text"
 }
 
+function date_time_timestamp() {
+  echo $(date +%Y%m%d%H%M%S)
+}
+
 ############################## platform #########################################
 JUNAME=`uname`
 JMACHINE="unknown"
