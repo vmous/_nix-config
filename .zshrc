@@ -202,3 +202,14 @@ select-word-style bash
 
 ## disable mail checking
 #MAILCHECK=0
+
+# RVM (Ruby Version Manager)
+# http://jazzman.webhop.net/doku.php?id=laboratory:programming:ruby:rvm#installation_configuration
+# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+# Note: Ignore the warning that might occur that looks like
+#       `RVM PATH line not found for Zsh, rerun this command with '--auto-dotfiles' flag to fix it.`
+#       as the checker seems to be using a stupid regex that does not match the
+#       curly brackets around the variables PATH and HOME below.
+export PATH="${PATH}:${HOME}/.rvm/bin"
+# Load RVM into a shell session *as a function*
+[[ -s "${HOME}/.rvm/scripts/rvm" ]] && source "${HOME}/.rvm/scripts/rvm"
