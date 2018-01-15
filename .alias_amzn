@@ -148,7 +148,19 @@ alias j-aws-p2-start='j-aws-o-rel && /apollo/env/AmazonAwsCli/bin/aws --region u
 #
 
 # Workaround for https://github.com/aws/aws-cli/pull/1122
-alias j-aws-s3-multipart-workaround='/apollo/env/AmazonAwsCli/bin/aws configure set s3.multipart_threshold 512MB'
+function j-aws-s3-multipart-workaround {
+  if [[ ${#} -ne 1 ]]; then
+    echo "Please provide the threshold"
+    echo "Example: $0 <threshold>"
+    echo "where <threshold> is a threshold in bytes (e.g., 521MB or 1GB)"
+    return
+  fi
+
+  local THRESHOLD=${1}
+  local CMD="/apollo/env/AmazonAwsCli/bin/aws configure set s3.multipart_threshold ${THRESHOLD}"
+
+  eval ${CMD}
+}
 
 function j-aws-s3-get-kms {
   if [[ ${#} -ne 1 ]]; then
