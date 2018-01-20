@@ -213,3 +213,10 @@ select-word-style bash
 export PATH="${PATH}:${HOME}/.rvm/bin"
 # Load RVM into a shell session *as a function*
 [[ -s "${HOME}/.rvm/scripts/rvm" ]] && source "${HOME}/.rvm/scripts/rvm"
+
+# Tex
+if [[ "${JMACHINE}" == "mac" ]]; then
+    # Install MacTex via Howebrew first
+    # brew cask install mactex
+    export PATH="${PATH}:/Library/TeX/texbin"
+fi
