@@ -67,7 +67,8 @@
 (global-set-key (kbd "C-s-<right>") 'enlarge-window-horizontally)
 (global-set-key (kbd "C-s-<down>") 'shrink-window)
 (global-set-key (kbd "C-s-<up>") 'enlarge-window)
-
+;; quick notes
+(global-set-key (kbd "C-c c") 'org-capture)
 
 (defun jazzy/delete-word (arg)
   "Delete characters forward until encountering the end of a word.
@@ -369,12 +370,14 @@ This command does not push text to `kill-ring'."
 
 
 ;;;; org-mode
+;; https://orgmode.org/
 (use-package org
   :ensure t
   :init
   (setq visual-line-mode t
-	adaptive-wrap-prefix-mode t))
-
+        adaptive-wrap-prefix-mode t
+        org-directory "~/.emacs.d/org"
+        org-default-notes-file (concat org-directory "/scratch-pad.org")))
 
 ;;;; code/smartparens
 ;; http://emacsredux.com/blog/2013/11/01/highlight-matching-delimiters-with-smartparens/
