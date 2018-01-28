@@ -393,7 +393,41 @@ This command does not push text to `kill-ring'."
           ("l" "Link" entry (file+headline org-default-notes-file "Links") "* %? %^L %^g \n%T" :prepend t)
           ("n" "Note" entry (file+headline org-default-notes-file "Notes") "* %?\n%u" :prepend t)
           ("t" "To Do Item" entry (file+headline org-default-notes-file "To Dos") "* TODO %?\n%u" :prepend t)))
+  (add-hook 'org-mode-hook (lambda () (org-indent-mode t)))
   :bind(("C-c a" . org-agenda)))
+
+;;;; org-bullets
+;; https://github.com/sabof/org-bullets
+(use-package org-bullets
+  :ensure t
+  :init
+  ;; make available "org-bullet-face" such that I can control the font size individually
+  (setq org-bullets-face-name (quote org-bullet-face))
+;  (setq org-bullets-bullet-list
+;        '("✡" "⎈" "✽" "✲" "✱" "✻" "✼" "✽" "✾" "✿" "❀" "❁" "❂" "❃" "❄" "❅" "❆" "❇") ; hexagrams
+;        '("○" "☉" "◎" "◉" "○" "◌" "◎" "●" "◦" "◯" "⚪" "⚫" "⚬" "❍" "￮" "⊙" "⊚" "⊛" "∙" "∘") ; circles
+;        '("◐" "◑" "◒" "◓" "◴" "◵" "◶" "◷" "⚆" "⚇" "⚈" "⚉" "♁" "⊖" "⊗" "⊘") ; special circles
+;        '("✙" "♱" "♰" "☥" "✞" "✟" "✝" "†" "✠" "✚" "✜" "✛" "✢" "✣" "✤" "✥") ; crosses
+;        '("♠" "♣" "♥" "♦" "♤" "♧" "♡" "♢") ; pocker symbols
+;        '("☯" "☰" "☱" "☲" "☳" "☴" "☵" "☶" "☷") ; yinyang
+;        '("☀" "♼" "☼" "☾" "☽" "☣" "§" "¶" "‡" "※" "✕" "△" "◇" "▶" "◀" "◈") ; special symbols 
+;  )
+  ;; Collection of org-ellipsis candidate symbols
+  ;; * right arrows
+  ;;     "↝" "⇉" "⇝" "⇢" "⇨" "⇰" "➔" "➙" "➛" "➜" "➝" "➞"
+  ;;     "➟" "➠" "➡" "➥" "➦" "➧" "➨"
+  ;;     "➩" "➪" "➮" "➯" "➱" "➲"
+  ;;     "➳" "➵" "➸" "➺" "➻" "➼" "➽"
+  ;; * arrow heads
+  ;;     "➢" "➣" "➤" "≪", "≫", "«", "»"
+  ;; * other arrows
+  ;;     "↞" "↠" "↟" "↡" "↺" "↻"
+  ;; * lightening
+  ;;     "⚡"
+  ;; * other symbols
+  ;;     "…" "▼" "↴" "∞" "⬎" "⤷" "⤵"
+  (setq org-ellipsis " ⤵")
+  (add-hook 'org-mode-hook (lambda () (org-bullets-mode t))))
 
 ;;;; org-gcal
 ;; https://github.com/myuhe/org-gcal.el
