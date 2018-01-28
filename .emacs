@@ -3,6 +3,10 @@
 (defvar linux-p (string= system-name "ifrit"))
 (defvar amznlinux-p (string= system-name "dev-dsk-vmous-1c-f558cb86.eu-west-1.amazon.com"))
 
+;;;;; Load secrets
+;; I keep sensitive information separately so that I can publish my main config.
+(load "~/.emacs.d/secrets")
+
 
 ;;;;;; General Settings
 
@@ -200,13 +204,13 @@ This command does not push text to `kill-ring'."
 ;;(load-theme 'solarized-dark)
 (use-package zenburn-theme
   :ensure t)
-(load-theme 'zenburn)
+(load-theme 'zenburn t)
 
 
 ;;;; time
 ;;
 (use-package time
-  :bind (("C-c a c" . display-time-world))
+  :bind (("C-c t" . display-time-world))
   :config
   (setq display-time-world-time-format "%H:%M %Z, %d. %b"
         display-time-world-list '(("Europe/Berlin"    "Berlin")
@@ -376,8 +380,60 @@ This command does not push text to `kill-ring'."
   :init
   (setq visual-line-mode t
         adaptive-wrap-prefix-mode t
+        org-completion-use-ido t
+        org-export-coding-system 'utf-8
         org-directory "~/.emacs.d/org"
-        org-default-notes-file (concat org-directory "/scratch-pad.org")))
+        org-default-notes-file (concat org-directory "/scratch-pad.org"))
+  (defconst jazzy/org/journal (concat org-directory "/journal.org"))
+  (require 'org-capture)
+  (setq org-capture-templates
+        ;; https://orgmode.org/manual/Capture-templates.html
+        '(("a" "Appointment" entry (file jazzy/org/gcal/primary) "* %?\n\n%^T\n\n:PROPERTIES:\n\n:END:\n\n")
+          ("j" "Journal" entry (file+datetree jazzy/org/journal) "* %?\nEntered on %U\n  %i\n  %a")
+          ("l" "Link" entry (file+headline org-default-notes-file "Links") "* %? %^L %^g \n%T" :prepend t)
+          ("n" "Note" entry (file+headline org-default-notes-file "Notes") "* %?\n%u" :prepend t)
+          ("t" "To Do Item" entry (file+headline org-default-notes-file "To Dos") "* TODO %?\n%u" :prepend t)))
+  :bind(("C-c a" . org-agenda)))
+
+;;;; org-gcal
+;; https://github.com/myuhe/org-gcal.el
+;;
+;; Note: If you get an error simmilar to
+;; "Error (use-package): Failed to install org-gcal: http://orgmode.org/elpa/org-20171204.tar: Moved permanently"
+;; then try to install org-gcal via the package manager.
+(use-package org-gcal
+  :ensure t
+  :init
+  (add-hook 'org-agenda-mode-hook (lambda () (org-gcal-sync)))
+  (add-hook 'org-capture-after-finalize-hook (lambda () (org-gcal-sync)))
+  (defconst jazzy/org/gcal/primary (concat org-directory "/gcal-primary.org"))
+  (setq org-gcal-client-id jazzy/secrets/org/gcal/client-id
+        org-gcal-client-secret jazzy/secrets/org/gcal/client-secret
+        org-gcal-file-alist `(
+          (,jazzy/secrets/org/gcal/calendar-primary . ,jazzy/org/gcal/primary)))
+  (setq org-agenda-files (list jazzy/org/gcal/primary)))
+
+;;;; calfw
+;; https://github.com/kiwanami/emacs-calfw
+(use-package calfw-org
+  :ensure t)
+(use-package calfw-ical
+  :ensure t)
+(use-package calfw-gcal
+  :ensure t)
+(use-package calfw
+  :ensure t
+  :init
+  (setq cfw:org-overwrite-default-keybinding t)
+  (defun jazzy/calendar ()
+    (interactive)
+    (cfw:open-calendar-buffer
+     :contents-sources
+     (list
+      (cfw:ical-create-source "primary" jazzy/secrets/org/gcal/url-primary "IndianRed")
+      (cfw:ical-create-source "de-holidays" jazzy/secrets/org/gcal/url-de-holidays "Green")
+      (cfw:ical-create-source "gr-holidays" jazzy/secrets/org/gcal/url-gr-holidays "Blue")
+      (cfw:ical-create-source "gr-names" jazzy/secrets/org/gcal/url-gr-names "Yellow")))))
 
 ;;;; code/smartparens
 ;; http://emacsredux.com/blog/2013/11/01/highlight-matching-delimiters-with-smartparens/
