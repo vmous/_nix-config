@@ -608,6 +608,14 @@ This command does not push text to `kill-ring'."
   :bind ("<f5>" . markdown-live-preview-mode))
 
 
+;;;; csv-mode
+;; https://www.emacswiki.org/emacs/CsvMode
+(use-package csv-mode
+  :ensure t
+  :config
+  (add-hook 'csv-mode-hook (lambda () (setq indent-tabs-mode t))))
+
+
 ;;;;;;;; Developement
 
 ;;;; TABS
