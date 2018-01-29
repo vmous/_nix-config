@@ -490,6 +490,7 @@ This command does not push text to `kill-ring'."
   (add-hook 'LaTeX-mode-hook 'visual-line-mode)
   (add-hook 'LaTeX-mode-hook 'flyspell-mode)
   (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
+  (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
   ;; https://www.gnu.org/software/auctex/reftex.html
   (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
   (setq reftex-cite-format 'natbib)
@@ -556,8 +557,9 @@ This command does not push text to `kill-ring'."
 ;;  :diminish " 🔡" ;; 🐝
   :init
   (add-hook 'org-mode-hook 'flyspell-mode)
-  ;; this enables flyspell for prog-modes
   (add-hook 'prog-mode-hook 'flyspell-prog-mode)
+  (add-hook 'LaTeX-mode-hook 'flyspell-mode)
+  (add-hook 'LaTeX-mode-hook 'flyspell-buffer)
   :config
   (setq-default ispell-program-name "hunspell")
   (setq ispell-dictionary "en_US")
