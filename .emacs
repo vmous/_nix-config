@@ -181,6 +181,7 @@ This command does not push text to `kill-ring'."
  package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
                     ("org" . "http://orgmode.org/elpa/")
                     ("melpa" . "http://melpa.org/packages/")
+		    ("mepla-latex-preview-pane" . "http://melpa.milkbox.net/packages/")
                     ("melpa-stable" . "http://stable.melpa.org/packages/"))
  package-archive-priorities '(("melpa-stable" . 1)))
 
@@ -468,6 +469,46 @@ This command does not push text to `kill-ring'."
       (cfw:ical-create-source "de-holidays" jazzy/secrets/org/gcal/url-de-holidays "Green")
       (cfw:ical-create-source "gr-holidays" jazzy/secrets/org/gcal/url-gr-holidays "Blue")
       (cfw:ical-create-source "gr-names" jazzy/secrets/org/gcal/url-gr-names "Yellow")))))
+
+;;;;;; AUCTex/LaTeX
+(defvar jazzy/latex/bin "")
+
+(when macosx-p
+  (setq jazzy/latex/bin "/Library/TeX/texbin"))
+
+;;;; AUCTeX
+;; https://www.gnu.org/software/auctex/
+(use-package tex-site
+  :ensure auctex
+  :init
+  (setenv "PATH" (concat jazzy/latex/bin ":" (getenv "PATH")))
+  (add-to-list 'exec-path jazzy/latex/bin)
+  (setq TeX-auto-save t)
+  (setq TeX-parse-self t)
+  (setq-default TeX-master nil)
+  (setq LaTeX-math-menu-unicode t)
+  (add-hook 'LaTeX-mode-hook 'visual-line-mode)
+  (add-hook 'LaTeX-mode-hook 'flyspell-mode)
+  (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
+  ;; https://www.gnu.org/software/auctex/reftex.html
+  (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
+  (setq reftex-cite-format 'natbib)
+  (setq reftex-plug-into-AUCTeX t)
+;  ;; https://superuser.com/questions/142450/getting-emacs-to-use-pdflatex
+;  (setq latex-run-command "pdflatex")
+  (setq TeX-PDF-mode t))
+
+;;;; latex-preview-pane
+;; https://www.emacswiki.org/emacs/LaTeXPreviewPane
+;;
+;; Commands
+;; * Refresh Preview (bound to M-p)
+;; * Open in External Program (Bound to M-P)
+(use-package latex-preview-pane
+  :ensure t
+  :pin mepla-latex-preview-pane
+  :init
+  (latex-preview-pane-enable))
 
 ;;;; code/smartparens
 ;; http://emacsredux.com/blog/2013/11/01/highlight-matching-delimiters-with-smartparens/
