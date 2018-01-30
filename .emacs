@@ -499,6 +499,20 @@ This command does not push text to `kill-ring'."
 ;  (setq latex-run-command "pdflatex")
   (setq TeX-PDF-mode t))
 
+;;;; latex-math-preview
+;; https://github.com/emacsmirror/latex-math-preview
+;; https://www.emacswiki.org/emacs/LaTeXMathPreview
+;;
+;; latex-math-preview-expression
+;; latex-math-preview-insert-symbol
+(use-package latex-math-preview
+  :ensure t)
+
+;;;; px
+;; https://github.com/aaptel/preview-latex
+(use-package px
+  :ensure t)
+
 ;;;; latex-preview-pane
 ;; https://www.emacswiki.org/emacs/LaTeXPreviewPane
 ;;
