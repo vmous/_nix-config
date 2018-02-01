@@ -499,6 +499,16 @@ This command does not push text to `kill-ring'."
 ;  (setq latex-run-command "pdflatex")
   (setq TeX-PDF-mode t))
 
+;;;; cdlatex
+;; https://github.com/cdominik/cdlatex
+;;
+;; A full list of defined abbreviations is available with the command
+;; C-c ? (cdlatex-command-help)
+(use-package cdlatex
+  :ensure t
+  :init
+  (add-hook 'LaTeX-mode-hook 'turn-on-cdlatex))
+
 ;;;; latex-math-preview
 ;; https://github.com/emacsmirror/latex-math-preview
 ;; https://www.emacswiki.org/emacs/LaTeXMathPreview
