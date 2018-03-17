@@ -22,3 +22,16 @@
   ;; Fixing exec-path discrepancy between shell and Max OSX Finder launch 
   (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
   (setq exec-path (append exec-path '("/usr/local/bin"))))
+
+
+;;;; Workspace
+(defvar jazzy/env/workspace nil
+  "The workspace directory. It is assumed that it contains projects as first level directories. Known usages: projectile.")
+
+(when (or linux-p macosx-p amaznlinux-p)
+  (defconst _nix-workspace "~/Workspace")
+  (if (file-directory-p _nix-workspace)
+      (setq jazzy/env/workspace _nix-workspace)
+    (setq jazzy/env/workspace "~")
+    (message "Directory '%s' does not exist. Defaulting to user home '~'." _nix-workspace))
+)

@@ -653,6 +653,23 @@ This command does not push text to `kill-ring'."
 
 ;;;;;;;; Developement
 
+
+;;;; Projectile
+;; https://github.com/bbatsov/projectile
+;; https://projectile.readthedocs.io/en/latest/
+;;
+;; TODO:
+;; - https://projectile.readthedocs.io/en/latest/configuration/#regenerate-tags (make also sure you do https://projectile.readthedocs.io/en/latest/configuration/#idle-timer)
+;; - https://projectile.readthedocs.io/en/latest/configuration/#configure-a-projects-compilation-test-and-run-commands
+(use-package projectile
+  :ensure t
+  :init (projectile-global-mode)
+  :config
+  (setq projectile-mode-line '(:eval (format " Prjl[%s]" (projectile-project-name)))
+        projectile-enable-caching t)
+  (projectile-discover-projects-in-directory jazzy/env/workspace))
+
+
 ;;;; TABS
 ;; https://www.emacswiki.org/emacs/NoTabs
 ;; https://www.emacswiki.org/emacs/TabsAreEvil
