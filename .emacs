@@ -4,8 +4,9 @@
 (defvar amznlinux-p (string= system-name "dev-dsk-vmous-1c-f558cb86.eu-west-1.amazon.com"))
 
 ;;;;; Load secrets
-;; I keep sensitive information separately so that I can publish my main config.
-(load "~/.emacs.d/secrets")
+;; Keep sensitive information separately in order to be able to safely
+;; publish the Emacs config.
+(load "~/.emacs.d/secrets.el")
 
 
 ;;;;;; General Settings
