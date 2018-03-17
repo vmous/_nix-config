@@ -1,13 +1,4 @@
-;;;;; System Conditionals
-(defvar macosx-p (string= system-name "f45c89ad1c47.ant.amazon.com"))
-(defvar linux-p (string= system-name "ifrit"))
-(defvar amznlinux-p (string= system-name "dev-dsk-vmous-1c-f558cb86.eu-west-1.amazon.com"))
-
-;;;;; Load secrets
-;; Keep sensitive information separately in order to be able to safely
-;; publish the Emacs config.
-(load "~/.emacs.d/secrets.el")
-
+(load "~/.emacs.d/environment.el")
 
 ;;;;;; General Settings
 
@@ -164,11 +155,6 @@ This command does not push text to `kill-ring'."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(window-numbering-face ((t (:foreground "DeepPink" :underline "DeepPink" :weight bold))) t))
-
-(when macosx-p
-  ;; Fixing exec-path discrepancy between shell and Max OSX Finder launch 
-  (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
-  (setq exec-path (append exec-path '("/usr/local/bin"))))
 
 
 ;;;; package
