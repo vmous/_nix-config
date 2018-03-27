@@ -391,6 +391,8 @@ This command does not push text to `kill-ring'."
           ("n" "Note" entry (file+headline org-default-notes-file "Notes") "* %?\n%u" :prepend t)
           ("t" "To Do Item" entry (file+headline org-default-notes-file "To Dos") "* TODO %?\n%u" :prepend t)))
   (add-hook 'org-mode-hook (lambda () (org-indent-mode t)))
+  (setq org-todo-keywords
+        '((sequence "TODO" "IN-PROGRESS" "WAITING" "DONE")))
   :bind(("C-c a" . org-agenda)))
 
 ;;;; org-bullets
