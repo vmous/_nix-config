@@ -733,6 +733,11 @@ This command does not push text to `kill-ring'."
         company-dabbrev-downcase          nil))
 
 
+;;;; company-quickhelp
+;; https://github.com/expez/company-quickhelp
+(use-package company-quickhelp
+  :ensure t)
+
 ;;;; yasnippet
 ;; https://github.com/capitaomorte/yasnippet
 ;; http://capitaomorte.github.io/yasnippet/
@@ -799,46 +804,7 @@ This command does not push text to `kill-ring'."
 
 ;;;;;; Python
 
-
-;; To find out what to put in this list, do
-;; $ python3.5
-;; >>> import site; site.getsitepackages()
-;; ['x', 'y']
-;;
-;; Use 'x' and 'y'
-(defvar jazzy/dist-packages)
-
-(when macosx-p
-  (setq jazzy/dist-packages
-	'("--sys-path" "/usr/local/Cellar/python3/3.5.1/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages"
-	  "--sys-path" "/Library/Python/3.5/site-packages")))
-
-(when linux-p
-  (setq jazzy/dist-packages
-	'("--sys-path" "/usr/lib/python3/dist-packages"
-	  "--sys-path" "/usr/local/lib/python3.4/dist-packages")))
-
-(when amznlinux-p
-  (setq jazzy/dist-packages
-	'("--sys-path" "")))
-
-;;;; Jedi
-;; https://github.com/tkf/emacs-jedi
-;;
-;; The first time you need to install the Jedi server
-;; M-x jedi:install-server
-;;
-;; In case it complains about virtualenv not being available, install it:
-;; $ pip3 install virtualenv
-(use-package jedi
-  :ensure t
-  :init
-  (autoload 'jedi:setup "jedi" nil t)
-  (add-hook 'python-mode-hook 'jedi:setup)
-  :config
-  (setq jedi:server-args jazzy/dist-packages)
-  (setq jedi:complete-on-dot t))
-
+(load "~/.emacs.d/python.el")
 
 ;;;;;; Java
 

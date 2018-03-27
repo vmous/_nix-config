@@ -7,7 +7,6 @@
 ;; publish the Emacs configuration.
 (load "~/.emacs.d/secrets.el")
 
-
 ;;;;; System conditionals
 (defconst macosx-p (string= system-name jazzy/secrets/system-name/macosx)
   "True if Emacs is running on my Mac OS X system; nil otherwise.")
@@ -33,5 +32,4 @@
   (if (file-directory-p _nix-workspace)
       (setq jazzy/env/workspace _nix-workspace)
     (setq jazzy/env/workspace "~")
-    (message "Directory '%s' does not exist. Defaulting to user home '~'." _nix-workspace))
-)
+    (message "Directory '%s' does not exist. Defaulting to user home '~'." _nix-workspace)))
