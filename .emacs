@@ -468,70 +468,9 @@ This command does not push text to `kill-ring'."
       (cfw:ical-create-source "gr-holidays" jazzy/secrets/org/gcal/url-gr-holidays "Blue")
       (cfw:ical-create-source "gr-names" jazzy/secrets/org/gcal/url-gr-names "Yellow")))))
 
-;;;;;; AUCTex/LaTeX
-(defvar jazzy/latex/bin "")
+;;;;;; LaTeX
 
-(when macosx-p
-  (setq jazzy/latex/bin "/Library/TeX/texbin"))
-
-;;;; AUCTeX
-;; https://www.gnu.org/software/auctex/
-(use-package tex-site
-  :ensure auctex
-  :init
-  (setenv "PATH" (concat jazzy/latex/bin ":" (getenv "PATH")))
-  (add-to-list 'exec-path jazzy/latex/bin)
-  (setq TeX-auto-save t)
-  (setq TeX-parse-self t)
-  (setq-default TeX-master nil)
-  (setq LaTeX-math-menu-unicode t)
-  (add-hook 'LaTeX-mode-hook 'visual-line-mode)
-  (add-hook 'LaTeX-mode-hook 'flyspell-mode)
-  (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
-  (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
-  ;; https://www.gnu.org/software/auctex/reftex.html
-  (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
-  (setq reftex-cite-format 'natbib)
-  (setq reftex-plug-into-AUCTeX t)
-;  ;; https://superuser.com/questions/142450/getting-emacs-to-use-pdflatex
-;  (setq latex-run-command "pdflatex")
-  (setq TeX-PDF-mode t))
-
-;;;; cdlatex
-;; https://github.com/cdominik/cdlatex
-;;
-;; A full list of defined abbreviations is available with the command
-;; C-c ? (cdlatex-command-help)
-(use-package cdlatex
-  :ensure t
-  :init
-  (add-hook 'LaTeX-mode-hook 'turn-on-cdlatex))
-
-;;;; latex-math-preview
-;; https://github.com/emacsmirror/latex-math-preview
-;; https://www.emacswiki.org/emacs/LaTeXMathPreview
-;;
-;; latex-math-preview-expression
-;; latex-math-preview-insert-symbol
-(use-package latex-math-preview
-  :ensure t)
-
-;;;; px
-;; https://github.com/aaptel/preview-latex
-(use-package px
-  :ensure t)
-
-;;;; latex-preview-pane
-;; https://www.emacswiki.org/emacs/LaTeXPreviewPane
-;;
-;; Commands
-;; * Refresh Preview (bound to M-p)
-;; * Open in External Program (Bound to M-P)
-(use-package latex-preview-pane
-  :ensure t
-  :pin mepla-latex-preview-pane
-  :init
-  (latex-preview-pane-enable))
+(load "~/.emacs.d/latex.el")
 
 ;;;; code/smartparens
 ;; http://emacsredux.com/blog/2013/11/01/highlight-matching-delimiters-with-smartparens/
@@ -580,8 +519,6 @@ This command does not push text to `kill-ring'."
   :init
   (add-hook 'org-mode-hook 'flyspell-mode)
   (add-hook 'prog-mode-hook 'flyspell-prog-mode)
-  (add-hook 'LaTeX-mode-hook 'flyspell-mode)
-  (add-hook 'LaTeX-mode-hook 'flyspell-buffer)
   :config
   (setq-default ispell-program-name "hunspell")
   (setq ispell-dictionary "en_US")
