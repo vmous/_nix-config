@@ -192,6 +192,7 @@ This command does not push text to `kill-ring'."
   :ensure t)
 
 ;;;; themes
+;; https://pawelbx.github.io/emacs-theme-gallery/
 ;;(use-package solarized-theme
 ;;  :ensure t)
 ;;(load-theme 'solarized-dark)
