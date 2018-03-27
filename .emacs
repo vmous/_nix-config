@@ -289,7 +289,9 @@ This command does not push text to `kill-ring'."
 	ido-auto-merge-work-directories-length -1
 	ido-create-new-buffer 'always
 	ido-use-filename-at-point 'guess
-	;; disable ido faces to see flx highlights.
+        ;; show dot (current directory) as initial suggestion
+;        ido-show-dot-for-dired t
+	;; disable ido faces to see flx highlights
 	ido-use-faces nil))
 
 ;;(add-to-list 'load-path "~/.emacs.d/myels/")
