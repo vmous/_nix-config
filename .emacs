@@ -186,6 +186,11 @@ This command does not push text to `kill-ring'."
 (require 'diminish)
 (require 'bind-key)
 
+;;;; use-package-ensure-system-package
+;; https://github.com/waymondo/use-package-ensure-system-package
+(use-package use-package-ensure-system-package
+  :ensure t)
+
 ;;;; themes
 ;;(use-package solarized-theme
 ;;  :ensure t)
