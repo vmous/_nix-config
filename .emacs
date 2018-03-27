@@ -348,7 +348,8 @@ This command does not push text to `kill-ring'."
   :ensure t
   :init (smex-initialize)
   :config (setq smex-save-file (concat user-emacs-directory "smex-items"))
-  :bind ("M-x" . smex))
+  :bind (("M-x" . smex)
+         ("M-X" . smex-major-mode-commands)))
 
 (add-hook 'prog-mode-hook #'goto-address-prog-mode)
 
