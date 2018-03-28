@@ -366,6 +366,18 @@ This command does not push text to `kill-ring'."
   ;;(which-key-setup-side-window-right)
   (which-key-setup-side-window-bottom))
 
+
+;;;;;; Editing
+
+;;;; xah-math-input
+;; https://github.com/xahlee/xah-math-input
+;; http://ergoemacs.org/emacs/xmsi-math-symbols-input.html
+(use-package xah-math-input
+  :ensure t
+  :diminish
+  :init
+  (global-xah-math-input-mode t))
+
 ;;;;;; org-mode
 
 (load "~/.emacs.d/org.el")
