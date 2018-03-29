@@ -668,15 +668,7 @@ This command does not push text to `kill-ring'."
 
 ;;;;;; Javascript
 
-;;;; JSON mode
-(use-package json-mode
-  :ensure t
-  :mode "\\.json"
-  :init
-  (add-hook 'json-mode-hook #'flycheck-mode)
-  :config
-  (setq json-reformat:indent-width 4)
-  (setq js-indent-level 4))
+(load "~/.emacs.d/js.el")
 
 ;;;;;; Scala
 
