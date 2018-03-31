@@ -1,6 +1,16 @@
-;;;;;;;; xml.el
+;;;;;;;; html.el
 ;;;;
-;; File defining configuration for XML development.
+;; File defining configuration for HTML development.
+
+;;;;;; HTML
+
+;;;; impatient-mode
+;; https://github.com/skeeto/impatient-mode
+(use-package impatient-mode
+  :ensure t)
+
+
+;;;;;; XML
 
 (require 'hideshow)
 (require 'sgml-mode)

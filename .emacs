@@ -678,9 +678,9 @@ This command does not push text to `kill-ring'."
 
 (load "~/.emacs.d/c.el")
 
-;;;;;; XML
+;;;;;; HTML/XML
 
-(load "~/.emacs.d/xml.el")
+(load "~/.emacs.d/html.el")
 
 ;;;; SrSpeedbar
 ;;(use-package sr-speedbar
@@ -731,12 +731,3 @@ This command does not push text to `kill-ring'."
 ;;;; * auto encrypt/decrypt gpg files
 (require 'epa-file)
 (epa-file-enable)
-
-
-;;;;;; HTML
-
-
-;;;; impatient-mode
-;; https://github.com/skeeto/impatient-mode
-(use-package impatient-mode
-  :ensure t)
