@@ -652,11 +652,9 @@ This command does not push text to `kill-ring'."
   :config
   (flycheck-pos-tip-mode))
 
+;;;;;; Emacs Lisp
 
-
-;;;;;; EMACS Lisp
-(add-hook 'emacs-lisp-mode-hook 'prettify-symbols-mode)
-
+(load "~/.emacs.d/elisp.el")
 
 ;;;;;; Python
 
