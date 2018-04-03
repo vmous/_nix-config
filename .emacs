@@ -220,11 +220,6 @@ This command does not push text to `kill-ring'."
   :bind (("M-r" . er/expand-region)))
 
 
-(use-package shell
-  :ensure t
-  :config
-  (define-key comint-mode-map (kbd "<up>") 'comint-previous-input)
-  (define-key comint-mode-map (kbd "<down>") 'comint-next-input))
 
 
 
@@ -399,52 +394,6 @@ This command does not push text to `kill-ring'."
 
 (load "~/.emacs.d/html.el")
 
-;;;; SrSpeedbar
-;;(use-package sr-speedbar
-;;  :ensure t
-;;  :config
-;;  (setq speedbar-use-images nil
-;;	sr-speedbar-right-side nil
-;;	sr-speedbar-width-x 8
-;;	sr-speedbar-width-console 8
-;;	sr-speedbar-max-width 8
-;;	sr-speedbar-skip-other-window-p t
-;;	sr-speedbar-delete-windows t))
+;;;;;;;; System
 
-
-
-
-
-
-
-
-;;;;;;; Networking
-
-
-;;;; TRAMP (Transparent Remote Access, Multiple Protocols)
-;; https://www.emacswiki.org/emacs/TrampMode
-;;
-;; First add the following block to your ~/.ssh/config
-;; #+BEGIN_EXAMPLE
-;; Host *
-;;     # ...
-;;     # reuse/multiplex connections
-;;     ControlPath ~/.var/ssh/sshmux-%C
-;;     ControlMaster auto
-;;     ControlPersist yes
-;; #+END_EXAMPLE
-;;
-;; Note: You might need to reload the fs attributes for ido autocompletion to
-;;       work with newly created files with TRAMP. To do so hit C-l.
-(use-package tramp
-  :config
-  (setq tramp-remote-path '(tramp-default-remote-path "/bin" "/usr/bin" "/sbin" "/usr/sbin")
-  ;; play nice with .ssh/config
-  tramp-ssh-controlmaster-options ""))
-
-;;;; * auto-decompress files
-(auto-compression-mode 1)
-
-;;;; * auto encrypt/decrypt gpg files
-(require 'epa-file)
-(epa-file-enable)
+(load "~/.emacs.d/sys.el")
