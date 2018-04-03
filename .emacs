@@ -255,6 +255,10 @@ This command does not push text to `kill-ring'."
 
 (load "~/.emacs.d/org.el")
 
+;;;;;; Markdown
+
+(load "~/.emacs.d/markdown.el")
+
 ;;;;;; LaTeX
 
 (load "~/.emacs.d/latex.el")
@@ -330,27 +334,6 @@ This command does not push text to `kill-ring'."
   :ensure t
   :bind (("C-c r" . vr/replace)
          ("C-c q" . vr/query-replace)))
-
-
-;;;; markdown-mode
-;; http://jblevins.org/projects/markdown-mode/ 
-;; For the preview required to install
-;;  - Ubuntu: sudo apt-get install libtext-multimarkdown-perl
-;;  - MacOSX: brew install multimarkdown
-(use-package markdown-mode
-  :ensure t
-  :commands (markdown-mode gfm-mode)
-  :mode (("README\\.md\\'" . gfm-mode)
-         ("\\.md\\'" . markdown-mode)
-         ("\\.markdown\\'" . markdown-mode))
-  :config
-  (use-package markdown-mode+ :ensure t :defer t)
-  (use-package markdown-preview-mode :ensure t :defer t)
-  (use-package markdown-preview-eww :ensure t :defer t)
-  ;; splitting vertically when openning preview in eww
-  (setq split-height-threshold nil)
-  :init (setq markdown-command "multimarkdown")
-  :bind ("<f5>" . markdown-live-preview-mode))
 
 
 ;;;; csv-mode
