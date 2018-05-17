@@ -8,8 +8,8 @@
 ;;(defvar jazzy/eclimd-default-workspace)
 
 
-(defvar jazzy/JAVA_HOME)
-(defvar jazzy/JAVA)
+(defvar jazzy/JAVA_HOME "")
+(defvar jazzy/JAVA "")
 
 
 (when macosx-p
@@ -18,8 +18,8 @@
 ;;  (setq jazzy/eclimd-executable "/Users/vmous/Applications/Eclipse.app/Contents/Eclipse/eclimd")
 ;;  (setq jazzy/eclimd-default-workspace "/Users/vmous/Workspace/eclipsews")
 
-  (setq jazzy/JAVA_HOME "/Library/Java/JavaVirtualMachines/jdk1.8.0_151.jdk/Contents/Home")
-  (setq jazzy/JAVA "/Library/Java/JavaVirtualMachines/jdk1.8.0_151.jdk/Contents/Home/bin/java")
+  (setq jazzy/JAVA_HOME "/Library/Java/JavaVirtualMachines/jdk-9.0.4.jdk/Contents/Home/")
+  (setq jazzy/JAVA "/Library/Java/JavaVirtualMachines/jdk-9.0.4.jdk/Contents/Home/bin/java")
 )
 
 

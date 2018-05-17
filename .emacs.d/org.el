@@ -7,7 +7,7 @@
 (use-package org
   :ensure t
   :init
-  (setq visual-line-mode t
+  (setq visual-line-mode t ;; wrap lines
         adaptive-wrap-prefix-mode t
         org-completion-use-ido t
         org-export-coding-system 'utf-8

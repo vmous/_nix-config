@@ -227,7 +227,7 @@ This command does not push text to `kill-ring'."
 
 ;;;;;; LaTeX
 
-(load "~/.emacs.d/latex.el")
+;;(load "~/.emacs.d/latex.el")
 
 ;;;;;; pdf
 

@@ -27,7 +27,7 @@
 (defvar jazzy/env/workspace nil
   "The workspace directory. It is assumed that it contains projects as first level directories. Known usages: projectile.")
 
-(when (or linux-p macosx-p amaznlinux-p)
+(when (or linux-p macosx-p amznlinux-p)
   (defconst _nix-workspace "~/Workspace")
   (if (file-directory-p _nix-workspace)
       (setq jazzy/env/workspace _nix-workspace)
