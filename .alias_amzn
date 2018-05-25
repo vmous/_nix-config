@@ -162,15 +162,27 @@ function j-aws-s3-multipart-workaround {
   eval ${CMD}
 }
 
-function j-aws-s3-get-kms {
-  if [[ ${#} -ne 1 ]]; then
-    echo "Please provide the link of the S3 object."
-    echo "Example: $0 <link>"
-    echo "where <link> is the link provided in the S3 object's overviwe console page (e.g. 'https://s3.amazonaws.com/<bucket>/<key>')"
+function j-aws-s3-get {
+  local USAGE="Usage: $0 <krypt|kms> <link>,\nwhere <enc> can be either \"krypt\" or \"kms\" and <link> is the link provided in the S3 object's overviwe console page (e.g. 'https://s3.amazonaws.com/<bucket>/<key>')"
+
+  if [[ ${#} -ne 2 ]]; then
+    echo "Wrong number of arguments."
+    echo ${USAGE}
     return
   fi
 
-  local URL=${1}
+  local ENC=""
+  if [[ "${1}" = "krypt" ]]; then
+    # nothing to do
+  elif [[ "${1}" = "kms" ]]; then
+    ENC="-k us-east-1 -e KMS -m \"dcda7203-d69b-4014-a560-377f9bbd3b5f\""
+  else
+    echo "Unsupported encoding argument \"${1}\"."
+    echo ${USAGE}
+    return
+  fi
+
+  local URL=${2}
   local ENDPOINT="$(echo ${URL} | sed -e's,^\(https://s3.amazonaws.com/\).*,\1,g')"
   URL=$(echo ${URL} | sed -e s,${ENDPOINT},,g)
   local BUCKET="$(echo ${URL} | sed -e's,^\([^/]*\).*,\1,g')"
@@ -178,7 +190,7 @@ function j-aws-s3-get-kms {
   local KEY=$(echo ${URL} | sed -e s,^/,,g)
   local FILE=$(echo ${KEY} | sed -e s,/,.,g)
 
-  local CMD="s3GetEncrypted -b ${BUCKET} -o ${KEY} -e KMS -k us-east-1 -c com.a9.relevance.common.aws -m \"dcda7203-d69b-4014-a560-377f9bbd3b5f\" --region us-east-1 --endpoint s3.amazonaws.com > ${FILE}"
+  local CMD="s3GetEncrypted -b ${BUCKET} -o ${KEY} ${ENC} -c com.a9.relevance.common.aws --region us-east-1 --endpoint s3.amazonaws.com > ${FILE}"
 
   #  s3GetEncrypted -b a9-behavior-driven-matching-alpha -o projects/bdm/prediction/input-xdf-features/eu/eu-kitchen-in.csv -k us-east-1 -c com.a9.relevance.common.aws -m com.a9.relevance.common.crypt_keypair > 20170717_eu-kitchen-in.csv
 
