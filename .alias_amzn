@@ -78,7 +78,7 @@ alias j-aed='sudo /apollo/bin/runCommand -a Deactivate -e'
 # Laguna
 #
 alias j-laguna='/apollo/bin/env -e Laguna-Client laguna_emr'
-alias j-laguna-ls='j-laguna list-cluster'
+alias j-laguna-ls='j-laguna list-clusters'
 alias j-laguna-create='j-laguna create-cluster -c'
 function j-laguna-create-jazzy {
     local CLUSTER_NAME=$1; shift
