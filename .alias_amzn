@@ -132,11 +132,9 @@ alias j-aws-o-anal-qnrmuc='export AWS_CREDENTIALS_ODIN=com.amazon.access.search-
 # AWS Console Access
 #
 
-alias j-aws-c-rel-qnr='open $(=ssh dev-dsk-vmous-1c-f558cb86.eu-west-1.amazon.com /apollo/env/envImprovement/bin/aws-console-access --with-admin com.amazon.access.a9-search-relevance-qnr-console-access-1)'
-alias j-aws-c-rel-ro='/apollo/bin/env -e envImprovement aws-console-access com.a9.relevance.common.aws --with-read-only'
-alias j-aws-c-rel-pow='/apollo/bin/env -e envImprovement aws-console-access com.a9.relevance.common.aws --with-power-user'
-alias j-aws-c-rel-admin='/apollo/bin/env -e envImprovement aws-console-access com.a9.relevance.common.aws --with-admin'
-alias j-aws-infra-admin='/apollo/bin/env -e envImprovement aws-console-access ec2-a9-search-infra-account --with-admin'
+# can add `--with-admin`, `--with-read-only` or `--with-power-user`
+alias j-aws-c-rel='open $(=ssh vmous.aka.corp.amazon.com /apollo/bin/env -e envImprovement aws-console-access com.a9.relevance.common.aws --with-admin)'
+#alias j-aws-c-infra='open $(=ssh vmous.aka.corp.amazon.com /apollo/bin/env -e envImprovement aws-console-access ec2-a9-search-infra-account --with-admin)'
 
 #
 # AWS EC2
