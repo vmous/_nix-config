@@ -72,6 +72,8 @@ alias j-brcp-all='j-brcp --allPackages'
 
 alias j-bre='brazil-runtime-exec'
 
+alias j-bo='/apollo/env/OctaneBrazilTools/bin/brazil-octane'
+
 alias SHUTUP='export MAKE_OUTPUT_LEVEL=QUIET'
 
 ############################## apollo ###########################################
