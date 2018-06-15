@@ -29,6 +29,7 @@ function j-yubikey-upgrade {
 ############################## brazil ###########################################
 alias j-bw='cd /workplace/vmous/'
 
+# workspace
 alias j-bw='brazil ws'
 alias j-bwc='j-bw --create'
 alias j-bwd='j-bw --delete'
@@ -47,12 +48,17 @@ alias j-bwc-bdm-predict='j-bwc -vs A9SearchBDMPredictionBuild/release'
 alias j-bwc-rsas='j-bwc -vs RemoteSearchAggregator/release'
 alias j-bwc-bdm-predict-container-build='j-bwc -vs A9SearchBDMPredictionBuild/container-build'
 
+# versionset
+alias j-bvrup='brazil vs --removeunusedpackages --vs'
+
+# package cache
 alias j-bpc='brazil-package-cache'
 alias j-bpcd='j-bpc disable_edge_cache'
 alias j-bpce='j-bpc enable_edge_cache'
 alias j-bpcs='j-bpc start'
 alias j-bpcr='j-bpcd && j-bpce && j-bpcs'
 
+# build
 alias j-bb='brazil-build'
 alias bb='j-bb'
 alias j-bbb='j-bb build'
@@ -64,6 +70,7 @@ alias j-bbr='j-bb release'
 alias j-bb-ensime='j-bb scala-dev-init'
 alias j-bb-cbtr='j-bbc 2>&1 | tee clean.log && j-bb 2>&1 | tee build.log && j-bbt 2>&1 | tee test.log && j-bbr 2>&1 | tee release.log'
 
+# misc.
 alias j-brc='brazil-recursive-cmd'
 alias j-brc-all='j-brc --allPackages'
 
