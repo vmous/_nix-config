@@ -82,6 +82,11 @@ fi
 
 ############################## aliases ##########################################
 source ~/.alias
+if [[ "${JUNAME}" == "Linux" ]]; then
+    # "ls -G" for BSD ls (comming from .alias that was just sourced)
+    # "ls --colour=auto" for GNU
+    alias ls='ls --color=auto'
+fi
 
 ############################## colours ##########################################
 if [[ "${JMACHINE}" != "worklinux" ]]; then

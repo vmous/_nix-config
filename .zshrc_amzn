@@ -5,6 +5,9 @@
 # source /home/$USER/.zshrc_amzn
 #
 
+# Interesting configuration at sourced by the following
+# /apollo/env/envImprovement/dotfiles/zshrc
+# /apollo/env/envImprovement/dotfiles/anysync
 source /apollo/env/envImprovement/var/zshrc
 
 export BRAZIL_WORKSPACE_DEFAULT_LAYOUT=short

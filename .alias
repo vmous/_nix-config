@@ -1,6 +1,6 @@
 ############################## 'ls' family ######################################
 # The above assumes you use a recent version of GNU ls
-alias ll="ls -l"
+alias ll="ls -lh"
 alias ls='ls -hFG'         # add colors for filetype recognition
 alias la='ls -Al'          # show hidden files
 alias lx='ls -lXB'         # sort by extension
