@@ -28,6 +28,7 @@
     (add-hook 'org-mode-hook 'turn-on-flyspell))
   (setq org-todo-keywords
         '((sequence "TODO" "IN-PROGRESS" "WAITING" "DONE")))
+  (org-babel-do-load-languages 'org-babel-load-languages '((python . t)))
   :bind(("C-c a" . org-agenda)))
 
 
