@@ -56,6 +56,10 @@
 (global-set-key (kbd "C-c <right>") 'windmove-right)
 (global-set-key (kbd "C-c <up>") 'windmove-up)
 (global-set-key (kbd "C-c <down>") 'windmove-down)
+;; split-window
+;; Change to new window after split
+(global-set-key (kbd "C-x 2") (lambda () (interactive)(split-window-vertically) (other-window 1)))
+(global-set-key (kbd "C-x 3") (lambda () (interactive)(split-window-horizontally) (other-window 1)))
 ;; sr-speedbar
 ;;(global-set-key (kbd "<f1>") 'sr-speedbar-toggle)
 ;; window resize
