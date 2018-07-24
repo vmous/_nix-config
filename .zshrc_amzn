@@ -24,6 +24,10 @@ done
 
 export PATH=$PATH:/apollo/env/JavaSE10/jdk-10/bin
 
+export M2_HOME=/workplace/sandbox/software/maven/apache-maven-3.5.4
+export M2=$M2_HOME/bin
+export PATH=$M2:$PATH
+
 # override brazil platform to use RHEL5 artifacts by default
 # according to: https://w.amazon.com/index.php/Search/A9/Infra/CorpDevBoxes#Amazon_Linux
 #export BRAZIL_PLATFORM_OVERRIDE=RHEL5_64
