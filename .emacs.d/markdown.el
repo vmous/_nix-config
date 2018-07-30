@@ -19,5 +19,6 @@
   (use-package markdown-preview-eww :ensure t :defer t)
   ;; splitting vertically when openning preview in eww
   (setq split-height-threshold nil)
+  (add-hook 'markdown-mode-hook 'turn-on-flyspell)
   :init (setq markdown-command "multimarkdown")
   :bind ("<f5>" . markdown-live-preview-mode))
