@@ -5,7 +5,7 @@
 ;;;; flyspell
 ;; https://www.emacswiki.org/emacs/FlySpell
 ;;
-;; Bellow the ispell probram is hunspell (http://hunspell.github.io/).
+;; Below the ispell program is hunspell (http://hunspell.github.io/).
 ;; You need to install it on your system:
 ;; - MacOSX: brew install hunspell
 ;; - Debian: sudo apt-get install hunspell
@@ -25,8 +25,8 @@
   (add-hook 'prog-mode-hook 'flyspell-prog-mode)
   :config
   (setq-default ispell-program-name "hunspell")
-  (setq ispell-dictionary "en_US")
-  (setq ispell-dictionary-alist
+  (setq ispell-local-dictionary "en_US")
+  (setq ispell-local-dictionary-alist
 	;; Please note the list `("-d" "en_US")` contains ACTUAL parameters passed to hunspell
 	;; You could use `("-d" "en_US,en_US-med")` to check with multiple dictionaries
 	'(("en_US" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_US") nil utf-8)
