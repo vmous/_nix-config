@@ -67,7 +67,9 @@
   :config
   (setq magit-completing-read-function 'magit-ido-completing-read)
   (add-hook 'git-commit-mode-hook 'turn-on-flyspell)
-  :bind ("C-c g s" . magit-status))
+  :bind
+  ("C-c g s" . magit-status)
+  ("C-c g b" . magit-blame))
 
 
 ;;;; flycheck
