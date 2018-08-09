@@ -36,6 +36,14 @@ alias pgrep='pgrep -fl'
 alias j-listeners='sudo lsof -PiTCP -sTCP:LISTEN'
 alias simpleserver='python -m SimpleHTTPServer'
 
+function j-which() {
+  if command -v "${1}" >/dev/null 2>&1 ; then
+    readlink -f `which "${1}"`
+  else
+    echo "Command ${1} does not exist."
+  fi
+}
+
 function j-tmux() {
   cmd_exists tmux || { echo >&2 "Cannot find tmux. Aborting."; return; }
 
