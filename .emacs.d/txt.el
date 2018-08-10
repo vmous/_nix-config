@@ -43,6 +43,18 @@
               ("C-;" . flyspell-popup-correct)))
 
 
+;;;; google-translate
+;; https://github.com/atykhonov/google-translate
+(use-package google-translate
+  :ensure t
+  :config
+  (require 'google-translate)
+  (require 'google-translate-default-ui)
+  (setq google-translate-enable-ido-completion t)
+  (global-set-key "\C-ct" 'google-translate-at-point)
+  (global-set-key "\C-cT" 'google-translate-query-translate))
+
+
 ;;;; code/smartparens
 ;; http://emacsredux.com/blog/2013/11/01/highlight-matching-delimiters-with-smartparens/
 (use-package smartparens-config
