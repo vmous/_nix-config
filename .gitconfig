@@ -1,0 +1,27 @@
+[user]
+	name = Vassilis S. Moustakas
+	email = vsmoustakas@gmail.com
+[core]
+	editor = emacs -nw
+	pager = less -FMRiX
+[color]
+	ui = auto
+[push]
+	default = simple
+[alias]
+	dag = log --graph --format='format:%C(yellow)%h%C(reset) %C(blue)\"%an\" <%ae>%C(reset) %C(magenta)%cr%C(reset)%C(auto)%d%C(reset)%n%s' --date-order
+	st = status
+	ci = commit
+	br = branch
+	co = checkout
+	df = diff
+	dc = diff --cached
+	untrack = rm --cache --
+	llog = log --oneline @{upstream}..HEAD
+	llp = log -p @{upstream}..HEAD
+	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
