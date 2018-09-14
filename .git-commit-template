@@ -1,17 +1,15 @@
-(1-line description)
+<Mandatory - 1-line description>
 
-(optional - context)
+<Optional - Give context if necessary but limit it to two-three sentences>
 
-IMPACT:
+IMPACT: <Mandatory - Expected behavior change (e.g. what it may break / regression, monitors...)>
 
-ROLLBACK IMPLICATIONS:
+ROLLBACK IMPLICATIONS: <Optional - If this change were to be rolled back, what negative impact if any will occur?>
 
-SIM/TT:
+SIM/TT: <Optional - Links to related tracking information>
 
-URL:
+URL: <Optional - If this change is big then link to a project page for more context>
 
-QA:
+QA/TEST: <Mandatory - How was this change tested>
 
-TEST:
-
-CR: 
+CR: <Mandatory - Link to the CR>
