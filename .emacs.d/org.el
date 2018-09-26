@@ -87,12 +87,6 @@
 
 ;;;; calfw
 ;; https://github.com/kiwanami/emacs-calfw
-(use-package calfw-org
-  :ensure t)
-(use-package calfw-ical
-  :ensure t)
-(use-package calfw-gcal
-  :ensure t)
 (use-package calfw
   :ensure t
   :init
@@ -106,3 +100,9 @@
       (cfw:ical-create-source "de-holidays" jazzy/secrets/org/gcal/url-de-holidays "Green")
       (cfw:ical-create-source "gr-holidays" jazzy/secrets/org/gcal/url-gr-holidays "Blue")
       (cfw:ical-create-source "gr-names" jazzy/secrets/org/gcal/url-gr-names "Yellow")))))
+(use-package calfw-org
+  :ensure t)
+(use-package calfw-ical
+  :ensure t)
+(use-package calfw-gcal
+  :ensure t)
