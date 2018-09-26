@@ -225,3 +225,18 @@ if [[ "${JMACHINE}" == "mac" ]]; then
     # brew cask install mactex
     export PATH="${PATH}:/Library/TeX/texbin"
 fi
+
+# pyenv + pyenv-virtualenv
+if [[ "${JMACHINE}" == "mac" ]]; then
+    # Install pyenv via Homebrew first
+    # brew install pyenv
+    if cmd_exists pyenv; then
+        eval "$(pyenv init -)"
+    fi
+
+    # Install pyenv-virtualenv via Homebrew first
+    # brew install pyenv-virtualenv
+    if cmd_exists pyenv-virtualenv-init; then
+        eval "$(pyenv virtualenv-init -)"
+    fi
+fi
