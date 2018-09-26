@@ -21,11 +21,13 @@
   (elpy-enable)
   (setq elpy-rpc-backend "jedi")
   ;; Use Flycheck instead of Flymake
-  (when (require 'flycheck nil t)
-    (remove-hook 'elpy-modules 'elpy-module-flymake)
-    (remove-hook 'elpy-modules 'elpy-module-yasnippet)
-    (remove-hook 'elpy-mode-hook 'elpy-module-highlight-indentation)
-    (add-hook 'elpy-mode-hook 'flycheck-mode))
+  ;; IMPORTANT: Below snippet was commented out because it causes Emacs to hang
+  ;; at startup if there are TRAMP connection to be restored with `desktop`.
+;  (when (require 'flycheck nil t)
+;    (remove-hook 'elpy-modules 'elpy-module-flymake)
+;    (remove-hook 'elpy-modules 'elpy-module-yasnippet)
+;    (remove-hook 'elpy-mode-hook 'elpy-module-highlight-indentation)
+;    (add-hook 'elpy-mode-hook 'flycheck-mode))
   (add-hook 'python-mode-hook 'elpy-mode)
   (add-hook 'python-mode-hook 'company-quickhelp-mode)
   (define-key elpy-mode-map (kbd "M-.") 'elpy-goto-definition)

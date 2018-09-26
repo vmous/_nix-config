@@ -8,9 +8,13 @@
   :ensure t
   :config
   (setq desktop-auto-save-timeout 3600
-	desktop-file-not-to-save nil
-	desktop-buffers-not-to-save "^$")
-  (desktop-save-mode)
+        desktop-files-not-to-save nil
+        desktop-buffers-not-to-save nil)
+  (add-to-list 'desktop-modes-not-to-save 'dired-mode)
+  (add-to-list 'desktop-modes-not-to-save 'Info-mode)
+  (add-to-list 'desktop-modes-not-to-save 'info-lookup-mode)
+  (add-to-list 'desktop-modes-not-to-save 'fundamental-mode)
+  (desktop-save-mode 1)
   (save-place-mode 1))
 
 
