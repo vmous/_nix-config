@@ -30,23 +30,38 @@
 (column-number-mode t)
 (delete-selection-mode t)
 (display-time)
-;; backup files
-;; https://www.emacswiki.org/emacs/BackupDirectory
+
+;;;; Backup and auto-save
+;; ftp://ftp.gnu.org/old-gnu/Manuals/elisp-manual-20-2.5/html_chapter/elisp_26.html
 (setq
+ ;; Backup
+ ;; https://www.emacswiki.org/emacs/BackupFiles
+ ;; TODO: Disable backups for su and sudo methods
+ ;; https://www.gnu.org/software/emacs/manual/html_node/tramp/Auto_002dsave-and-Backup.html
+ ;;
  ;; don't clobber symlinks
  backup-by-copying t
- ;; don't litter my fs tree
- backup-directory-alist '(("." . "~/.emacs.d/backup"))
+ ;; backup even version controlled files
+ vc-make-backup-files t
+ ;; don't litter my FS tree
+ backup-directory-alist `(("." . ,(file-name-as-directory jazzy/env/backup-dir)))
  delete-old-versions t
  kept-new-versions 6
  kept-old-versions 2
  ;; use versioned backups
- version-control t)
+ version-control t
+ ;; Auto-save
+ ;; https://www.emacswiki.org/emacs/AutoSave
+ ;; NOTE: If I want to disable auto-save for files opened as roo check:
+ ;; https://emacs.stackexchange.com/questions/14846/how-to-disable-auto-save-in-emacs-only-for-files-opened-as-root
+ auto-save-file-name-transforms `((".*" ,(file-name-as-directory jazzy/env/backup-dir) t))
+ ; auto-save every 50 chars. 20 is the minimum.
+ auto-save-interval 50)
+
 ;;smooth scrolling
 (setq scroll-margin 5
       scroll-conservatively 9999
       scroll-step 1)
-
 
 ;;;; General Key Bindings
 (global-set-key (kbd "C-x c") 'customize)

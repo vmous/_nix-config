@@ -16,7 +16,7 @@
   "True if Emacs is running on my Amazon Linux system; nil otherwise.")
 
 
-;;;; Environment Variables
+;;;; Environment Variabes
 (when macosx-p
   (defun jazzy/funcs/set-exec-path-from-shell-PATH ()
     "Set up Emacs' `exec-path' and PATH environment variable to match that used by the user's shell. Ensures that PATH is taken from shell. Necessary on some environments without virtualenv. Taken from: http://stackoverflow.com/questions/8606954/path-and-exec-path-set-but-emacs-does-not-find-executable."
@@ -34,6 +34,18 @@
   ;; Fixing exec-path discrepancy between shell and Max OSX Finder launch 
   (jazzy/funcs/set-exec-path-from-shell-PATH))
 
+;;;; Backup/auto-save directory
+(defvar jazzy/env/backup-dir temporary-file-directory
+  "Directory where the backup (*~) and auto-save (#*#) files are saved.
+
+Defaults to the system's temporary directory (e.g., /tmp/ for *nix).")
+(defconst _backup-dir (expand-file-name (concat user-emacs-directory "backup")))
+(if (file-exists-p _backup-dir)
+    (setq jazzy/env/backup-dir _backup-dir)
+  (if (y-or-n-p (format "Directory `%s' does not exist! Create it?" _backup-dir))
+      (progn
+	(make-directory _backup-dir)
+	(setq jazzy/env/backup-dir _backup-dir))))
 
 ;;;; Workspace
 (defvar jazzy/env/workspace nil

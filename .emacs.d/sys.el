@@ -24,13 +24,13 @@
 ;;     ControlPersist yes
 ;; #+END_EXAMPLE
 ;;
-;; Note: You might need to reload the fs attributes for ido autocompletion to
+;; NOTE: You might need to reload the fs attributes for ido autocompletion to
 ;;       work with newly created files with TRAMP. To do so hit C-l.
 (use-package tramp
   :config
   (setq tramp-remote-path '(tramp-default-remote-path "/bin" "/usr/bin" "/sbin" "/usr/sbin")
-  ;; play nice with .ssh/config
-  tramp-ssh-controlmaster-options ""))
+        ;; play nice with .ssh/config
+        tramp-ssh-controlmaster-options ""))
 
 ;;;; * auto-decompress files
 (auto-compression-mode 1)
