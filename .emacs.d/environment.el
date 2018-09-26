@@ -39,21 +39,22 @@
   "Directory where the backup (*~) and auto-save (#*#) files are saved.
 
 Defaults to the system's temporary directory (e.g., /tmp/ for *nix).")
-(defconst _backup-dir (expand-file-name (concat user-emacs-directory "backup")))
-(if (file-exists-p _backup-dir)
-    (setq jazzy/env/backup-dir _backup-dir)
-  (if (y-or-n-p (format "Directory `%s' does not exist! Create it?" _backup-dir))
-      (progn
-	(make-directory _backup-dir)
-	(setq jazzy/env/backup-dir _backup-dir))))
+(let ((_backup-dir (expand-file-name (concat user-emacs-directory "backup"))))
+  (if (file-exists-p _backup-dir)
+      (setq jazzy/env/backup-dir _backup-dir)
+    (if (y-or-n-p (format "Directory `%s' does not exist! Create it?" _backup-dir))
+        (progn
+          (make-directory _backup-dir)
+          (setq jazzy/env/backup-dir _backup-dir)))))
 
 ;;;; Workspace
-(defvar jazzy/env/workspace nil
-  "The workspace directory. It is assumed that it contains projects as first level directories. Known usages: projectile.")
-
 (when (or linux-p macosx-p amznlinux-p)
-  (defconst _nix-workspace "~/Workspace")
-  (if (file-directory-p _nix-workspace)
-      (setq jazzy/env/workspace _nix-workspace)
-    (setq jazzy/env/workspace "~")
-    (message "Directory '%s' does not exist. Defaulting to user home '~'." _nix-workspace)))
+  (defvar jazzy/env/workspace (substitute-in-file-name "${HOME}")
+    "The workspace directory which is assumed to contain project folders as first level directories (known usages: `projectile').
+
+Defaults to ${HOME}")
+  (let ((_nix-workspace (substitute-in-file-name "${HOME}/Workspace")))
+    (if (file-directory-p _nix-workspace)
+        (setq jazzy/env/workspace _nix-workspace)
+      (setq jazzy/env/workspace "~")
+      (message "Directory '%s' does not exist. Defaulting to user home '~'." _nix-workspace))))
