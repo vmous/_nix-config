@@ -26,6 +26,8 @@ function j-yubikey-upgrade {
   rm -rf ${_tmp_dir}
 }
 
+alias j-perm-sync='sudo /usr/multipass/bin/auth-sync.pl -a'
+
 ############################## brazil ###########################################
 alias j-bw='cd /workplace/vmous/'
 
