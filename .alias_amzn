@@ -224,49 +224,55 @@ function j-aws-s3-get {
 #
 # AWS EMR
 #
-function j-aws-emr-tunnel-laguna {
-  if [ $# -eq 0 ]; then
-    echo "Please provide the master node public DNS."
-    echo "Example: $0 <master_node>"
+function j-aws-emr-tunnel {
+  local USAGE="Usage: $0 <pem_file> <masternodedns>"
+
+  if [[ ${#} -ne 2 ]]; then
+    echo "Wrong number of arguments."
+    echo ${USAGE}
     return
   fi
 
-  local _ssh_cmd="ssh -i ~/.ssh/laguna-ec2key.pem -ND 8157 hadoop@${1} &"
-  eval ${_ssh_cmd}
+  local CMD="ssh -o \"StrictHostKeyChecking no\" -i ${1} -ND 8157 hadoop@${2} &"
+  echo "Executing: ${CMD}"
+
+  eval ${CMD}
 }
 
-function j-aws-emr-webuis-laguna {
-  if [ $# -eq 0 ]; then
-    echo "Please provide the master node public DNS."
-    echo "Example: $0 <masternode public DNS>"
+function j-aws-emr-webuis {
+  local USAGE="Usage: $0 <pem_file> <masternodedns>"
+
+  if [[ ${#} -ne 2 ]]; then
+    echo "Wrong number of arguments."
+    echo ${USAGE}
     return
   fi
 
-  j-aws-emr-tunnel-laguna ${1}
-  local _sleep_secs="sleep 2"
-  eval ${_sleep_secs}
+  j-aws-emr-tunnel ${1} ${2}
+
+  sleep 2
 
   echo "---------------------------------------------"
   echo "| Interface             | URI"
   echo "---------------------------------------------"
-  echo "| Yarn Resource Manager | http://$1:8088";
-  open http://$1:8088
+  echo "| Yarn Resource Manager | http://${2}:8088";
+  open http://${2}:8088
   #echo "| Yarn Node Manager     | http://<slave-public-dns-name>:8042"
-  echo "| Hadoop HDFS NameNode  | http://$1:50070";
-  open http://$1:50070
+  echo "| Hadoop HDFS NameNode  | http://${2}:50070";
+  open http://${2}:50070
   #echo "| Hadoop HDFS DataNode  | http://<slave-public-dns-name>:50075"
-  echo "| Spark HistoryServer   | http://$1:18080";
-  open http://$1:18080
-  echo "| Zeppellin             | http://$1:8890";
-  open http://$1:8890
-  echo "| Jupiter               | http://$1:8880";
-  open http://$1:8880
-  #echo "| Hue                   | http://$1:8888";
-  #open http://$1:8888
-  echo "| Ganglia               | http://$1/ganglia/";
-  open http://$1/ganglia/
-  #echo "| HBase UI              | http://$1:16010";
-  #open http://$1:16010
+  echo "| Spark HistoryServer   | http://${2}:18080";
+  open http://${2}:18080
+  echo "| Zeppellin             | http://${2}:8890";
+  open http://${2}:8890
+  echo "| Jupiter               | http://${2}:8880";
+  open http://${2}:8880
+  #echo "| Hue                   | http://${2}:8888";
+  #open http://${2}:8888
+  echo "| Ganglia               | http://${2}/ganglia/";
+  open http://${2}/ganglia/
+  #echo "| HBase UI              | http://${2}:16010";
+  #open http://${2}:16010
 }
 
 ############################## other ############################################
