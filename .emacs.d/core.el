@@ -119,7 +119,9 @@
   :ensure t
   :init (ido-grid-mode)
   :config
-  (setq-default ido-grid-mode-prefix-scrolls t))
+  (setq-default ido-grid-mode-prefix-scrolls t)
+  (setq ido-grid-mode-prefix " → "
+        ido-grid-mode-exact-match-prefix " ⇶ "))
 
 ;;;; ido-ubiquitous
 ;; https://github.com/DarwinAwardWinner/ido-completing-read-plus
