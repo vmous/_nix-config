@@ -105,13 +105,13 @@
 ;; TODO:
 ;; - https://projectile.readthedocs.io/en/latest/configuration/#regenerate-tags (make also sure you do https://projectile.readthedocs.io/en/latest/configuration/#idle-timer)
 ;; - https://projectile.readthedocs.io/en/latest/configuration/#configure-a-projects-compilation-test-and-run-commands
-;;(use-package projectile
-;;  :ensure t
-;;  :init (projectile-global-mode)
-;;  :config
-;;  (setq projectile-mode-line '(:eval (format " Prjl[%s]" (projectile-project-name)))
-;;        projectile-enable-caching t)
-;;  (projectile-discover-projects-in-directory jazzy/env/workspace))
+(use-package projectile
+  :ensure t
+  :init (projectile-global-mode)
+  :config
+;  (projectile-discover-projects-in-directory jazzy/env/workspace)
+  (setq projectile-mode-line '(:eval (format " ☄[%s]" (projectile-project-name)))
+        projectile-enable-caching t))
 
 
 ;;;; TABS
