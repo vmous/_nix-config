@@ -24,11 +24,12 @@ alias sdr='screen -d -r'
 #alias j-last='last | cut -f1 -d' ' | sort | uniq -c | sort -k1gr'
 alias rgrep='grep -RnsI'
 function rfind {
-  if [[ ! $# -eq 2 ]]; then
-    echo "Usage: $0 <dir> <regex>"
-  else
-    find "$1" -follow -name "$2"
+  if [[ ! ${#} -eq 2 ]] || [[ ! -d ${1} ]]; then
+    echo "Usage: ${0} <dir> <regex>"
+    return 1
   fi
+
+  find "${1}" -follow -name "${2}"
 }
 alias du-hog-f='du -h . | sort -nr | head -n10'
 alias du-hog-d='du -hs * | sort -nr | head -n10'
