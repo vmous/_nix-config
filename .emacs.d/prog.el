@@ -111,7 +111,9 @@
   :config
 ;  (projectile-discover-projects-in-directory jazzy/env/workspace)
   (setq projectile-mode-line '(:eval (format " ☄[%s]" (projectile-project-name)))
-        projectile-enable-caching t))
+;        projectile-enable-caching t
+  )
+)
 
 
 ;;;; TABS
