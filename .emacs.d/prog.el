@@ -2,6 +2,20 @@
 ;;;;
 ;; File defining generic configuration for development.
 
+;;;; whitespace-mode
+;; https://www.emacswiki.org/emacs/WhiteSpace
+;; http://ergoemacs.org/emacs/whitespace-mode.html
+(use-package whitespace
+  :ensure t
+  :config
+  (setq whitespace-style '(face trailing tab-mark lines-tail))
+  (add-hook 'prog-mode-hook
+            '(lambda ()
+               (interactive)
+               (whitespace-mode t)
+               (setq whitespace-line-column 80))))
+
+
 ;;;; company-mode
 ;; https://github.com/company-mode/company-mode
 (use-package company
