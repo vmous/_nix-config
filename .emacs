@@ -264,13 +264,9 @@ This command does not push text to `kill-ring'."
 
 (load "~/.emacs.d/python.el")
 
-;;;;;; Java
+;;;;;; Java (-script)
 
 (load "~/.emacs.d/java.el")
-
-;;;;;; Javascript
-
-(load "~/.emacs.d/js.el")
 
 ;;;;;; Scala
 

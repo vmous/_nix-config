@@ -130,6 +130,29 @@
 )
 
 
+;;;; json-mode
+;; https://github.com/joshwnj/json-mode
+(use-package json-mode
+  :ensure t
+  :mode "\\.json"
+  :init
+  (add-hook 'json-mode-hook #'flycheck-mode)
+  :config
+  (setq json-reformat:indent-width 4)
+  (setq js-indent-level 4))
+
+
+;;;; yaml-mode
+;; https://github.com/yoshiki/yaml-mode
+(use-package yaml-mode
+  :ensure t
+  :mode "\\.yml\\'"
+  :init
+  (add-hook 'yaml-mode-hook
+            '(lambda ()
+               (define-key yaml-mode-map "\C-m" 'newline-and-indent))))
+
+
 ;;;; TABS
 ;; https://www.emacswiki.org/emacs/NoTabs
 ;; https://www.emacswiki.org/emacs/TabsAreEvil
