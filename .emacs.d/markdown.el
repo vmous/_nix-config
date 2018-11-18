@@ -7,6 +7,16 @@
 ;; For the preview required to install
 ;;  - Ubuntu: sudo apt-get install libtext-multimarkdown-perl
 ;;  - MacOSX: brew install multimarkdown
+;;
+;; Know Issues:
+;; - Using `markdown-live-preview-mode` (`C-c C-c l`) on a markdown file over
+;;   TRAMP results in error:
+;;   ```
+;;   url-file: File does not exist: file:///ssh:<remote_host>:<path_to_html_file>
+;;   ```
+;;   The problem is that markdown tries to open a local file by adding the
+;;   `file:///` prefix even though the preview html is a remote file.
+;;
 (use-package markdown-mode
   :ensure t
   :commands (markdown-mode gfm-mode)
