@@ -35,6 +35,7 @@ alias du-hog-f='du -h . | sort -nr | head -n10'
 alias du-hog-d='du -hs * | sort -nr | head -n10'
 alias pgrep='pgrep -fl'
 alias j-listeners='sudo lsof -PiTCP -sTCP:LISTEN'
+alias j-ls-tcp-udp='lsof -Pan -i tcp -i udp' # list all listening TCP/UDP ports
 alias simpleserver='python -m SimpleHTTPServer'
 
 function j-which() {
