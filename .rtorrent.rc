@@ -1,6 +1,9 @@
 # This is an example resource file for rTorrent. Copy to
 # ~/.rtorrent.rc and enable/modify the options as needed. Remember to
 # uncomment the options you wish to enable.
+# For a thorough documentation of rtorrent common tasks and configuration with
+# examples, visit
+# https://github.com/rakshasa/rtorrent/wiki/Common-Tasks-in-rTorrent
 
 # Maximum and minimum number of peers to connect to per torrent.
 #min_peers = 40
