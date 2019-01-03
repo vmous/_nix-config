@@ -50,34 +50,45 @@ function j-tmux() {
   cmd_exists tmux || { echo >&2 "Cannot find tmux. Aborting."; return; }
 
   local _legal=true
-  if [[ $# -eq 0 ]]; then
+  if [[ ${#} -eq 0 ]]; then
     tmux ls
-  elif [[ $# -eq 1 ]]; then
-    tmux attach -t "$1"
-  elif [[ $1 = "n" ]] && [[ ! -z "$2" ]]; then
+  elif [[ ${#} -eq 1 ]]; then
+    tmux attach -t "${1}"
+  elif [[ ${1} = "n" ]] && [[ ! -z "${2}" ]]; then
     tmux new -s "$2"
-  elif [[ $1 = "a" ]] && [[ ! -z "$2" ]]; then
+  elif [[ ${1} = "a" ]] && [[ ! -z "${2}" ]]; then
     tmux attach -t "$2"
-  elif [[ $1 = "r" ]] && [[ ! -z "$2" ]]; then
+  elif [[ ${1} = "r" ]] && [[ ! -z "${2}" ]]; then
     # Attach to a tmux session and make sure you refresh ssh-agent forwarding
     # on each window.
     # Note: this part requires all windows are "waiting" on shell prompt. If a
     # window is running a programm the keys below will be received by the
     # program.
-    local _session="$2"
-    for _window in $(tmux list-windows -t "$2" -F '#I'); do
+    local _session="${2}"
+    for _window in $(tmux list-windows -t "${2}" -F '#I'); do
       # clear prompt before
       tmux send-keys -t ${_session}:${_window} "C-c"
       tmux send-keys -t ${_session}:${_window} "export $(tmux show-environment | grep "^SSH_AUTH_SOCK")" ENTER
     done
-    tmux attach -t "$2"
+    tmux attach -t "${2}"
   else
     _legal=false
   fi
 
-  if [ "$_legal" = false ]; then
-    echo "Illegal use of jtmux. Try:"
-    echo "Example: $0 [n|a|r|] <session_name>"
+  if [ "${_legal}" = false ]; then
+    echo "Illegal use of ${0}. Try:"
+    echo "Example: ${0} [n|a|r|] <session_name>"
+  fi
+}
+
+function j-tmux-re() {
+  # Nice snippet for reattaching tmux to ssh-agent
+  # http://justinchouinard.com/blog/2010/04/10/fix-stale-ssh-environment-variables-in-gnu-screen-and-tmux/
+  if [[ -n $TMUX ]]; then
+    NEW_SSH_AUTH_SOCK=`=tmux showenv|grep '^SSH_AUTH_SOCK'|cut -d = -f 2`
+    if [[ -n $NEW_SSH_AUTH_SOCK ]] && [[ -S $NEW_SSH_AUTH_SOCK ]]; then
+      export SSH_AUTH_SOCK=$NEW_SSH_AUTH_SOCK
+    fi
   fi
 }
 
