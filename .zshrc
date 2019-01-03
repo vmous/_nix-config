@@ -49,6 +49,20 @@ function date_time_timestamp() {
   echo $(date +%Y%m%d%H%M%S)
 }
 
+function epoch_to_date {
+  if [ $# -ne 1 ]; then
+    echo "Please provide the epoch date time."
+    echo "Example: $0 <epoch>"
+    return 1
+  fi
+
+  if [[ "${JMACHINE}" == "mac" ]]; then
+    echo "$(date -r ${1})"
+  else
+    echo "$(date -d @${1})"
+  fi
+}
+
 ############################## platform #########################################
 JUNAME=`uname`
 JMACHINE="unknown"
