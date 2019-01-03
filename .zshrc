@@ -240,3 +240,5 @@ if [[ "${JMACHINE}" == "mac" ]]; then
         eval "$(pyenv virtualenv-init -)"
     fi
 fi
+
+export PATH=/usr/local/Cellar/git/2.20.1/bin:${PATH}
