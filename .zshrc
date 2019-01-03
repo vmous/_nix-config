@@ -242,3 +242,5 @@ if [[ "${JMACHINE}" == "mac" ]]; then
 fi
 
 export PATH=/usr/local/Cellar/git/2.20.1/bin:${PATH}
+
+export PATH=${HOME}/.toolbox/bin:${PATH}
