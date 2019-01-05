@@ -222,6 +222,10 @@ select-word-style bash
 ## disable mail checking
 #MAILCHECK=0
 
+############################## oh-my-zsh #######################################
+# https://github.com/robbyrussell/oh-my-zsh
+source ${HOME}/.zsh.d/.zshrc.oh-my-zsh
+
 # RVM (Ruby Version Manager)
 # http://jazzman.webhop.net/doku.php?id=laboratory:programming:ruby:rvm#installation_configuration
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
