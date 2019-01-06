@@ -283,3 +283,7 @@ This command does not push text to `kill-ring'."
 ;;;;;;;; System
 
 (load "~/.emacs.d/sys.el")
+
+;;;;;;;; Misc
+
+(load "~/.emacs.d/misc.el")
