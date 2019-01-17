@@ -29,6 +29,7 @@
 (use-package tramp
   :config
   (setq tramp-remote-path '(tramp-default-remote-path "/bin" "/usr/bin" "/sbin" "/usr/sbin")
+        tramp-terminal-type "tramp"
         ;; play nice with .ssh/config
         tramp-ssh-controlmaster-options ""))
 
