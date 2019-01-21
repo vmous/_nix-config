@@ -10,8 +10,6 @@
 # /apollo/env/envImprovement/dotfiles/anysync
 source /apollo/env/envImprovement/var/zshrc
 
-export BRAZIL_WORKSPACE_DEFAULT_LAYOUT=short
-
 # ZSH Autocomplete for bin/aws
 # https://w.amazon.com/index.php/AmazonAwsCli/GettingStarted#ZSH_Autocomplete_for_bin.2Faws
 source /apollo/env/AmazonAwsCli/bin/aws_zsh_completer.sh
@@ -28,6 +26,7 @@ export M2_HOME=/workplace/sandbox/software/maven/apache-maven-3.5.4
 export M2=$M2_HOME/bin
 export PATH=$M2:$PATH
 
-# override brazil platform to use RHEL5 artifacts by default
-# according to: https://w.amazon.com/index.php/Search/A9/Infra/CorpDevBoxes#Amazon_Linux
-#export BRAZIL_PLATFORM_OVERRIDE=RHEL5_64
+alias j-perm-sync='sudo /usr/multipass/bin/auth-sync.pl -a'
+
+# alternative: /apollo/bin/env -e SDETools /apollo/env/SDETools/bin/curl --url %s -k --negotiate -u :
+alias curl_sdetools='/apollo/bin/env -e SDETools /apollo/env/SDETools/bin/curl --anyauth --location-trusted -u: -c /tmp/cookies.txt -b /tmp/cookies.txt -k'

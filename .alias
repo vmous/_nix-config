@@ -2,6 +2,11 @@
 # The above assumes you use a recent version of GNU ls
 alias ll="ls -lh"
 alias ls='ls -hFG'         # add colors for filetype recognition
+if [[ "${JUNAME}" == "Linux" ]]; then
+    # "ls -G" for BSD ls (comming from .alias that was just sourced)
+    # "ls --colour=auto" for GNU
+    alias ls='ls --color=auto'
+fi
 alias la='ls -Al'          # show hidden files
 alias lx='ls -lXB'         # sort by extension
 alias lk='ls -lSr'         # sort by size, biggest last
@@ -120,6 +125,24 @@ function j-del-line-in-file {
       else
         $(sed -i ${_line}'d' ${_file})
       fi
+  fi
+}
+
+function date_time_timestamp() {
+  echo $(date +%Y%m%d%H%M%S)
+}
+
+function epoch_to_date {
+  if [ $# -ne 1 ]; then
+    echo "Please provide the epoch date time."
+    echo "Example: $0 <epoch>"
+    return 1
+  fi
+
+  if [[ "${JMACHINE}" == "mac" ]]; then
+    echo "$(date -r ${1})"
+  else
+    echo "$(date -d @${1})"
   fi
 }
 
