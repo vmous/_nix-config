@@ -207,12 +207,13 @@ This command does not push text to `kill-ring'."
 
 ;;;; themes
 ;; https://pawelbx.github.io/emacs-theme-gallery/
-;;(use-package solarized-theme
-;;  :ensure t)
-;;(load-theme 'solarized-dark)
-(use-package zenburn-theme
-  :ensure t)
-(load-theme 'zenburn t)
+;;
+;; Note: In order to better distinguish between the default (local) and other
+;; (remote) instances of Emacs, use a theme only for your primary machine.
+(when (string= system-name jazzy/secrets/system-name/primary-system)
+  (use-package zenburn-theme
+    :ensure t)
+  (load-theme 'zenburn t))
 
 
 ;;;; time

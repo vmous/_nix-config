@@ -27,3 +27,5 @@
   "The system name of my personal Linux system. Verify with 'C-h v system-name RET'.")
 (defconst jazzy/secrets/system-name/amznlinux ""
   "The system name of my personal Linux system. Verify with 'C-h v system-name RET'.")
+(defconst jazzy/secrets/system-name/primary-system ""
+  "This variable defines the primary system for cases we want to have configuration that is applicable to the primary system only (e.g., Emacs theme). Values should be one of the ones defined just above.")
