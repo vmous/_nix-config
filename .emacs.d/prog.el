@@ -123,6 +123,7 @@
   :ensure t
   :init (projectile-global-mode)
   :config
+  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
 ;  (projectile-discover-projects-in-directory jazzy/env/workspace)
   (setq projectile-mode-line '(:eval (format " ☄[%s]" (projectile-project-name)))
 ;        projectile-enable-caching t
