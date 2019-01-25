@@ -168,3 +168,9 @@
   ;;(which-key-setup-side-window-right)
   (which-key-setup-side-window-bottom))
 
+
+;;;; discover-my-major
+;; https://github.com/jguenther/discover-my-major
+(use-package discover-my-major
+  :ensure t
+  :bind ("C-h M" . discover-my-major))
