@@ -7,9 +7,7 @@
 (use-package org
   :ensure t
   :init
-  (setq visual-line-mode t ;; wrap lines
-        adaptive-wrap-prefix-mode t
-        org-completion-use-ido t
+  (setq org-completion-use-ido t
         org-export-coding-system 'utf-8
         org-directory "~/.emacs.d/org"
         org-default-notes-file (concat org-directory "/scratch-pad.org"))
@@ -22,14 +20,15 @@
           ("l" "Link" entry (file+headline org-default-notes-file "Links") "* %? %^L %^g \n%T" :prepend t)
           ("n" "Note" entry (file+headline org-default-notes-file "Notes") "* %?\n%u" :prepend t)
           ("t" "To Do Item" entry (file+headline org-default-notes-file "To Dos") "* TODO %?\n%u" :prepend t)))
-  (add-hook 'org-mode-hook (lambda () (org-indent-mode t)))
-  ;; Enable flyspell
-  (when (require 'flyspell nil t)
-    (add-hook 'org-mode-hook 'turn-on-flyspell))
   (setq org-todo-keywords
         '((sequence "TODO" "IN-PROGRESS" "WAITING" "DONE")))
   ; https://orgmode.org/worg/org-contrib/babel/languages.html#configure
   (org-babel-do-load-languages 'org-babel-load-languages '((python . t)))
+  (add-hook 'org-mode-hook (lambda () (org-indent-mode t)))
+  (add-hook 'org-mode-hook (lambda () (visual-line-mode t)))
+  ;; Enable flyspell
+  (when (require 'flyspell nil t)
+    (add-hook 'org-mode-hook 'turn-on-flyspell))
   :bind(("C-c a" . org-agenda)))
 
 
