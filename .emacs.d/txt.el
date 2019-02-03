@@ -120,3 +120,11 @@
   :ensure t
   :config
   (add-hook 'csv-mode-hook (lambda () (setq indent-tabs-mode t))))
+
+
+;;;; adaptive-wrap
+;; https://elpa.gnu.org/packages/adaptive-wrap.html
+(use-package adaptive-wrap
+  :ensure t
+  :config
+  (add-hook 'visual-line-mode-hook (lambda () (adaptive-wrap-prefix-mode t))))
