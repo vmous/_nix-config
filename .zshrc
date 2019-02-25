@@ -46,10 +46,6 @@ export PROMPT="
 %{$fg[white]%}(%D %*) <%?> [%~] $program %{$fg[default]%}
 %{$fg[cyan]%}%m %#%{$fg[default]%} "
 
-export PROMPT="
-%{$fg[white]%}(%D %*) <%?> [%~] $program %{$fg[default]%}
-%{$fg[cyan]%}%m %#%{$fg[default]%} "
-
 export RPROMPT=
 
 set-title() {
