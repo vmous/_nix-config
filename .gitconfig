@@ -23,6 +23,7 @@
 	llog = log --oneline @{upstream}..HEAD
 	llp = log -p @{upstream}..HEAD
 	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+        rls = remote -v
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
