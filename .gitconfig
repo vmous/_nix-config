@@ -15,6 +15,7 @@
 	st = status
 	ci = commit
 	br = branch
+        bravail = branch -v -a
 	co = checkout
 	df = diff
 	dc = diff --cached
