@@ -11,19 +11,27 @@
 [push]
 	default = simple
 [alias]
-	dag = log --graph --format='format:%C(yellow)%h%C(reset) %C(blue)\"%an\" <%ae>%C(reset) %C(magenta)%cr%C(reset)%C(auto)%d%C(reset)%n%s' --date-order
-	st = status
-	ci = commit
+        # branch
 	br = branch
-        bravail = branch -v -a
-	co = checkout
-	df = diff
-	dc = diff --cached
-	untrack = rm --cache --
+        br-pav = branch -v -a # print available
+        # checkout
+        co = checkout
+        # commit
+        ci = commit
+        # diff
+        dfa = diff
+	dfc = diff --cached
+        # log
 	llog = log --oneline @{upstream}..HEAD
 	llp = log -p @{upstream}..HEAD
-	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+	lldag = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+        lldag2 = log --graph --format='format:%C(yellow)%h%C(reset) %C(blue)\"%an\" <%ae>%C(reset) %C(magenta)%cr%C(reset)%C(auto)%d%C(reset)%n%s' --date-order
+        # remote
         rls = remote -v
+        # status
+        st = status
+        # misc.
+        untrack = rm --cache --
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
