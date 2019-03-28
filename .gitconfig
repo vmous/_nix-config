@@ -31,6 +31,7 @@
         # status
         st = status
         # misc.
+        alias = !git config --list | grep 'alias\\.' | sed 's/alias\\.\\([^=]*\\)=\\(.*\\)/\\1\\ \t => \\2/' | sort
         untrack = rm --cache --
 [filter "lfs"]
 	clean = git-lfs clean -- %f
