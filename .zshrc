@@ -199,7 +199,7 @@ if [[ "${JMACHINE}" == "mac" ]]; then
     fi
 
     # Git
-    export PATH=/usr/local/Cellar/git/2.20.1/bin:${PATH}
+    export PATH=/usr/local/Cellar/git/2.21.0/bin:${PATH}
 
     # Tex
     # Install MacTex via Howebrew first
