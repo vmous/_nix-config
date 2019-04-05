@@ -37,46 +37,100 @@ function j-aws-s3-multipart-workaround {
   eval ${CMD}
 }
 
-function j-aws-s3-get {
-  local USAGE="Usage: $0 <krypt|kms> <link>,\nwhere <enc> can be either \"krypt\" or \"kms\" and <link> is the link provided in the S3 object's overviwe console page (e.g. 'https://s3.amazonaws.com/<bucket>/<key>')"
+function j-aws-s3-amzn {
+    local _usage="Usage: $0 <get|put> <options>"
 
-  if [[ ${#} -ne 2 ]]; then
-    echo "Wrong number of arguments."
-    echo ${USAGE}
-    return
-  fi
+    function _j-aws-s3-amzn-get {
+        local _options="Available options: <enc> <obj_url>,\nwhere <enc> can be either \"krypt\" or \"kms\" and <obj_url> is the link provided in the S3 object's overviwe console page (e.g. 'https://s3.amazonaws.com/<bucket>/<key>')"
 
-  local ENC=""
-  if [[ "${1}" = "krypt" ]]; then
-    # nothing to do
-  elif [[ "${1}" = "kms" ]]; then
-    ENC="-k us-east-1 -e KMS -m \"dcda7203-d69b-4014-a560-377f9bbd3b5f\""
-  else
-    echo "Unsupported encoding argument \"${1}\"."
-    echo ${USAGE}
-    return
-  fi
+        if [[ ${#} -ne 3 ]]; then
+            echo "Wrong number of arguments."
+            echo ${_options}
+            return
+        fi
 
-  local URL=${2}
-  local ENDPOINT="$(echo ${URL} | sed -e's,^\(https://s3.amazonaws.com/\).*,\1,g')"
-  URL=$(echo ${URL} | sed -e s,${ENDPOINT},,g)
-  local BUCKET="$(echo ${URL} | sed -e's,^\([^/]*\).*,\1,g')"
-  URL=$(echo ${URL} | sed -e s,${BUCKET},,g)
-  local KEY=$(echo ${URL} | sed -e s,^/,,g)
-  local FILE=$(echo ${KEY} | sed -e s,/,.,g)
+        local _enc="${2}"
+        local _obj_url="${3}"
 
-  local CMD="s3GetEncrypted -b ${BUCKET} -o ${KEY} ${ENC} -c com.a9.relevance.common.aws --region us-east-1 --endpoint s3.amazonaws.com > ${FILE}"
+        if [[ "${_enc}" = "krypt" ]]; then
+            _enc=""
+        elif [[ "${_enc}" = "kms" ]]; then
+            _enc="-k us-east-1 -e KMS -m \"dcda7203-d69b-4014-a560-377f9bbd3b5f\""
+        else
+            echo "Unsupported encoding argument \"${_enc}\"."
+            echo ${_options}
+            return
+        fi
 
-  #  s3GetEncrypted -b a9-behavior-driven-matching-alpha -o projects/bdm/prediction/input-xdf-features/eu/eu-kitchen-in.csv -k us-east-1 -c com.a9.relevance.common.aws -m com.a9.relevance.common.crypt_keypair > 20170717_eu-kitchen-in.csv
+        local _endpoint="$(echo ${_obj_url} | sed -e's,^\(https://s3.amazonaws.com/\).*,\1,g')"
+        _obj_url=$(echo ${_obj_url} | sed -e s,${_endpoint},,g)
+        local _bucket="$(echo ${_obj_url} | sed -e's,^\([^/]*\).*,\1,g')"
+        _obj_url=$(echo ${_obj_url} | sed -e s,${_bucket},,g)
+        local _key=$(echo ${_obj_url} | sed -e s,^/,,g)
+        local _file=$(echo ${_key} | sed -e s,/,.,g)
 
-  # 3GetEncrypted --bucket a9-behavior-driven-matching-prod --object=projects/bdm/widget/${REGION}/low-precision-${MID}.tsv --credential=com.a9.relevance.common.aws low-precision-${MID}.tsv
+        local _cmd="s3GetEncrypted -b ${_bucket} -o ${_key} ${_enc} -c com.a9.relevance.common.aws --region us-east-1 --endpoint s3.amazonaws.com > ${_file}"
 
-  echo "Executing: ${CMD}"
-  eval ${CMD}
+        echo "Executing: ${_cmd}"
+        eval ${_cmd}
+    }
+
+    function _j-aws-s3-amzn-put {
+        local _options="Available options: <enc> <s3_url> <local_object>\nwhere\n- <enc> can be either \"krypt\" or \"kms\",\n- <s3_url> is an S3 URL where the local object is to be uploaded to (e.g. 's3://<bucket>/<key>'), and\n- <loca_object> path to local object that is to be uploaded."
+
+        if [[ ${#} -ne 4 ]]; then
+            echo "Wrong number of arguments."
+            echo ${_options}
+            return
+        fi
+
+        local _enc="${2}"
+        local _s3_url="${3}"
+        local _local_object="${4}"
+
+        if [[ "${_enc}" = "krypt" ]]; then
+            _enc=""
+        elif [[ "${_enc}" = "kms" ]]; then
+            _enc="--encryption-material-provider KMS --kmsRegion us-east-1 --material \"dcda7203-d69b-4014-a560-377f9bbd3b5f\""
+        else
+            echo "Unsupported encoding argument \"${_enc}\"."
+            echo ${_options}
+            return
+        fi
+
+        _s3_url=$(echo ${_s3_url} | sed -e s,"s3://",,g)
+        local _bucket="$(echo ${_s3_url} | sed -e's,^\([^/]*\).*,\1,g')"
+        _s3_url=$(echo ${_s3_url} | sed -e s,${_bucket},,g)
+        local _key=$(echo ${_s3_url} | sed -e s,^/,,g)
+
+        local _cmd="s3PutEncrypted --bucket ${_bucket} --object ${_key} ${_enc} --region us-east-1 --endpoint s3.amazonaws.com --credential com.amazon.access.a9-search-relevance-laguna-dev-1 ./search-alias-to-logical-index.json"
+
+        echo "Executing: ${_cmd}"
+        eval ${_cmd}
+    }
+
+    if [[ ${#} -lt 2 ]]; then
+        echo "Wrong number of arguments."
+        echo ${_usage}
+        return
+    fi
+
+    echo "Received: ${0} ${*}"
+
+    local _cmd="${1}"
+    if [[ "${_cmd}" == "get" ]]; then
+        _j-aws-s3-amzn-get ${*}
+    elif [[ "${_cmd}" == "put" ]]; then
+        _j-aws-s3-amzn-put ${*}
+    else
+        echo "Unsupported S3 function"
+        echo ${_usage}
+    fi
+
 }
 
 function j-aws-s3-put-all {
-    local USAGE="Usage: $0 <krypt|kms> <local_dir> <s3_root_uri>,\nwhere <enc> can be either \"krypt\" or \"kms\" and <link> is the link provided in the S3 object's overviwe console page (e.g. 'https://s3.amazonaws.com/<bucket>/<key>')"
+    local USAGE="Usage: $0 <krypt|kms> <local_dir> <s3_root_uri>,\nwhere <enc> can be either \"krypt\" or \"kms\" and <link> is the link provided in the S3 object's overview console page (e.g. 'https://s3.amazonaws.com/<bucket>/<key>')"
 
   if [[ ${#} -ne 3 ]]; then
     echo "Wrong number of arguments."
@@ -119,7 +173,7 @@ function j-aws-s3-put-all {
 }
 
 function j-aws-s3-rm-cons {
-    local USAGE="Usage: ${0} <link>\nwhere <link> is the link provided in the S3 object's overviwe console page (e.g. 'https://s3.amazonaws.com/<bucket>/<key>')"
+    local USAGE="Usage: ${0} <link>\nwhere <link> is the link provided in the S3 object's overview console page (e.g. 'https://s3.amazonaws.com/<bucket>/<key>')"
 
   if [[ ${#} -ne 1 ]]; then
     echo "Wrong number of arguments."
