@@ -1,6 +1,6 @@
 local ret_status="%(?:%{$fg_bold[green]%}$ :%{$fg_bold[red]%}$ )%{$reset_color%}"
 PROMPT='$(_user_host)%{$fg_bold[blue]%}%~%{$reset_color%} $(git_prompt_info) $(git_prompt_status)
-$(aws_profile_prompt_info)$(virtualenv_prompt_info)${ret_status}'
+$(aws_prompt_info)$(virtualenv_prompt_info)${ret_status}'
 RPROMPT='${return_code}'
 
 function _user_host() {
