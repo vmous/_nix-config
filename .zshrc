@@ -168,6 +168,34 @@ else
     source ${HOME}/.zsh.d/.zshrc.oh-my-zsh
 fi
 
+# SSH uses a Unix socket to communicate with other processes. The socket's path
+# can be found by looking at the environment variable `${SSH_AUTH_SOCK}`. When
+# you re-connect to a multiplexer session (e.g., tmux or scree) that was started
+# during a previous SSH session, this variable will contain the path of the
+# previous SSH authentication socket, and this will cause processes that try to
+# connect to your authentication agent to fail.
+#
+# To fix this, we can have a symlink to always point to the active SSH
+# authentication socket and have the multiplexer sessions point to that symlink.
+#
+# For GNU Screen add the following in your `${HOME}/.screenrc`:
+# ```
+# unsetenv SSH_AUTH_SOCK
+# setenv SSH_AUTH_SOCK ${HOME}/.ssh/ssh-auth-sock.${HOSTNAME}
+# ```
+#
+# For Tmux add the follwing in your `${HOME}/.tmux.conf`:
+# ```
+# setenv -g SSH_AUTH_SOCK ${HOME}/.ssh/ssh_auth_sock
+# set -g update-environment -r
+# ```
+#
+# We can keep the symlink up to date by updating it every time a new SSH session
+# is created (and .zshrc is run) as is done below
+if test "${SSH_AUTH_SOCK}"; then
+    ln -sf ${SSH_AUTH_SOCK} ${HOME}/.ssh/ssh_auth_sock
+fi
+
 if [[ "${JMACHINE}" == "homelinux" ]]; then
     # Home Linux only
 fi
