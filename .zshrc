@@ -192,7 +192,7 @@ fi
 #
 # We can keep the symlink up to date by updating it every time a new SSH session
 # is created (and .zshrc is run) as is done below
-if test "${SSH_AUTH_SOCK}"; then
+if test "${SSH_AUTH_SOCK}" && ! test "${TMUX}"; then
     ln -sf ${SSH_AUTH_SOCK} ${HOME}/.ssh/ssh_auth_sock
 fi
 
