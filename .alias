@@ -43,6 +43,9 @@ alias j-listeners='sudo lsof -PiTCP -sTCP:LISTEN'
 # list all listening TCP/UDP ports
 alias j-ls-tcp-udp='watch -n 1 "lsof -Pan -i tcp -i udp"'
 alias simpleserver='python -m SimpleHTTPServer'
+# oh-my-zsh aws plugin
+alias aws_set_profile='asp'
+alias aws_get_profile='agp'
 
 function j-which() {
   if command -v "${1}" >/dev/null 2>&1 ; then
