@@ -1,4 +1,4 @@
-############################## 'ls' family ######################################
+############################## 'ls' family #####################################
 # The above assumes you use a recent version of GNU ls
 alias ll="ls -lh"
 alias ls='ls -hFG'         # add colors for filetype recognition
@@ -16,7 +16,7 @@ alias lt='ls -ltr'         # sort by date, most recent last
 alias lr='ls -lR'          # recursive ls
 alias tree='tree -Csu'     # nice alternative to 'recursive ls'
 
-############################## other ############################################
+############################## other ###########################################
 alias c='clear'
 alias e='emacs'
 alias h='history'
@@ -40,7 +40,8 @@ alias du-hog-f='du -h . | sort -nr | head -n10'
 alias du-hog-d='du -hs * | sort -nr | head -n10'
 alias pgrep='pgrep -fl'
 alias j-listeners='sudo lsof -PiTCP -sTCP:LISTEN'
-alias j-ls-tcp-udp='watch -n 1 "lsof -Pan -i tcp -i udp"' # list all listening TCP/UDP ports
+# list all listening TCP/UDP ports
+alias j-ls-tcp-udp='watch -n 1 "lsof -Pan -i tcp -i udp"'
 alias simpleserver='python -m SimpleHTTPServer'
 
 function j-which() {
