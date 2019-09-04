@@ -1,9 +1,11 @@
+# http://www.cis.upenn.edu/~bcpierce/unison/download/releases/stable/unison-manual.html
+
 # Roots of the synchronization
 # If you make these two equivalent, most things "just work"
 root = /Users/vmous/Workspace-Amzn/
 root = ssh://vmous@vmous.aka.corp.amazon.com//workplace/vmous/
 
-# Specific paths to synchronize (or leave out to sync all) 
+# Specific paths to synchronize (or leave out to sync all)
 #path = workplacename
 
 # Some regexps specifying names and paths to ignore (globbed)

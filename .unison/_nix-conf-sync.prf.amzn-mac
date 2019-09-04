@@ -1,9 +1,11 @@
+# http://www.cis.upenn.edu/~bcpierce/unison/download/releases/stable/unison-manual.html
+
 # Roots of the synchronization
 # If you make these two equivalent, most things "just work"
 root = /Users/vmous/Workspace/
 root = ssh://vmous@vmous.aka.corp.amazon.com//workplace/vmous-personal/
 
-# Specific paths to synchronize (or leave out to sync all) 
+# Specific paths to synchronize (or leave out to sync all)
 path = _nix-config
 
 # Some regexps specifying names and paths to ignore (globbed)
@@ -11,7 +13,7 @@ ignore = Name .FBCIndex
 ignore = Name .FBCLockFolder
 ignore = Name {.Trash*,.VolumeIcon.icns,.HSicon,Temporary*,.Temporary*,TheFindByContentFolder}
 ignore = Name {TheVolumeSettingsFolder,.Metadata,.filler,.idsff,.Spotlight,.DS_Store,.CFUserTextEncoding}
- 
+
 # Tell it to automatically sync every 5 seconds
 # Alternatively, you can run the sync from cron (launchd on mac)
 # If you have unison-fsmonitor, you can set this to "watch" to listen for fs notifications rather than repeatedly poll the entire file list
