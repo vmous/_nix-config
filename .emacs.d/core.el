@@ -25,7 +25,7 @@
   :config
   ;; highlight the window number in pink color
   (custom-set-faces '(window-numbering-face
-		      ((t(:foreground "DeepPink" :underline "DeepPink" :weight bold)))))
+                      ((t(:foreground "DeepPink" :underline "DeepPink" :weight bold)))))
   (window-numbering-mode))
 
 
@@ -84,15 +84,15 @@
   (ido-everywhere 1)
   :config
   (setq ido-enable-prefix nil
-	ido-enable-flex-matching t
-	ido-case-fold nil
-	ido-auto-merge-work-directories-length -1
-	ido-create-new-buffer 'always
-	ido-use-filename-at-point 'guess
+        ido-enable-flex-matching t
+        ido-case-fold nil
+        ido-auto-merge-work-directories-length -1
+        ido-create-new-buffer 'always
+        ido-use-filename-at-point 'guess
         ;; show dot (current directory) as initial suggestion
 ;        ido-show-dot-for-dired t
-	;; disable ido faces to see flx highlights
-	ido-use-faces nil))
+        ;; disable ido faces to see flx highlights
+        ido-use-faces nil))
 
 ;;(add-to-list 'load-path "~/.emacs.d/myels/")
 ;;(load "ido-describe-prefix-bindings.el")
@@ -117,10 +117,13 @@
 ;; https://github.com/larkery/ido-grid-mode.el
 (use-package ido-grid-mode
   :ensure t
+;  :custom-face
+;  (ido-first-match ((t (:inverse-video t))))
   :init (ido-grid-mode)
   :config
-  (setq-default ido-grid-mode-prefix-scrolls t)
-  (setq ido-grid-mode-prefix " → "
+  (setq ido-grid-mode-max-columns nil
+        ido-grid-mode-prefix-scrolls t
+        ido-grid-mode-prefix " → "
         ido-grid-mode-exact-match-prefix " ⇶ "))
 
 ;;;; ido-ubiquitous
@@ -133,8 +136,8 @@
 (defmacro ido-ubiquitous-use-new-completing-read (cmd package)
   `(eval-after-load ,package
      '(defadvice ,cmd (around ido-ubiquitous-new activate)
-	(let ((ido-ubiquitous-enable-compatibility nil))
-	  ad-do-it))))
+        (let ((ido-ubiquitous-enable-compatibility nil))
+          ad-do-it))))
 
 ;;;; ido-occur
 ;; https://github.com/danil/ido-occur
