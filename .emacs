@@ -73,8 +73,9 @@
 (global-set-key (kbd "C-c <down>") 'windmove-down)
 ;; split-window
 ;; Change to new window after split
-(global-set-key (kbd "C-x %") (lambda () (interactive)(split-window-vertically) (other-window 1)))
-(global-set-key (kbd "C-x \"") (lambda () (interactive)(split-window-horizontally) (other-window 1)))
+;; Matching tmux: https://github.com/tmux-plugins/tmux-pain-control
+(global-set-key (kbd "C-x -") (lambda () (interactive)(split-window-vertically) (other-window 1)))
+(global-set-key (kbd "C-x |") (lambda () (interactive)(split-window-horizontally) (other-window 1)))
 ;; sr-speedbar
 ;;(global-set-key (kbd "<f1>") 'sr-speedbar-toggle)
 ;; window resize
