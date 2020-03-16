@@ -69,6 +69,7 @@ plugins=(
   aws
   git
   virtualenv
+  rbenv
 )
 
 source ${ZSH}/oh-my-zsh.sh
