@@ -212,9 +212,6 @@ if [[ "${JMACHINE}" == "mac" ]]; then
         /usr/local/bin/cowsay -f eyes "Welcome ${USER}"
     fi
 
-    # Git
-    export PATH=/usr/local/Cellar/git/2.21.0/bin:${PATH}
-
     # Tex
     # Install MacTex via Howebrew first
     # brew cask install mactex
