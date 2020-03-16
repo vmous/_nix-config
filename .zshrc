@@ -219,6 +219,14 @@ if [[ "${JMACHINE}" == "mac" ]]; then
     # Install MacTex via Howebrew first
     # brew cask install mactex
     export PATH="${PATH}:/Library/TeX/texbin"
+
+    # rbenv
+    # https://github.com/rbenv/rbenv
+    if cmd_exists rbenv; then
+        eval "$(rbenv init -)"
+    fi
+    # To link Rubies to Homebrew's OpenSSL 1.1 (which is upgraded)
+    export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
 fi
 
 if [[ "${JMACHINE}" == "worklinux" ]] || [[ "${JMACHINE}" == "mac" ]]; then
