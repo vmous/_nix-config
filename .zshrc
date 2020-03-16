@@ -212,20 +212,6 @@ if [[ "${JMACHINE}" == "mac" ]]; then
         /usr/local/bin/cowsay -f eyes "Welcome ${USER}"
     fi
 
-    # pyenv + pyenv-virtualenv
-    # Install pyenv via Homebrew first
-    # brew install pyenv
-    if cmd_exists pyenv; then
-        eval "$(pyenv init -)"
-    fi
-
-    # pyenv-virtualenv
-    # Install pyenv-virtualenv via Homebrew first
-    # brew install pyenv-virtualenv
-    if cmd_exists pyenv-virtualenv-init; then
-        eval "$(pyenv virtualenv-init -)"
-    fi
-
     # Git
     export PATH=/usr/local/Cellar/git/2.21.0/bin:${PATH}
 
@@ -243,4 +229,26 @@ if [[ "${JMACHINE}" == "worklinux" ]] || [[ "${JMACHINE}" == "mac" ]]; then
     source ${HOME}/.zsh.d/aws.zsh
 
     export PATH=${HOME}/.toolbox/bin:${PATH}
+
+    # pyenv + pyenv-virtualenv
+    #
+    # pyenv
+    #
+    # Mac: Install Homebrew
+    # brew install pyenv
+    # AL:
+    # sudo yum install zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel
+    # curl -L https://raw.githubusercontent.com/pyenv/pyenv-installer/master/bin/pyenv-installer | bash
+    if cmd_exists pyenv; then
+        eval "$(pyenv init -)"
+    fi
+    # pyenv-virtualenv
+    #
+    # Mac: Install via Homebrew
+    # brew install pyenv-virtualenv
+    #
+    # AL: Installer for pyenv installs pyenv-virtualenv
+    if cmd_exists pyenv-virtualenv-init; then
+        eval "$(pyenv virtualenv-init -)"
+    fi
 fi
