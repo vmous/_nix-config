@@ -20,7 +20,14 @@ for f in SDETools envImprovement AmazonAwsCli OdinTools; do
     fi
 done
 
-export PATH=$PATH:/apollo/env/JavaSE10/jdk-10/bin
+
+export JAVA_HOME_8=/apollo/env/JavaSE8/jdk1.8
+export JAVA_HOME_10=/apollo/env/JavaSE10/jdk-10
+export JAVA_HOME_11=/apollo/env/JavaSE11/jdk-11
+
+export JAVA_HOME=${JAVA_HOME_11}
+
+export PATH=$PATH:${JAVA_HOME_11}/bin
 
 export M2_HOME=/workplace/sandbox/software/maven/apache-maven-3.5.4
 export M2=$M2_HOME/bin
