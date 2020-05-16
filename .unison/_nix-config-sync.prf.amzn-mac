@@ -11,6 +11,7 @@ path = _nix-config
 # Some regexps specifying names and paths to ignore (globbed)
 ignore = Name .FBCIndex
 ignore = Name .FBCLockFolder
+# -- MacOSX
 ignore = Name {.Trash*,.VolumeIcon.icns,.HSicon,Temporary*,.Temporary*,TheFindByContentFolder}
 ignore = Name {TheVolumeSettingsFolder,.Metadata,.filler,.idsff,.Spotlight,.DS_Store,.CFUserTextEncoding}
 

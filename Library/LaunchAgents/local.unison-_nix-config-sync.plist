@@ -1,0 +1,28 @@
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    <key>HOME</key>
+    <string>/Users/vmous</string>
+  </dict>
+  <key>KeepAlive</key>
+  <true/>
+  <key>Label</key>
+  <string>local.unison._nix-config-sync</string>
+  <key>Program</key>
+  <string>/usr/local/bin/unison</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/local/bin/unison</string>
+    <string>-ui</string>
+    <string>text</string>
+    <string>_nix-config-sync</string>
+  </array>
+  <key>StartInterval</key>
+  <integer>30</integer>
+</dict>
+</plist>
+

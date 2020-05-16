@@ -8,38 +8,51 @@ root = ssh://vmous@vmous.aka.corp.amazon.com//workplace/vmous/
 # Specific paths to synchronize (or leave out to sync all)
 #path = workplacename
 
-# Some regexps specifying names and paths to ignore (globbed)
-ignore = Name .FBCIndex
-ignore = Name .FBCLockFolder
+## Some regexps specifying names and paths to ingnore (globbed)
+# *nix
+ignore = Name *.swp
+# MacOSX
 ignore = Name {.Trash*,.VolumeIcon.icns,.HSicon,Temporary*,.Temporary*,TheFindByContentFolder}
 ignore = Name {TheVolumeSettingsFolder,.Metadata,.filler,.idsff,.Spotlight,.DS_Store,.CFUserTextEncoding}
-ignore = Name */src/*/build/*
+ignore = Name .FBCIndex
+ignore = Name .FBCLockFolder
+# Eclipse
+ignore = Path */{.metadata,.settings,.project,.classpath}
 ignore = Name */src/*/eclipse-bin
-ignore = Path */.project
-ignore = Path */.settings
-ignore = Path */.classpath
-ignore = Name *.swp
-ignore = Path */env
-ignore = Path */build
 ignore = Path */RemoteSystemsTempFiles
-ignore = Path */.idea
+# Ensime
 ignore = Path */.ensime_cache/*
-ignore = Path */src/*/*.iml
- 
-# Comment out the below line if you want 'build' folders to be synced across by Unison. Note that doing so may cause BrazilCLI2.0 and/or IntelliJ to become confused on the Mac side.
-ignore = Path */src/*/build
-
-# Uncomment the below two lines if you want 'build' folders to be synced across by Unison. Note that doing so may cause BrazilCLI2.0 and/or IntelliJ to become confused on the Mac side.
+# JetBrains/IntelliJ
+ignore = Name {.iml,.iws}
+ignore = Path */.idea
+ignore = Path */intellij_compiler_output
+# Vim
+ignore = Name {[._]*.s[a-v][a-z],[._]*.sw[a-p],[._]s[a-v][a-z],[._]sw[a-p],Session.vim,Sessionx.vim}
+# Brazil
+ignore = BelowPath */{env,logs}
+# Brazil - target of `WORKSPACE/src/PACKAGE/build` symlink
+# Brazil - Ignore everything inside except for integration test output
+ignore    = Path */build/*/*/*/*/build/{,.}?*
+ignorenot = Path */build/*/*/*/*/build/brazil-integ-tests
+ignore    = Path */build/*/*/*/*/build/brazil-integ-tests/{,.}?*
+ignorenot = Path */build/*/*/*/*/build/brazil-integ-tests/{*.html,*.css,com}
+# Brazil - uncomment to sync `package/build` contents. Doing so may confuse BrazilCLI2.0 and/or your IDE
 #ignorenot = Path */src/*/build/generated-src
-#follow = Path */src/*/build
- 
-# Perl builds sometimes includes both "pod" and "Pod", which can't sync to a case-insensitive filesystem
+# Log files, in general
+ignore = Name log{,s}/*.log{,.*}
+# Python
+ignore = Path */venv
+# Perl
+# Perl - Builds sometimes includes both "pod" and "Pod", which can't sync to a case-insensitive filesystem
 ignore = Regex .*/runtime/perl/lib/perl...-dist/[pP]od
+# Misc.
+ignore = Name l
 
-# Tell it to automatically sync every 5 seconds
-# Alternatively, you can run the sync from cron (launchd on mac)
-# If you have unison-fsmonitor, you can set this to "watch" to listen for fs notifications rather than repeatedly poll the entire file list
-repeat = 5
+
+# Poll files for changes every 5 seconds while CLI runs
+# Alternatively, cron/launchd can be used to sync periodically on unix/macOS
+# If you have unison-fsmonitor, set this to "watch" for filesystem events instead of polling
+repeat = watch
 
 # Backup settings. Keep 5 backups of all changed files
 backup = Name *
@@ -68,6 +81,9 @@ terse = true
 
 # Suppress the contacting server message during startup
 contactquietly = true
+
+# Path to unison executable on CloudDesk, if not in $PATH of non-login non-interactive shell
+# servercmd = /local/home/vmous/bin/unison
 
 # Log output to file
 log = true
