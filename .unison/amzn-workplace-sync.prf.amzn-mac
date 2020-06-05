@@ -47,7 +47,8 @@ ignore = Path */venv
 ignore = Regex .*/runtime/perl/lib/perl...-dist/[pP]od
 # Misc.
 ignore = Name l
-
+# Big files
+ignore = Name {*.tsv,*.csv,*.parquet}
 
 # Poll files for changes every 5 seconds while CLI runs
 # Alternatively, cron/launchd can be used to sync periodically on unix/macOS
