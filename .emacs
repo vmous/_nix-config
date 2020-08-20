@@ -26,7 +26,7 @@
 ;;
 ;; Note: You need to install the fonts on your system in order for this
 ;; to take effect.
-(set-default-font "Source Code Pro-12")
+(set-frame-font "Source Code Pro-12")
 (column-number-mode t)
 (delete-selection-mode t)
 (display-time)
