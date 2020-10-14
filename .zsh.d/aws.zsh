@@ -37,6 +37,54 @@ function j-aws-s3-multipart-workaround {
   eval ${CMD}
 }
 
+function j-aws-cred-update {
+    local _usage="${0} <profile name> <material set>"
+    local _aws_cred_file="${HOME}/.aws/credentials"
+
+    if [[ ${#} -ne 2 ]]; then
+        echo "Wrong number of arguments."
+        echo ${_usage}
+        return
+    fi
+
+    local _profile="${1}"
+    local _materialset="${2}"
+
+    local _profile_conf_line=`grep -n ${_profile} ${_aws_cred_file}`
+
+    if [ "${_profile_conf_line}" = "" ]; then
+        echo "Profile ${_profile} not found in ${_aws_cred_file}"
+        return
+    fi
+
+    local _line="$_profile_conf_line[(ws.:.)1]"
+    local _line_plus_one="$((_line + 1))"
+    local _line_plus_two="$((_line + 2))"
+    local _creds_from_file=`head -n $((_line + 2)) ${_aws_cred_file} | tail -2`
+    local _old_creds=("${(f)_creds_from_file}")
+    local _line_one=${_old_creds[1]}
+    local _line_two=${_old_creds[2]}
+    local _old_aws_access_key_id="$_line_one[(ws.=.)2]"
+    local _old_aws_secret_access_key="$_line_two[(ws.=.)2]"
+
+    local _odin_get=`odin-get ${_materialset}`
+    local _new_creds=("${(f)_odin_get}")
+    local _new_aws_access_key_id=${_new_creds[1]}
+    local _new_aws_secret_access_key=${_new_creds[2]}
+
+    if [ "${_old_aws_access_key_id}" != "${_new_aws_access_key_id}" ] || [ "${_old_aws_secret_access_key}" != "${_new_aws_secret_access_key}" ]; then
+        echo "AWS credential configuration stale."
+        echo "'aws_access_key_id': Replacing ${_old_aws_access_key_id} with ${_new_aws_access_key_id}"
+        echo "'aws_secret_access_key': Replacing ${_old_aws_secret_access_key} with ${_new_aws_secret_access_key}"
+        _sed_str_1="sed -i '${_line_plus_one}s/.*/aws_access_key_id=${_new_aws_access_key_id}/' ${_aws_cred_file}"
+        eval ${_sed_str_1}
+        _sed_str_2="sed -i '${_line_plus_two}s/.*/aws_secret_access_key=${_new_aws_secret_access_key}/' ${_aws_cred_file}"
+        eval ${_sed_str_2}
+    else
+        echo "AWS credential configuration is up-to-date. Nothing to do."
+    fi
+}
+
 function j-aws-s3-amzn {
     local _usage="Usage: $0 <get|put> <options>"
 
@@ -89,9 +137,9 @@ function j-aws-s3-amzn {
         local _local_object="${4}"
 
         if [[ "${_enc}" = "krypt" ]]; then
-            _enc=""
+            _enc="--credential com.amazon.access.a9-search-relevance-laguna-dev-1 --encryption-material-provider Odin --material com.a9.relevance.common.crypt_keypair"
         elif [[ "${_enc}" = "kms" ]]; then
-            _enc="--encryption-material-provider KMS --kmsRegion us-east-1 --material \"dcda7203-d69b-4014-a560-377f9bbd3b5f\""
+            _enc="--credential com.amazon.access.a9-search-relevance-laguna-dev-1 --encryption-material-provider KMS --kmsRegion us-east-1 --material \"dcda7203-d69b-4014-a560-377f9bbd3b5f\""
         else
             echo "Unsupported encoding argument \"${_enc}\"."
             echo ${_options}
@@ -103,7 +151,7 @@ function j-aws-s3-amzn {
         _s3_url=$(echo ${_s3_url} | sed -e s,${_bucket},,g)
         local _key=$(echo ${_s3_url} | sed -e s,^/,,g)
 
-        local _cmd="s3PutEncrypted --bucket ${_bucket} --object ${_key} ${_enc} --region us-east-1 --endpoint s3.amazonaws.com --credential com.amazon.access.a9-search-relevance-laguna-dev-1 ./search-alias-to-logical-index.json"
+        local _cmd="s3PutEncrypted --bucket ${_bucket} --object ${_key} --region us-east-1 --endpoint s3.amazonaws.com ${_enc} ${_local_object}"
 
         echo "Executing: ${_cmd}"
         eval ${_cmd}
@@ -221,7 +269,7 @@ function j-aws-emr-tunnel {
     return
   fi
 
-  local CMD="ssh -o \"StrictHostKeyChecking no\" -i ${1} -ND 8157 hadoop@${2} &"
+  local CMD="ssh -o \"StrictHostKeyChecking no\" -i ${1} -J ec2-34-205-84-46.compute-1.amazonaws.com -ND 8157 hadoop@${2} &"
   echo "Executing: ${CMD}"
 
   eval ${CMD}
