@@ -22,6 +22,7 @@
 	df = diff --name-only # only filenames
         dfa = diff
 	dfc = diff --cached
+        df-br = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative
         # log
 	llog = log --oneline @{upstream}..HEAD
 	llp = log -p @{upstream}..HEAD

@@ -1,0 +1,10 @@
+[include]
+        path = /local/workplace/vmous-personal/_nix-config/.gitconfig
+[user]
+        email = vmous@amazon.com
+        name = Vassilis Moustakas
+[core]
+        excludesfile = /home/vmous/.config/git/excludes
+[amazon]
+#        append-cr-url = true
+        pull-request-by-default = true
