@@ -9,9 +9,9 @@ source ${HOME}/.zsh.d/utils.zsh
 ############################## platform #########################################
 JUNAME=`uname`
 JMACHINE="unknown"
-WORKLINUXMACHINEID="f7b08e357962b959e7efdf680000035b"
+WORKLINUXMACHINEID="ec2149dcab7635ac20054547005dd667"
 if [[ "${JUNAME}" == "Linux" ]]; then
-    JMACHINEID=`cat /var/lib/dbus/machine-id`
+    JMACHINEID=`cat /etc/machine-id`
     if [[ "${JMACHINEID}" == "${WORKLINUXMACHINEID}" ]]; then
         JMACHINE="worklinux"
     else
@@ -258,3 +258,5 @@ if [[ "${JMACHINE}" == "worklinux" ]] || [[ "${JMACHINE}" == "mac" ]]; then
         eval "$(pyenv virtualenv-init -)"
     fi
 fi
+
+export PATH=$HOME/.toolbox/bin:$PATH
