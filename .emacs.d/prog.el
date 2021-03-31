@@ -85,7 +85,7 @@
   ("C-c g b" . magit-blame-popup)
   ("C-c g e" . magit-ediff)
   ("C-c g s" . magit-status))
-
+(global-git-commit-mode)
 
 ;;;; flycheck
 ;; http://www.flycheck.org/
