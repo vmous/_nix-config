@@ -1,15 +1,16 @@
-<Mandatory - 1-line description>
+<Mandatory - 1-line summary>
 
-<Optional - Give context if necessary but limit it to two-three sentences>
+<Description>
 
-IMPACT: <Mandatory - Expected behavior change (e.g. what it may break / regression, monitors...)>
+IMPACT: <How is this change expected to chage production? (e.g. what it may break / regression, monitors...)>
 
-ROLLBACK IMPLICATIONS: <Optional - If this change were to be rolled back, what negative impact if any will occur?>
+ROLLBACK IMPLICATIONS: <What will happen if this change were to be rolled back?>
 
-SIM/TT: <Optional - Links to related tracking information>
+LAUNCH: <index1> <index2> <index3>, <experiment id>:<treatment>, <lane alias or lane numbers];
+<index4> <index5> <indexX>, <other experiment id>:<treatment>, <lane alias or lane numbers];
 
-URL: <Optional - If this change is big then link to a project page for more context>
+SIM/TT/URL: <Links to related tracking and/or project information>
 
-QA/TEST: <Mandatory - How was this change tested>
+QA/TEST: < How was this change tested>
 
 CR: <Mandatory - Link to the CR>
