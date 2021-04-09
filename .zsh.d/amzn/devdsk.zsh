@@ -14,9 +14,9 @@ source /apollo/env/envImprovement/var/zshrc
 # https://w.amazon.com/index.php/AmazonAwsCli/GettingStarted#ZSH_Autocomplete_for_bin.2Faws
 source /apollo/env/AmazonAwsCli/bin/aws_zsh_completer.sh
 
-for f in SDETools envImprovement AmazonAwsCli OdinTools; do
+for f in OdinTools AmazonAwsCli envImprovement; do
     if [[ -d /apollo/env/$f ]]; then
-        export PATH=$PATH:/apollo/env/$f/bin
+        export PATH=/apollo/env/$f/bin:$PATH
     fi
 done
 

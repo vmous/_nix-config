@@ -1,5 +1,10 @@
 ############################## aws ##############################################
 #
+# Amazon AWS cli
+#
+alias aws-amzn='/apollo/bin/env -e AmazonAwsCli aws'
+
+#
 # AWS Odin Credentials
 #
 alias j-aws-o-laguna='export AWS_CREDENTIALS_ODIN=com.amazon.access.a9-search-relevance-laguna-dev-1'
