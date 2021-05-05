@@ -245,6 +245,16 @@ if [[ "${JMACHINE}" == "worklinux" ]] || [[ "${JMACHINE}" == "mac" ]]; then
     # AL:
     # sudo yum install zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel
     # curl -L https://raw.githubusercontent.com/pyenv/pyenv-installer/master/bin/pyenv-installer | bash
+    if [[ "${JMACHINE}" == "worklinux" ]] || [[ "${JMACHINE}" == "homelinux" ]]; then
+        # Directory the installer clones the pyenv repo to.
+        # By defauult it is `${HOME}/.pyenv` but can be changed by exporting PYENV_ROOT before
+        # runnng the installer.
+        PYENV_GIT_DIR=${HOME}/.pyenv
+        if is_dir_a_git_repo ${PYENV_GIT_DIR}; then
+            export PATH=${PYENV_GIT_DIR}/bin:${PATH}
+        fi
+    fi
+
     if cmd_exists pyenv; then
         eval "$(pyenv init -)"
     fi
@@ -254,7 +264,7 @@ if [[ "${JMACHINE}" == "worklinux" ]] || [[ "${JMACHINE}" == "mac" ]]; then
     # brew install pyenv-virtualenv
     #
     # AL: Installer for pyenv installs pyenv-virtualenv
-    if cmd_exists pyenv-virtualenv-init; then
+    if { [[ "${JMACHINE}" == "mac" ]] && cmd_exists pyenv-virtualenv-init; } || { { [[ "${JMACHINE}" == "worklinux" ]] || [[ "${JMACHINE}" == "homelinux" ]]; } && cmd_exists pyenv; }; then
         eval "$(pyenv virtualenv-init -)"
     fi
 fi
