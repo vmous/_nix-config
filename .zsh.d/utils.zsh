@@ -5,6 +5,10 @@ function cmd_exists() {
   command -v "${1}" >/dev/null 2>&1
 }
 
+function is_dir_a_git_repo() {
+  [[ -d "${1}/.git" ]]
+}
+
 function is_integer() {
   re='^-?[0-9]+$' # integer (positive or negative)
   [[ $1 =~ "$re" ]]
