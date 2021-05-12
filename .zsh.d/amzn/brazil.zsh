@@ -47,6 +47,9 @@ alias j-bbr='j-bb release'
 alias j-bb-ensime='j-bb scala-dev-init'
 alias j-bb-cbtr='j-bbc 2>&1 | tee clean.log && j-bb 2>&1 | tee build.log && j-bbt 2>&1 | tee test.log && j-bbr 2>&1 | tee release.log'
 
+# virtual environment
+alias j-b-venv='SYMLINK_FARM=$(brazil-path "graphName=testrun;recipe=runtimefarm;excludeRoot=true") && ln -s ${SYMLINK_FARM} .venv'
+
 # misc.
 alias j-brc='brazil-recursive-cmd'
 alias j-brc-all='j-brc --allPackages'
