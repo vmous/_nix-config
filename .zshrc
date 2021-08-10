@@ -256,7 +256,11 @@ if [[ "${JMACHINE}" == "worklinux" ]] || [[ "${JMACHINE}" == "mac" ]]; then
     fi
 
     if cmd_exists pyenv; then
-        eval "$(pyenv init -)"
+        if [[ "${JMACHINE}" == "worklinux" ]]; then
+            eval "$(pyenv init -)"
+        elif [[ "${JMACHINE}" == "mac" ]]; then
+            eval "$(pyenv init --path)"
+        fi
     fi
     # pyenv-virtualenv
     #
