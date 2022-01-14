@@ -8,6 +8,10 @@
 	ui = auto
 [commit]
 	template = ~/.git-commit-template
+[pull]
+        rebase = true
+[merge]
+        ff = only
 [push]
 	default = simple
 [alias]
