@@ -225,6 +225,9 @@ if [[ "${JMACHINE}" == "mac" ]]; then
     fi
     # To link Rubies to Homebrew's OpenSSL 1.1 (which is upgraded)
     export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
+
+    # java
+    export JAVA_HOME=/Library/Java/JavaVirtualMachines/amazon-corretto-17.jdk/Contents/Home
 fi
 
 if [[ "${JMACHINE}" == "worklinux" ]] || [[ "${JMACHINE}" == "mac" ]]; then
@@ -272,5 +275,4 @@ if [[ "${JMACHINE}" == "worklinux" ]] || [[ "${JMACHINE}" == "mac" ]]; then
         eval "$(pyenv virtualenv-init -)"
     fi
 fi
-
-export PATH=$HOME/.toolbox/bin:$PATH
+export JAVA_TOOLS_OPTIONS="-Dlog4j2.formatMsgNoLookups=true"
