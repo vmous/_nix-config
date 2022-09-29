@@ -36,8 +36,8 @@ alias j-bpcs='j-bpc start'
 alias j-bpcr='j-bpcd && j-bpce && j-bpcs'
 
 # build
-alias j-bb='brazil-build'
-alias bb='j-bb'
+alias bb='brazil-build'
+alias j-bb='bb'
 alias j-bbb='j-bb build'
 alias j-bbc='j-bb clean'
 alias j-bbt='j-bb test'
@@ -57,6 +57,7 @@ alias j-brc-all='j-brc --allPackages'
 alias j-brcp='brazil-recursive-cmd-parallel -j 8'
 alias j-brcp-all='j-brcp --allPackages'
 
-alias j-bre='brazil-runtime-exec'
+alias bre='brazil-runtime-exec'
+alias j-bre='bre'
 
 alias j-bo='/apollo/env/OctaneBrazilTools/bin/brazil-octane'
