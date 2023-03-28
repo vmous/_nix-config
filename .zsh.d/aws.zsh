@@ -1,6 +1,7 @@
 ############################## aws ##############################################
 #
-# Amazon AWS cli
+# Amazon AWS CLI
+# https://w.amazon.com/bin/view/AmazonAwsCli/
 #
 alias aws-amzn='/apollo/bin/env -e AmazonAwsCli aws'
 
@@ -21,7 +22,7 @@ alias j-aws-c-rel='open $(=ssh vmous.aka.corp.amazon.com /apollo/bin/env -e envI
 #
 # AWS EC2
 #
-alias j-aws-p2-start='j-aws-o-rel && /apollo/env/AmazonAwsCli/bin/aws --region us-east-1 ec2 start-instances --instance-ids i-0cec0591dbada1c76'
+alias j-aws-p2-start='j-aws-o-rel && aws-amzn --region us-east-1 ec2 start-instances --instance-ids i-0cec0591dbada1c76'
 
 #
 # AWS S3
@@ -37,7 +38,7 @@ function j-aws-s3-multipart-workaround {
   fi
 
   local THRESHOLD=${1}
-  local CMD="/apollo/env/AmazonAwsCli/bin/aws configure set s3.multipart_threshold ${THRESHOLD}"
+  local CMD="aws-amzn configure set s3.multipart_threshold ${THRESHOLD}"
 
   eval ${CMD}
 }
@@ -243,9 +244,9 @@ function j-aws-s3-rm-cons {
   local FILE=$(echo ${KEY} | sed -e s,/,.,g)
   local S3_URI="s3://${BUCKET}/${KEY}"
 
-  local CMD="/apollo/bin/env -e AmazonAwsCli aws s3 rm"
+  local CMD="aws-amzn s3 rm"
 
-  IS_FOLDER=`/apollo/bin/env -e AmazonAwsCli aws s3 ls ${B}`
+  IS_FOLDER=`aws-amzn s3 ls ${B}`
   while true; do
     echo -n "Recursively remove (if applicable)? [y/n]: "
     read YN
