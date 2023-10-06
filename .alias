@@ -16,11 +16,19 @@ alias lt='ls -ltr'         # sort by date, most recent last
 alias lr='ls -lR'          # recursive ls
 alias tree='tree -Csu'     # nice alternative to 'recursive ls'
 
+############################# 'less' family ####################################
+alias l='less'
+# https://stackoverflow.com/questions/77223684
+function lesslogFunc {
+  local pattern=${1:?}/**/${2:?}(om[1])
+  less +G -- ${~pattern}
+}
+alias less-log='noglob lesslogFunc'
+
 ############################## other ###########################################
 alias c='clear'
 alias e='emacs'
 alias h='history'
-alias l='less'
 alias ups='ps axo pid,user,args'
 alias aps='ps axo pid,ppid,user,pcpu,vsz,etime,args'
 alias ptree='pstree -ap'
