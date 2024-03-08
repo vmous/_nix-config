@@ -78,6 +78,8 @@
 ;; http://daemianmack.com/magit-cheatsheet.html
 (use-package magit
   :ensure t
+  :init
+  (require 'git-commit)
   :config
   (setq magit-completing-read-function 'magit-ido-completing-read)
   (add-hook 'git-commit-mode-hook 'turn-on-flyspell)
