@@ -186,11 +186,11 @@ This command does not push text to `kill-ring'."
 (require 'package)
 (setq
  package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
-                    ("org" . "http://orgmode.org/elpa/")
                     ("melpa" . "http://melpa.org/packages/")
-		    ("mepla-latex-preview-pane" . "http://melpa.milkbox.net/packages/")
                     ("melpa-stable" . "http://stable.melpa.org/packages/"))
- package-archive-priorities '(("melpa-stable" . 1)))
+ package-archive-priorities '(("gnu" . 100)
+                              ("melpa-stable" . 10)
+                              ("melpa" . 1)))
 
 (package-initialize)
 
