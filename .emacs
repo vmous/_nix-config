@@ -203,7 +203,8 @@ This command does not push text to `kill-ring'."
   (package-install 'use-package))
 (eval-when-compile
   (require 'use-package))
-(require 'diminish)
+(use-package diminish
+  :ensure t)
 (require 'bind-key)
 
 ;;;; themes
