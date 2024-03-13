@@ -96,16 +96,6 @@
   :bind ("M-i" . popup-imenu))
 
 
-;;;; xah-math-input
-;; https://github.com/xahlee/xah-math-input
-;; http://ergoemacs.org/emacs/xmsi-math-symbols-input.html
-(use-package xah-math-input
-  :ensure t
-  :diminish
-  :init
-  (global-xah-math-input-mode t))
-
-
 ;;;; visual-regexp
 ;; https://github.com/benma/visual-regexp.el
 (use-package visual-regexp
