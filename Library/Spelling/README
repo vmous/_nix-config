@@ -1,0 +1,12 @@
+Downlaoded tarball from https://extensions.libreoffice.org/en/extensions/show/english-dictionaries
+Expanded the contents under `${PATH_TO_WORKSPACE}/_nix-config/Library/Spelling`
+Assuming you want to use the dictionalries with Hunspell on a Mac first you have to install them.
+Run `hunspell -D` and check the `SEARCH_PATH` variable to see all the paths Hunspell is searching to
+find dictinaries. You should be able to see `/Library/Spelling` and `${HOME}/Library/Spelling` among
+others. Use the former to install the dictionaries only for your user, and the later if you want to
+install system-wide. In either case, make sure the directory does not exist and install by doing
+running the following commands:
+```
+$ cd /Library/
+$ sudo ln -s ${PATH_TO_WORKSPACE}/_nix-config/Library/Spelling Spelling
+```
