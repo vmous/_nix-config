@@ -158,6 +158,12 @@ function epoch_to_date {
   fi
 }
 
+####################### Jazzmanian _nix Life Hacks ############################
+
+# Java
+alias j-java-print-version='printf "\n☕️ Java\n\n" && which java && java -version'
+alias j-java-switch-version='sudo alternatives --config java && source ~/.zshrc'
+
 ############################## crazy ############################################
 function terminal-benchmark() {
   # https://en.wikipedia.org/wiki/ANSI_escape_code
