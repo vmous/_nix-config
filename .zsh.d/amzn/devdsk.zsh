@@ -22,6 +22,8 @@ done
 
 # Java
 # Check: https://w.amazon.com/bin/view/JDKTeam/OpenJDK/DevDesktops/ to install
+export JAVA_HOME=$(dirname $(dirname $(realpath /usr/bin/java)))
+export PATH=$JAVA_HOME/bin:$PATH
 
 # Maven
 export M2_HOME=/local/workplace/sandbox/software/maven/apache-maven-3.5.4
