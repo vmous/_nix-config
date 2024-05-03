@@ -208,6 +208,10 @@ fi
 if [[ "${JMACHINE}" == "mac" ]]; then
     # Mac only
 
+    # brew
+    # Per Homebrew installer's next steps
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+
     # cowsay
     if cmd_exists cowsay; then
         /usr/local/bin/cowsay -f eyes "Welcome ${USER}"
