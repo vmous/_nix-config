@@ -18,12 +18,6 @@ alias j-bwu='j-bw --use'
 alias j-bwr='j-bw --remove'
 alias j-bwea='j-bw attachenvironment --alias'
 alias j-bwed='j-bw detachenvironment --alias'
-alias j-bwc-a9='j-bwc -vs A9Search/main'
-alias j-bwc-a9-meta='j-bwc -vs A9Search/QueryConfigRelease-certified'
-alias j-bwc-bdm-bucketer='j-bwc -vs A9SearchBDMBucketBuilder/release'
-alias j-bwc-bdm-predict='j-bwc -vs A9SearchBDMPredictionBuild/release'
-alias j-bwc-rsas='j-bwc -vs RemoteSearchAggregator/release'
-alias j-bwc-bdm-predict-container-build='j-bwc -vs A9SearchBDMPredictionBuild/container-build'
 
 # versionset
 alias j-bvrup='brazil vs --removeunusedpackages --vs'
