@@ -13,10 +13,10 @@
   <key>Label</key>
   <string>local.unison.amzn-workplace-sync</string>
   <key>Program</key>
-  <string>/usr/local/bin/unison</string>
+  <string>/opt/homebrew/bin/unison</string>
   <key>ProgramArguments</key>
   <array>
-    <string>/usr/local/bin/unison</string>
+    <string>/opt/homebrew/bin/unison</string>
     <string>-ui</string>
     <string>text</string>
     <string>amzn-workplace-sync</string>
