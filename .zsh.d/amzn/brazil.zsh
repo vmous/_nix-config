@@ -23,11 +23,6 @@ alias j-bwed='j-bw detachenvironment --alias'
 alias j-bvrup='brazil vs --removeunusedpackages --vs'
 
 # package cache
-alias j-bpc='brazil-package-cache'
-alias j-bpcd='j-bpc disable_edge_cache'
-alias j-bpce='j-bpc enable_edge_cache'
-alias j-bpcs='j-bpc start'
-alias j-bpcr='j-bpcd && j-bpce && j-bpcs'
 
 # build
 alias bb='brazil-build'
