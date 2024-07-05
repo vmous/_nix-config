@@ -214,9 +214,17 @@ This command does not push text to `kill-ring'."
 ;; (remote) instances of Emacs, use a theme only for your primary machine.
 (when (string= system-name jazzy/secrets/system-name/primary-system)
   (use-package zenburn-theme
-    :ensure t)
+    :ensure t
+    :config
+    ; use variable-pitch fonts for some headings and titles
+    (setq zenburn-use-variable-pitch t)
+    ;; scale headings in org-mode
+    (setq zenburn-scale-org-headlines t)
+    ;; scale headings in outline-mode
+    (setq zenburn-scale-outline-headlines t))
   (load-theme 'zenburn t))
-
+(when (string= system-name jazzy/secrets/system-name/amznlinux)
+  (load-theme 'tsdh-dark t))
 
 ;;;; time
 ;;
