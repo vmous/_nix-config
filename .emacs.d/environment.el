@@ -22,8 +22,8 @@
     "Set up Emacs' `exec-path' and PATH environment variable to match that used by the user's shell. Ensures that PATH is taken from shell. Necessary on some environments without virtualenv. Taken from: http://stackoverflow.com/questions/8606954/path-and-exec-path-set-but-emacs-does-not-find-executable."
     (interactive)
     (let ((path-from-shell (shell-command-to-string "$SHELL --login -i -c 'echo $PATH'")))
-;      (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
-;      (setq exec-path (append exec-path '("/usr/local/bin")))
+      (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
+      (setq exec-path (append exec-path '("/usr/local/bin")))
       ;; strip cowsay
       (setq path-from-shell (replace-regexp-in-string "^[ <].*$" "" path-from-shell))
       ;; trim spaces, tabs and new liners from end of lines
