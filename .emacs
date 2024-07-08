@@ -205,7 +205,9 @@ This command does not push text to `kill-ring'."
   (require 'use-package))
 (use-package diminish
   :ensure t)
-(require 'bind-key)
+(use-package bind-key
+  :ensure t)
+
 
 ;;;; themes
 ;; https://pawelbx.github.io/emacs-theme-gallery/
