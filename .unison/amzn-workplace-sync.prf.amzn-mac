@@ -3,7 +3,7 @@
 # Roots of the synchronization
 # If you make these two equivalent, most things "just work"
 root = /Users/vmous/Workspace-Amzn/
-root = ssh://vmous@vmous.aka.corp.amazon.com//local/workplace/vmous/
+root = ssh://vmous@vmous-clouddesk.aka.corp.amazon.com//local/workplace/vmous/
 
 # Specific paths to synchronize (or leave out to sync all)
 #path = workplacename
