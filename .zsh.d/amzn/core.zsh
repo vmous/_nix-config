@@ -11,10 +11,11 @@ function j-yubikey {
     return
   fi
 
-  local SSH_CERT=~/.ssh/id_rsa-cert.pub
+  local PRIVATE_KEY=${HOME}/.ssh/id_ecdsa
+  local SSH_CERT=${PRIVATE_KEY}-cert.pub
   local EXPIRED=false
   local FORCE_AUTH=false
-  if (! test -f "$SSH_CERT") || (test "`find ~/.ssh/id_rsa-cert.pub -mmin +1220`"); then
+  if (! test -f "$SSH_CERT") || (test "`find ~/.ssh/id_ecdsa-cert.pub -mmin +1220`"); then
     EXPIRED=true
     echo "Midway expired"
   else
@@ -34,9 +35,9 @@ function j-yubikey {
   fi
 
   if [[ "${EXPIRED}" = true || "${FORCE_AUTH}" = true ]]; then
-    if mwinit; then
-      ssh-add -D ~/.ssh/*_rsa
-      ssh-add ~/.ssh/*_rsa
+    if mwinit --fido2; then
+      ssh-add -D ${PRIVATE_KEY}
+      ssh-add ${PRIVATE_KEY}
     else
       echo "Failed to authenticate."
       exit 1
