@@ -15,6 +15,14 @@
                (whitespace-mode t)
                (setq whitespace-line-column 80))))
 
+;;;; yafolding-mode
+;; https://github.com/zenozeng/yafolding.el
+(use-package yafolding
+  :ensure t
+  :config
+  (add-hook 'prog-mode-hook
+          (lambda () (yafolding-mode))))
+
 
 ;;;; company-mode
 ;; https://github.com/company-mode/company-mode
