@@ -6,9 +6,9 @@
 #
 
 # Interesting configuration at sourced by the following
-# /apollo/env/envImprovement/dotfiles/zshrc
-# /apollo/env/envImprovement/dotfiles/anysync
-source /apollo/env/envImprovement/var/zshrc
+# /apollo/env/EnvImprovement/dotfiles/zshrc
+# /apollo/env/EnvImprovement/dotfiles/anyshrc
+source /apollo/env/EnvImprovement/var/zshrc
 
 for f in VmousToolkit; do
     if [[ -d /apollo/env/$f ]]; then
