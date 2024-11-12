@@ -10,11 +10,7 @@
 # /apollo/env/envImprovement/dotfiles/anysync
 source /apollo/env/envImprovement/var/zshrc
 
-# ZSH Autocomplete for bin/aws
-# https://w.amazon.com/index.php/AmazonAwsCli/GettingStarted#ZSH_Autocomplete_for_bin.2Faws
-source /apollo/env/AmazonAwsCli/bin/aws_zsh_completer.sh
-
-for f in AmazonAwsCli OdinTools; do
+for f in VmousToolkit; do
     if [[ -d /apollo/env/$f ]]; then
         export PATH=/apollo/env/$f/bin:$PATH
     fi
