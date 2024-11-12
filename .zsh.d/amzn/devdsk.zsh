@@ -28,5 +28,18 @@ export PATH=$M2:$PATH
 
 alias j-perm-sync='sudo /usr/multipass/bin/auth-sync.pl -a'
 
+# mise
+# It is recommended to use AxE to handle installation of mise/Python and other
+# common builder tools.
+eval "$(/home/vmous/.local/bin/mise activate zsh)"
+
+# Before the following sourcing make sure you create the completions file by running the following
+#
+# mkdir /home/vmous/.local/share/mise
+# /home/vmous/.local/bin/mise completion zsh > /home/vmous/.local/share/mise/completions.zsh
+# mise completion zsh > /home/vmous/.local/share/mise/completions.zsh
+#
+source /home/vmous/.local/share/mise/completions.zsh
+
 # alternative: /apollo/bin/env -e SDETools /apollo/env/SDETools/bin/curl --url %s -k --negotiate -u :
 alias curl_sdetools='/apollo/bin/env -e SDETools /apollo/env/SDETools/bin/curl --anyauth --location-trusted -u: -c /tmp/cookies.txt -b /tmp/cookies.txt -k'
