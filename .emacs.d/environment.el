@@ -31,7 +31,7 @@
       (setenv "PATH" path-from-shell)
       (setq exec-path (split-string path-from-shell path-separator))))
 
-  ;; Fixing exec-path discrepancy between shell and Max OSX Finder launch 
+  ;; Fixing exec-path discrepancy between shell and Max OSX Finder launch
   (jazzy/funcs/set-exec-path-from-shell-PATH))
 
 ;;;; Backup/auto-save directory
