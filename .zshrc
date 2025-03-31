@@ -280,3 +280,13 @@ if [[ "${JMACHINE}" == "worklinux" ]] || [[ "${JMACHINE}" == "mac" ]]; then
     fi
 fi
 export JAVA_TOOLS_OPTIONS="-Dlog4j2.formatMsgNoLookups=true"
+
+# mise
+# It is recommended to use AxE to handle installation of mise/Python and other
+# common builder tools.
+eval "$(mise activate zsh)"
+# Before the following sourcing make sure you create the completions file by running the following
+#
+# mkdir ${HOME}/.local/share/mise
+# mise completion zsh > ${HOME}/.local/share/mise/completions.zsh
+source ${HOME}/.local/share/mise/completions.zsh
