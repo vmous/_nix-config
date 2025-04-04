@@ -290,3 +290,16 @@ eval "$(mise activate zsh)"
 # mkdir ${HOME}/.local/share/mise
 # mise completion zsh > ${HOME}/.local/share/mise/completions.zsh
 source ${HOME}/.local/share/mise/completions.zsh
+
+#### fzf
+#### https://github.com/junegunn/fzf
+## MacOS
+## brew install fzf
+##
+## Linux
+## git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install
+if [[ "${JMACHINE}" == "mac" ]]; then
+    source <(fzf --zsh)
+elif [[ "${JMACHINE}" == "worklinux" ]] || [[ "${JMACHINE}" == "homelinux" ]]; then
+    [ -f ${HOME}/.fzf.zsh ] && source ${HOME}/.fzf.zsh
+fi
