@@ -400,3 +400,20 @@
 (use-package discover-my-major
   :ensure t
   :bind ("C-h M" . discover-my-major))
+
+;;;;;; keycast
+;;;; https://github.com/tarsius/keycast
+(use-package keycast
+  :ensure t
+  :custom
+  (keycast-mode-line-format "%2s%k%c%R")
+  (keycast-mode-line-remove-tail-elements nil)
+  :config
+  (dolist (input '(self-insert-command org-self-insert-command))
+    (add-to-list 'keycast-substitute-alist `(,input "." "Typing…")))
+  (dolist (event '( mouse-event-p mouse-movement-p mwheel-scroll handle-select-window
+                    mouse-set-point mouse-drag-region))
+    (add-to-list 'keycast-substitute-alist `(,event nil)))
+  :init
+  (keycast-mode-line-mode))
+
