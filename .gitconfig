@@ -39,6 +39,15 @@
         # misc.
         alias = !git config --list | grep 'alias\\.' | sed 's/alias\\.\\([^=]*\\)=\\(.*\\)/\\1\\ \t => \\2/' | sort
         untrack = rm --cache --
+        # "Squash" all local commits into the first local commit reusing first commit's message
+        j-squash-to-first-local = "!f() { \
+               UPSTREAM=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo origin/HEAD) && \
+               LAST_REMOTE_ID=$(git merge-base \"${UPSTREAM}\" HEAD) && \
+               FIRST_LOCAL_ID=$(git rev-list --reverse "${LAST_REMOTE_ID}"..HEAD | head -n 1) && \
+               FIRST_LOCAL_MSG=$(git log -1 --format=%B "${FIRST_LOCAL_ID}") && \
+               git reset --soft \"${LAST_REMOTE_ID}\" && \
+               git commit -m \"${FIRST_LOCAL_MSG}\"; \
+        }; f"
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
