@@ -39,7 +39,11 @@
         # misc.
         alias = !git config --list | grep 'alias\\.' | sed 's/alias\\.\\([^=]*\\)=\\(.*\\)/\\1\\ \t => \\2/' | sort
         untrack = rm --cache --
-        # "Squash" all local commits into the first local commit reusing first commit's message
+
+        ##### Workflows #####
+
+        # "Squash" all local commits into the first local commit reusing first
+        # commit's message.
         j-squash-to-first-local = "!f() { \
                UPSTREAM=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo origin/HEAD) && \
                LAST_REMOTE_ID=$(git merge-base \"${UPSTREAM}\" HEAD) && \
@@ -47,6 +51,19 @@
                FIRST_LOCAL_MSG=$(git log -1 --format=%B "${FIRST_LOCAL_ID}") && \
                git reset --soft \"${LAST_REMOTE_ID}\" && \
                git commit -m \"${FIRST_LOCAL_MSG}\"; \
+        }; f"
+
+        # Merge all uncommited (new, staged and unstaged) files of your working
+        # directory into the last local commit. Do this only if at least one
+        # local-only commit exists.
+        j-uncommited-to-last-local = "!f() { \
+               UPSTREAM=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo origin/HEAD) && \
+               LAST_REMOTE_ID=$(git merge-base \"${UPSTREAM}\" HEAD) && \
+               LOCAL_COUNT=$(git rev-list --count \"${LAST_REMOTE_ID}\"..HEAD); \
+               if [ \"$LOCAL_COUNT\" -eq 0 ]; then echo 'There are no local commits to merge uncommited changes into. Aborting...'; exit 1; fi; \
+               LAST_LOCAL_MSG=$(git log -1 --format=%B); \
+               git add -A && \
+               git commit --amend --no-edit; \
         }; f"
 [filter "lfs"]
 	clean = git-lfs clean -- %f
