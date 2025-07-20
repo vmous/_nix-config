@@ -65,6 +65,10 @@
                git add -A && \
                git commit --amend --no-edit; \
         }; f"
+
+        j-restore-all-but = "!bash -c 'source \"${HOME}/.gitconfig-aliases.sh\" && git_j_restore_all_but \"$@\"' --"
+
+
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
