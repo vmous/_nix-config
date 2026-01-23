@@ -44,7 +44,7 @@
 
         j-squash-to-first-local = "!bash -c 'source \"${HOME}/.gitconfig-aliases.sh\" && git_j_squash_to_first_local'"
 
-        j-uncommited-to-last-local = "!bash -c 'source \"${HOME}/.gitconfig-aliases.sh\" && git_j_uncommited_to_last_local'"
+        j-uncommited-to-last-local = "!bash -c 'source \"${HOME}/.gitconfig-aliases.sh\" && git_j_uncommited_to_last_local \"$@\"' --"
 
         j-restore-all-but = "!bash -c 'source \"${HOME}/.gitconfig-aliases.sh\" && git_j_restore_all_but \"$@\"' --"
 

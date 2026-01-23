@@ -22,19 +22,52 @@ git_j_squash_to_first_local() {
     git commit -m "${FIRST_LOCAL_MSG}"
 }
 
-# Merge all uncommited (new, staged and unstaged) files of your working
-# directory into the last local commit. Do this only if at least one
-# local-only commit exists.
+# Merge uncommitted files of your working directory into your last local commit.
+# By default merges only tracked files (staged or unstaged). Pass the "all"
+# argument to merge both tracked and untracked files (if that is what you want;
+# since this is an uncommon thing to do, you will be asked to confirm your
+# choice). All above are possible only if at least one local-only commit exists.
 git_j_uncommited_to_last_local() {
     UPSTREAM=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo origin/HEAD)
     LAST_REMOTE_ID=$(git merge-base "${UPSTREAM}" HEAD)
     LOCAL_COUNT=$(git rev-list --count "${LAST_REMOTE_ID}"..HEAD)
-    if [ "${LOCAL_COUNT}" -eq 0 ]; then
-        echo "There are no local commits to merge uncommited changes into. Aborting..."
-        exit 1
+    if [ -z "${LOCAL_COUNT}" ]; then
+        echo "Error. No local commits found to merge changes into. Aborting..."
+        return 1
     fi
-    LAST_LOCAL_MSG=$(git log -1 --format=%B)
-    git add -A
+
+    if [ "${1}" == "all" ]; then
+        TRACKED=$(git diff --name-only HEAD)
+        UNTRACKED=$(git ls-files --others --exclude-standard)
+
+        if [ -z "${TRACKED}" ] && [ -z "${UNTRACKED}" ]; then
+            echo "No changes to squash."
+            return 0
+        fi
+
+        echo "You are about to squash the following files:"
+        [ -n "${TRACKED}" ] && echo -e "\nTracked:\n${TRACKED}"
+        [ -n "${UNTRACKED}" ] && echo -e "\nUntracked:\n${UNTRACKED}"
+
+        echo -n -e "\nAre you sure? (y/n): "
+        read -r CONFIRM
+        if [[ ! "${CONFIRM}" =~ ^[Yy]$ ]]; then
+            echo "Aborting..."
+            return 1
+        fi
+        # Add everything
+        git add -A
+    else
+        # Default behavior: Tracked only (staged + unstaged)
+        # Check if there are any changes in tracked files
+        if git diff --quiet && git diff --cached --quiet; then
+            echo "No tracked changes to squash. (Use 'all' to include untracked files)"
+            return 0
+        fi
+        # Only add tracked files that have changed
+        git add -u
+    fi
+
     git commit --amend --no-edit
 }
 
