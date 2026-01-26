@@ -1,4 +1,6 @@
+################################################################################
 ############################## 'ls' family #####################################
+################################################################################
 # The above assumes you use a recent version of GNU ls
 alias ll="ls -lh"
 alias ls='ls -hFG'         # add colors for filetype recognition
@@ -16,7 +18,9 @@ alias lt='ls -ltr'         # sort by date, most recent last
 alias lr='ls -lR'          # recursive ls
 alias tree='tree -Csu'     # nice alternative to 'recursive ls'
 
+################################################################################
 ############################# 'less' family ####################################
+################################################################################
 alias l='less'
 # https://stackoverflow.com/questions/77223684
 function lesslogFunc {
@@ -25,7 +29,9 @@ function lesslogFunc {
 }
 alias less-log='noglob lesslogFunc'
 
-############################## other ###########################################
+################################################################################
+############################## Misc. ###########################################
+################################################################################
 alias c='clear'
 alias e='emacs'
 alias h='history'
@@ -47,9 +53,64 @@ function rfind {
 alias du-hog-f='du -h . | sort -nr | head -n10'
 alias du-hog-d='du -hs * | sort -nr | head -n10'
 alias pgrep='pgrep -fl'
-alias j-listeners='sudo lsof -PiTCP -sTCP:LISTEN'
-# list all listening TCP/UDP ports
-alias j-ls-tcp-udp='watch -n 1 "lsof -Pan -i tcp -i udp"'
+
+################################################################################
+############################ Workflows #########################################
+################################################################################
+
+##############
+# Networking #
+##############
+
+# List applications that are "listening" for incoming network connections
+alias j-network-ls-listeners='sudo lsof -PiTCP -sTCP:LISTEN'
+# Watch applications that are using a TCP or UDP connection
+alias j-network-watch-tcp-udp='watch -n 1 "lsof -Pan -i tcp -i udp"'
+# Restart DNS service
+function j-network-dns-restart() {
+  if [[ "${OSTYPE}" == "darwin"* ]]; then
+    sudo dscacheutil -flushcache
+    echo "macOS: Directory cache flashed."
+
+    pgrep -f mDNSResponder | while read -r PID PNAME; do
+      if [[ "${PID}" =~ ^[0-9]+$ ]]; then
+        echo "Restarting mDNSResponder process: ${PNAME} (${PID})"
+        sudo kill -9 "${PID}"
+      fi
+    done
+  elif [[ "${OSTYPE}" == "linux-gnu"* ]]; then
+    if systemctl is-active --quiet systemd-resolved; then
+      # Use `systemd-resolved` (Modern)
+      if command -v resolvectl > /dev/null; then
+        sudo resolvectl flush-caches && sudo systemctl restart systemd-resolved
+      else
+        sudo systemd-resolve --flush-caches && sudo systemctl restart systemd-resolved
+      fi
+      echo "Linux: systemd-resolved flushed and restarted."
+    elif systemctl is-active --quiet nscd; then
+      # Use `nscd` (Common Legacy)
+      sudo nscd -i hosts && sudo systemctl restart nscd
+      echo "Linux: nscd flushed and restarted."
+    elif systemctl is-active --quiet dnsmasq; then
+      # Use `dnsmasq` (Lightweight/Router-style)
+      sudo systemctl restart dnsmasq
+      echo "Linux: dnsmasq restarted."
+    elif systemctl is-active --quiet named; then
+      # Check for BIND (Server-grade)
+      sudo rndc flush && sudo systemctl restart named
+      echo "Linux: BIND flushed and restarted."
+    else
+      # Final attempt: Restarting the network manager often triggers a refresh
+      echo "No specific DNS daemon active. Attempting NetworkManager restart..."
+      sudo systemctl restart NetworkManager || echo "Error: No recognized DNS manager found."
+    fi
+  else
+    echo "Do not know how to restart DNS on unknown OS: ${OSTYPE}"
+    return 1
+  fi
+}
+
+
 alias simpleserver='python -m SimpleHTTPServer'
 # oh-my-zsh aws plugin
 alias aws_set_profile='asp'
