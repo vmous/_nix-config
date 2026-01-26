@@ -5,8 +5,9 @@
 # source /home/$USER/.zshrc_amzn
 #
 
-# Amazon Q pre block. Keep at the top of this file.
-[[ -f "${HOME}/.local/share/amazon-q/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/.local/share/amazon-q/shell/zshrc.pre.zsh"
+# Kiro CLI pre block. Keep at the top of this file.
+[[ -f "${HOME}/.local/share/kiro-cli/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/.local/share/kiro-cli/shell/zshrc.pre.zsh"
+
 
 # Interesting configuration at sourced by the following
 # /apollo/env/EnvImprovement/dotfiles/zshrc
@@ -44,6 +45,5 @@ alias curl_sdetools='/apollo/bin/env -e SDETools /apollo/env/SDETools/bin/curl -
 #   Server defined below (create it if it does not exist yet)
 AMAZON_MCP_SERVER_CONFIG_PATH=${HOME}/.amazon-internal-mcp-server/.env
 
-# Amazon Q post block. Keep at the bottom of this file.
-[[ -f "${HOME}/.local/share/amazon-q/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/.local/share/amazon-q/shell/zshrc.po\
-st.zsh"
+# Kiro CLI post block. Keep at the bottom of this file.
+[[ -f "${HOME}/.local/share/kiro-cli/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/.local/share/kiro-cli/shell/zshrc.post.zsh"
