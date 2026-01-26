@@ -110,19 +110,66 @@ function j-network-dns-restart() {
   fi
 }
 
+############
+# Datetime #
+############
 
-alias simpleserver='python -m SimpleHTTPServer'
-# oh-my-zsh aws plugin
-alias aws_set_profile='asp'
-alias aws_get_profile='agp'
+function j-datetime_now_to_timestamp() {
+  echo $(date +%Y%m%d%H%M%S)
+}
 
-function j-which() {
-  if command -v "${1}" >/dev/null 2>&1 ; then
-    readlink -f `which "${1}"`
+function j-datetime-epoch_to_date {
+  if [ $# -ne 1 ]; then
+    echo "Please provide the epoch date time."
+    echo "Example: $0 <epoch>"
+    return 1
+  fi
+
+  if [[ "${JMACHINE}" == "mac" ]]; then
+    echo "$(date -r ${1})"
   else
-    echo "Command ${1} does not exist."
+    echo "$(date -d @${1})"
   fi
 }
+
+##############
+# Filesystem #
+##############
+
+function j-fs-del-line-in-file {
+  if [ $# -ne 2 ]; then
+    echo "Please provide the line an the file you wish to delete."
+    echo "Example: $0 <line> <file>"
+    return 1
+  fi
+
+  local _line=$1
+  local _file=$2
+  if ! is_unsigned_integer "${_line}"; then
+    echo "ERROR: <line> (first argument) must be a positive integer."
+    return 1
+  fi
+
+  if ! is_text_file "${_file}"; then
+    echo "ERROR: <file> (second argument) must be an existing, text file."
+    return 1
+  fi
+
+  echo "${_file}:${_line}: " $(sed -n "${_line}"p "${_file}")
+
+  if [[ $(yes_or_no "Do you want to delete the above line?") == "y" ]]; then
+      $(backup_file "${_file}")
+      if [[ ${JMACHINE} == "mac" ]]; then
+        $(sed -i "" ${_line}'d' ${_file})
+      else
+        $(sed -i ${_line}'d' ${_file})
+      fi
+  fi
+}
+
+############################
+# Remote System Management #
+############################
 
 function j-tmux() {
   cmd_exists tmux || { echo >&2 "Cannot find tmux. Aborting."; return; }
@@ -170,62 +217,32 @@ function j-tmux-re() {
   fi
 }
 
-function j-del-line-in-file {
-  if [ $# -ne 2 ]; then
-    echo "Please provide the line an the file you wish to delete."
-    echo "Example: $0 <line> <file>"
-    return 1
-  fi
+#############
+# Unordered #
+#############
 
-  local _line=$1
-  local _file=$2
-  if ! is_unsigned_integer "${_line}"; then
-    echo "ERROR: <line> (first argument) must be a positive integer."
-    return 1
-  fi
+alias simpleserver='python -m SimpleHTTPServer'
+# oh-my-zsh aws plugin
+alias aws_set_profile='asp'
+alias aws_get_profile='agp'
 
-  if ! is_text_file "${_file}"; then
-    echo "ERROR: <file> (second argument) must be an existing, text file."
-    return 1
-  fi
-
-  echo "${_file}:${_line}: " $(sed -n "${_line}"p "${_file}")
-
-  if [[ $(yes_or_no "Do you want to delete the above line?") == "y" ]]; then
-      $(backup_file "${_file}")
-      if [[ ${JMACHINE} == "mac" ]]; then
-        $(sed -i "" ${_line}'d' ${_file})
-      else
-        $(sed -i ${_line}'d' ${_file})
-      fi
-  fi
-}
-
-function date_time_timestamp() {
-  echo $(date +%Y%m%d%H%M%S)
-}
-
-function epoch_to_date {
-  if [ $# -ne 1 ]; then
-    echo "Please provide the epoch date time."
-    echo "Example: $0 <epoch>"
-    return 1
-  fi
-
-  if [[ "${JMACHINE}" == "mac" ]]; then
-    echo "$(date -r ${1})"
+function j-which() {
+  if command -v "${1}" >/dev/null 2>&1 ; then
+    readlink -f `which "${1}"`
   else
-    echo "$(date -d @${1})"
+    echo "Command ${1} does not exist."
   fi
 }
 
-####################### Jazzmanian _nix Life Hacks ############################
+##############################
+# Jazzmanian _nix Life Hacks #
+##############################
 
 # Java
 alias j-java-print-version='printf "\n☕️ Java\n\n" && which java && java -version'
 alias j-java-switch-version='sudo alternatives --config java && source ~/.zshrc'
 
-############################## crazy ############################################
+# Crazy
 function terminal-benchmark() {
   # https://en.wikipedia.org/wiki/ANSI_escape_code
   # https://unix.stackexchange.com/questions/17680/italics-in-emacs-on-a-text-terminal-rxvt-unicode
