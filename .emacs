@@ -279,15 +279,15 @@ This command does not push text to `kill-ring'."
 
 ;;;;;; Java (-script)
 
-(load "~/.emacs.d/java.el")
+;;(load "~/.emacs.d/java.el")
 
 ;;;;;; Scala
 
-(load "~/.emacs.d/scala.el")
+;;(load "~/.emacs.d/scala.el")
 
 ;;;;;; C/C++/Obj-C
 
-(load "~/.emacs.d/c.el")
+;;(load "~/.emacs.d/c.el")
 
 ;;;;;; HTML/XML
 
