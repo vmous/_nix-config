@@ -106,3 +106,7 @@
   :ensure t)
 (use-package calfw-gcal
   :ensure t)
+
+;;;; org-babel
+;; https://orgmode.org/worg/org-contrib/babel/
+(setq org-babel-results-keyword "results")
