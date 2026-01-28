@@ -109,4 +109,11 @@
 
 ;;;; org-babel
 ;; https://orgmode.org/worg/org-contrib/babel/
+
+; Languages to be evaluated within source blocks in org-mode
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((shell . t)))
+
+; results block in lowercase to match case of modern C-c C-, source templates
 (setq org-babel-results-keyword "results")
