@@ -31,7 +31,10 @@
   (setq tramp-remote-path '(tramp-default-remote-path "/bin" "/usr/bin" "/sbin" "/usr/sbin")
         tramp-terminal-type "tramp"
         ;; play nice with .ssh/config
-        tramp-ssh-controlmaster-options ""))
+        tramp-ssh-controlmaster-options ""
+        ;; adds debug buffers that can help with troubleshooting
+        ;; check buffers named `*debug tramp/[cache|local/ssh] <BLAH>*`
+        tramp-verbose 10))
 
 ;;;; * auto-decompress files
 (auto-compression-mode 1)

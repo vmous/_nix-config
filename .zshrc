@@ -152,12 +152,12 @@ select-word-style bash
 ############################## oh-my-zsh #######################################
 # https://github.com/robbyrussell/oh-my-zsh
 
-# After enabling OMZ to my remote machine, Emacs Tramp hangs every time there is
+# After enabling OMZ to my remote machine, Emacs TRAMP hangs every time there is
 # an attempt to connect to that machine from my local machine. To fix this I
 # have used the suggestions in https://www.emacswiki.org/emacs/TrampMode
 #
 # Note: Terminal type has been changed by setting `tramp-terminal-type` to
-# "tramp" in Tramp's Emacs configuration
+# "tramp" in TRAMP's Emacs configuration
 if [[ ${TERM} == "tramp" ]]; then
     PS1='%(?..[%?])%!:%~%# '
     unsetopt zle
