@@ -2,6 +2,12 @@
 ;;;;
 ;; File defining generic configuration for development.
 
+;; When in `prog-mode' start `goto-address-prog-mode' that identifies URLs and
+;; email addresses inside your code (specifically within comments and strings),
+;; visually highlights them and enables click-able actions (e.g., opening URLs
+;; to the browser)
+(add-hook 'prog-mode-hook #'goto-address-prog-mode)
+
 ;;;; whitespace-mode
 ;; https://www.emacswiki.org/emacs/WhiteSpace
 ;; http://ergoemacs.org/emacs/whitespace-mode.html
