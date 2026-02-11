@@ -7,7 +7,8 @@
 (use-package org
   :ensure t
   :init
-  (setq org-completion-use-ido t
+  (setq org-startup-folded t
+        org-completion-use-ido t
         org-export-coding-system 'utf-8
         org-directory "~/.emacs.d/org"
         org-default-notes-file (concat org-directory "/scratch-pad.org"))
