@@ -48,6 +48,8 @@
 
         j-restore-all-but = "!bash -c 'source \"${HOME}/.gitconfig-aliases.sh\" && git_j_restore_all_but \"$@\"' --"
 
+        j-stage-deleted = "!bash -c 'source \"${HOME}/.gitconfig-aliases.sh\" && git_j_stage_deleted'"
+
 
 [filter "lfs"]
 	clean = git-lfs clean -- %f

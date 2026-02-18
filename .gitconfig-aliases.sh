@@ -1,5 +1,14 @@
 #!/bin/shell
 
+# Color Definitions
+readonly CL_RED='\033[0;31m'
+readonly CL_GREEN='\033[0;32m'
+readonly CL_BLUE='\033[0;34m'
+readonly CL_CYAN='\033[0;36m'
+readonly CL_YELLOW='\033[1;33m'
+readonly CL_MAGENTA='\033[0;35m'
+readonly CL_NC='\033[0m' # No Color / Reset
+
 # "Squash" all local commits into the first local commit reusing first
 # commit's message.
 git_j_squash_to_first_local() {
@@ -160,4 +169,45 @@ git_j_add_all_tracked_but() {
       git add "$FILE";
     fi;
   done;
+}
+
+# Function to stage all deleted files.
+#
+# This workflow automates the staging of files that have been deleted
+# from the working directory. It specifically targets files marked as
+# "deleted" in 'Changes not staged for commit' and ignores any files
+# marked as "modified" or "untracked".
+#
+# Normally, Git users have to run 'git rm <file>' for every deleted path,
+# or 'git add -u' which captures both deletions AND modifications.
+# This function provides a surgical middle ground.
+#
+# The function includes safety guards for filenames with spaces/special
+# characters and provides a color-coded transparent preview of the
+# command being executed.
+git_j_stage_deleted() {
+    local files=()
+    # Use -z to handle spaces/quotes in filenames
+    while IFS= read -r -d '' file; do
+        files+=("$file")
+    done < <(git ls-files --deleted -z)
+
+    if [ ${#files[@]} -eq 0 ]; then
+        printf "${CL_YELLOW}No deleted files found to stage.${CL_NC}\n"
+        return 0
+    fi
+
+    # Build the display string
+    local display_str="git rm"
+    for f in "${files[@]}"; do
+        # 1. Escape existing single quotes: O'Reilly -> O'\''Reilly
+        local escaped_f="${f//\'/\'\\\'\'}"
+        # 2. Wrap the escaped name in single quotes and Cyan color
+        display_str="${display_str} '$escaped_f'"
+    done
+
+    # Print the command
+    printf "${CL_GREEN}${display_str}${CL_NC}\n"
+
+    git rm -- "${files[@]}"
 }
