@@ -96,19 +96,21 @@ git_j_uncommited_to_last_local() {
 # on.
 git_j_restore_all_but() {
   if [ -z "$@" ]; then
-    echo "Usage: git j-restore-all-but <file1> [<file2> ...]"
+    printf "${CL_YELLOW}Usage: git j-restore-all-but <file1> [<file2> ...]${CL_NC}\n"
     return 1
   fi
 
-  all_modified_files_str=$(git diff --name-only --diff-filter=M)
-  local all_modified_files_arr=( $(echo "${all_modified_files_str}") )
+  local all_modified_files_arr=()
+  while IFS= read -r -d '' file; do
+      all_modified_files_arr+=("$file")
+  done < <(git diff --name-only --diff-filter=M -z)
 
-  files_to_keep=("$@")
+  local files_to_keep=("$@")
 
-  files_to_restore=()
+  local files_to_restore=()
 
   for file in "${all_modified_files_arr[@]}"; do
-    keep=false
+    local keep=false
     for keep_file in "${files_to_keep[@]}"; do
       if [ "${file}" = "${keep_file}" ]; then
         keep=true
@@ -117,41 +119,40 @@ git_j_restore_all_but() {
     done
 
     if ! ${keep}; then
-      files_to_restore+=("{$file}")
+      files_to_restore+=("${file}")
     fi
   done
 
-  total_modified=${#all_modified_files_arr[@]}
-  to_restore_count=${#files_to_restore[@]}
-  to_keep_count=$((total_modified - to_restore_count))
+  local total_modified=${#all_modified_files_arr[@]}
+  local to_restore_count=${#files_to_restore[@]}
+  local to_keep_count=$((total_modified - to_restore_count))
 
-  echo "--- Git Restore-All-But Summary ---"
-  echo "Files to keep:     ${to_keep_count}/${total_modified}"
+  printf "${CL_GREEN}--- Git Restore-All-But Summary ---${CL_NC}\n"
+  printf "${CL_GREEN}Files to keep:     ${to_keep_count}/${total_modified}${CL_NC}\n"
   for file in "${files_to_keep[@]}"; do
-    echo " - ${file}"
+    printf "${CL_GREEN}  - ${file}${CL_NC}\n"
   done
-  echo ""
+  printf "\n"
 
-  echo "Files to restore:  ${to_restore_count}/${total_modified}"
+  printf "${CL_GREEN}Files to restore:  ${to_restore_count}/${total_modified}${CL_NC}\n"
   for file in "${files_to_restore[@]}"; do
-    echo "  - ${file}"
+    printf "${CL_GREEN}  - ${file}${CL_NC}\n"
   done
-  echo ""
-
+  printf "\n"
 
   if [ ${to_restore_count} -gt 0 ]; then
-    read -p "Do you want to proceed with restoring these files? (yes/no): " confirmation
+    printf "Do you want to proceed with restoring these files? (yes/no): "
+    local confirmation
+    read confirmation
     if [[ "$confirmation" =~ ^[Yy][Ee][Ss]$ ]]; then
-      echo "Proceeding with restore..."
-      CMD="git restore ${files_to_restore[@]}"
-      echo "Running: ${CMD}"
-      eval ${CMD}
-      echo "Restore complete."
+      printf "${CL_GREEN}Proceeding with restore...${CL_NC}\n"
+      git restore -- "${files_to_restore[@]}"
+      printf "${CL_GREEN}Restore complete.${CL_NC}\n"
     else
-      echo "Operation cancelled."
+      printf "${CL_YELLOW}Operation cancelled.${CL_NC}\n"
     fi
   else
-    echo "No files to restore based on your selection."
+    printf "${CL_YELLOW}No files to restore based on your selection.${CL_NC}\n"
   fi
 }
 
