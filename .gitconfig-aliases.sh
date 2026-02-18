@@ -95,18 +95,17 @@ git_j_uncommited_to_last_local() {
 # you can restore all the files except from the 4 files you were working
 # on.
 git_j_restore_all_but() {
-  if [ -z "$@" ]; then
-    printf "${CL_YELLOW}Usage: git j-restore-all-but <file1> [<file2> ...]${CL_NC}\n"
-    return 1
-  fi
-
   local all_modified_files_arr=()
   while IFS= read -r -d '' file; do
       all_modified_files_arr+=("$file")
   done < <(git diff --name-only --diff-filter=M -z)
 
-  local files_to_keep=("$@")
+  if [ ${#all_modified_files_arr[@]} -eq 0 ]; then
+    printf "${CL_YELLOW}No modified files found in working directory.${CL_NC}\n"
+    return 0
+  fi
 
+  local files_to_keep=("$@")
   local files_to_restore=()
 
   for file in "${all_modified_files_arr[@]}"; do
@@ -127,32 +126,36 @@ git_j_restore_all_but() {
   local to_restore_count=${#files_to_restore[@]}
   local to_keep_count=$((total_modified - to_restore_count))
 
+  if [ ${to_restore_count} -eq 0 ]; then
+    printf "${CL_YELLOW}All modified files are in your exclusion list. Nothing to restore.${CL_NC}\n"
+    return 0
+  fi
+
   printf "${CL_GREEN}--- Git Restore-All-But Summary ---${CL_NC}\n"
-  printf "${CL_GREEN}Files to keep:     ${to_keep_count}/${total_modified}${CL_NC}\n"
-  for file in "${files_to_keep[@]}"; do
-    printf "${CL_GREEN}  - ${file}${CL_NC}\n"
-  done
-  printf "\n"
 
-  printf "${CL_GREEN}Files to restore:  ${to_restore_count}/${total_modified}${CL_NC}\n"
+  if [ ${to_keep_count} -gt 0 ]; then
+    printf "${CL_YELLOW}Files to keep:     ${to_keep_count}/${total_modified}${CL_NC}\n"
+    for file in "${files_to_keep[@]}"; do
+      printf "${CL_YELLOW}  - ${file}${CL_NC}\n"
+    done
+    printf "\n"
+  fi
+
+  printf "${CL_RED}Files to restore:  ${to_restore_count}/${total_modified}${CL_NC}\n"
   for file in "${files_to_restore[@]}"; do
-    printf "${CL_GREEN}  - ${file}${CL_NC}\n"
+    printf "${CL_RED}  - ${file}${CL_NC}\n"
   done
   printf "\n"
 
-  if [ ${to_restore_count} -gt 0 ]; then
-    printf "Do you want to proceed with restoring these files? (yes/no): "
-    local confirmation
-    read confirmation
-    if [[ "$confirmation" =~ ^[Yy][Ee][Ss]$ ]]; then
-      printf "${CL_GREEN}Proceeding with restore...${CL_NC}\n"
-      git restore -- "${files_to_restore[@]}"
-      printf "${CL_GREEN}Restore complete.${CL_NC}\n"
-    else
-      printf "${CL_YELLOW}Operation cancelled.${CL_NC}\n"
-    fi
+  printf "${CL_CYAN}Do you want to proceed with restoring these files? (yes/no): ${CL_NC}"
+  local confirmation
+  read confirmation
+  if [[ "$confirmation" =~ ^[Yy][Ee][Ss]$ ]]; then
+    printf "${CL_GREEN}Proceeding with restore...${CL_NC}\n"
+    git restore -- "${files_to_restore[@]}"
+    printf "${CL_GREEN}Restore complete.${CL_NC}\n"
   else
-    printf "${CL_YELLOW}No files to restore based on your selection.${CL_NC}\n"
+    printf "${CL_YELLOW}Operation cancelled.${CL_NC}\n"
   fi
 }
 
