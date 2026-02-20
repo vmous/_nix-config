@@ -175,43 +175,101 @@ git_j_add_all_tracked_but() {
   done;
 }
 
-# Function to stage all deleted files.
+
+# Function to stage all deleted files except a specified list.
+#
+# Provide a list of file names to ignore from staging. If no such file names are
+# provided then all deleted files will be staged.
 #
 # This workflow automates the staging of files that have been deleted
 # from the working directory. It specifically targets files marked as
-# "deleted" in 'Changes not staged for commit' and ignores any files
-# marked as "modified" or "untracked".
+# "deleted" in git status' "Changes not staged for commit" section. By design,
+# it does not target other files like ones marked as "modified" or "untracked".
 #
-# Normally, Git users have to run 'git rm <file>' for every deleted path,
-# or 'git add -u' which captures both deletions AND modifications.
-# This function provides a surgical middle ground.
+# Motivation:
+# Normally, Git users have to run 'git rm <file>' for every deleted path, or
+# 'git add -u' which captures both deletions AND modifications. This function
+# offers precise git workflow for staging deleted files by allowing:
+# - single-command bulk staging, and
+# - flexibility to ignore certain deleted files from staging.
 #
-# The function includes safety guards for filenames with spaces/special
+# The function includes safety guards for file names with spaces/special
 # characters and provides a color-coded transparent preview of the
 # command being executed.
-git_j_stage_deleted() {
-    local files=()
+git_j_stage_deleted_but() {
+    local deleted_files_all=()
     # Use -z to handle spaces/quotes in filenames
     while IFS= read -r -d '' file; do
-        files+=("$file")
+        deleted_files_all+=("$file")
     done < <(git ls-files --deleted -z)
 
-    if [ ${#files[@]} -eq 0 ]; then
+    if [ ${#deleted_files_all[@]} -eq 0 ]; then
         printf "${CL_YELLOW}No deleted files found to stage.${CL_NC}\n"
         return 0
     fi
 
-    # Build the display string
-    local display_str="git rm"
-    for f in "${files[@]}"; do
-        # 1. Escape existing single quotes: O'Reilly -> O'\''Reilly
-        local escaped_f="${f//\'/\'\\\'\'}"
-        # 2. Wrap the escaped name in single quotes and Cyan color
-        display_str="${display_str} '$escaped_f'"
+    local deleted_files_to_ignore=("$@")
+    local deleted_files_to_stage=()
+
+    for deleted_file in "${deleted_files_all[@]}"; do
+      local ignore=false
+      for ignore_file in "${deleted_files_to_ignore[@]}"; do
+        if [ "${deleted_file}" = "${ignore_file}" ]; then
+          ignore=true
+          break
+        fi
+      done
+
+      if ! ${ignore}; then
+        deleted_files_to_stage+=("${deleted_file}")
+      fi
     done
 
-    # Print the command
-    printf "${CL_GREEN}${display_str}${CL_NC}\n"
+    local deleted_count=${#deleted_files_all[@]}
+    local to_stage_count=${#deleted_files_to_stage[@]}
+    local to_ignore_count=$((deleted_count - to_stage_count))
 
-    git rm -- "${files[@]}"
+    if [ ${to_stage_count} -eq 0 ]; then
+      printf "${CL_YELLOW}All deleted files are in your exclusion list. Nothing to stage.${CL_NC}\n"
+      return 0
+    fi
+
+    printf "${CL_GREEN}--- Operation Summary ---${CL_NC}\n"
+
+    if [ ${to_ignore_count} -gt 0 ]; then
+      printf "${CL_YELLOW}Files to ignore:     ${to_ignore_count}/${deleted_count}${CL_NC}\n"
+      for file in "${deleted_files_to_ignore[@]}"; do
+        printf "${CL_YELLOW}  - ${file}${CL_NC}\n"
+      done
+      printf "\n"
+    fi
+
+    printf "${CL_RED}Files to stage:  ${to_stage_count}/${deleted_count}${CL_NC}\n"
+    for file in "${deleted_files_to_stage[@]}"; do
+      printf "${CL_RED}  - ${file}${CL_NC}\n"
+    done
+    printf "\n"
+
+    printf "${CL_CYAN}Do you want to proceed with staging these deleted files? (yes/no): ${CL_NC}"
+    local confirmation
+    read confirmation
+    if [[ "$confirmation" =~ ^[Yy][Ee][Ss]$ ]]; then
+      printf "${CL_GREEN}Proceeding with staging...${CL_NC}\n"
+
+      # Build the display string
+      local display_str="git rm"
+      for f in "${deleted_files_to_stage[@]}"; do
+          # 1. Escape existing single quotes: O'Reilly -> O'\''Reilly
+          local escaped_f="${f//\'/\'\\\'\'}"
+          # 2. Wrap the escaped name in single quotes and Cyan color
+          display_str="${display_str} '$escaped_f'"
+      done
+
+      # Print the command
+      printf "${CL_GREEN}${display_str}${CL_NC}\n"
+
+      git rm -- "${deleted_files_to_stage[@]}"
+    else
+      printf "${CL_YELLOW}Staging cancelled.${CL_NC}\n"
+    fi
 }
