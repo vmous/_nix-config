@@ -175,11 +175,10 @@ git_j_add_all_tracked_but() {
   done;
 }
 
-
-# Function to stage all deleted files except a specified list.
+# Stage deleted files from the working directory to the staging area.
 #
-# Provide a list of file names to ignore from staging. If no such file names are
-# provided then all deleted files will be staged.
+# By default the function operates on all unstaged deleted files. Optionally,
+# pass a list of files names to ingore.
 #
 # This workflow automates the staging of files that have been deleted
 # from the working directory. It specifically targets files marked as
@@ -271,5 +270,89 @@ git_j_stage_deleted_but() {
       git rm -- "${deleted_files_to_stage[@]}"
     else
       printf "${CL_YELLOW}Staging cancelled.${CL_NC}\n"
+    fi
+}
+
+# Unstage deleted files from the staging area back to the working directory.
+#
+# By default the function operates on all staged deleted files. Optionally, pass
+# a list of files names to ingore.
+#
+# Symmetrical effect to `git_j_stage_deleted_but` above.
+git_j_unstage_deleted_but() {
+    local deleted_staged_all=()
+
+    # --diff-filter=D finds only deleted files
+    # --cached looks only at the staging area (index)
+    while IFS= read -r -d '' file; do
+        deleted_staged_all+=("$file")
+    done < <(git diff --name-only --diff-filter=D --cached -z)
+
+    if [ ${#deleted_staged_all[@]} -eq 0 ]; then
+        printf "${CL_YELLOW}No staged deletions found to unstage.${CL_NC}\n"
+        return 0
+    fi
+
+    local files_to_ignore=("$@")
+    local files_to_unstage=()
+
+    for staged_file in "${deleted_staged_all[@]}"; do
+      local ignore=false
+      for ignore_file in "${files_to_ignore[@]}"; do
+        if [ "${staged_file}" = "${ignore_file}" ]; then
+          ignore=true
+          break
+        fi
+      done
+
+      if ! ${ignore}; then
+        files_to_unstage+=("${staged_file}")
+      fi
+    done
+
+    local total_count=${#deleted_staged_all[@]}
+    local to_unstage_count=${#files_to_unstage[@]}
+    local to_ignore_count=$((total_count - to_unstage_count))
+
+    if [ ${to_unstage_count} -eq 0 ]; then
+        printf "${CL_YELLOW}All staged deletions are in your exclusion list. Nothing to unstage.${CL_NC}\n"
+        return 0
+    fi
+
+    printf "${CL_GREEN}--- Unstage Operation Summary ---${CL_NC}\n"
+
+    if [ ${to_ignore_count} -gt 0 ]; then
+        printf "${CL_YELLOW}Files to keep staged:  ${to_ignore_count}/${total_count}${CL_NC}\n"
+        for file in "${files_to_ignore[@]}"; do
+             # Only print if it was actually in the staged list
+             for f in "${deleted_staged_all[@]}"; do
+                 [[ "$f" == "$file" ]] && printf "${CL_YELLOW}  - ${file}${CL_NC}\n"
+             done
+        done
+        printf "\n"
+    fi
+
+    printf "${CL_RED}Files to unstage:  ${to_unstage_count}/${total_count}${CL_NC}\n"
+    for file in "${files_to_unstage[@]}"; do
+      printf "${CL_RED}  - ${file}${CL_NC}\n"
+    done
+    printf "\n"
+
+    printf "${CL_CYAN}Do you want to proceed with unstaging these deleted files? (yes/no): ${CL_NC}"
+    local confirmation
+    read confirmation
+    if [[ "$confirmation" =~ ^[Yy][Ee][Ss]$ ]]; then
+      printf "${CL_GREEN}Proceeding with unstaging...${CL_NC}\n"
+
+      local display_str="git restore --staged"
+      for f in "${files_to_unstage[@]}"; do
+          local escaped_f="${f//\'/\'\\\'\'}"
+          display_str="${display_str} '$escaped_f'"
+      done
+
+      printf "${CL_GREEN}${display_str}${CL_NC}\n"
+      git restore --staged -- "${files_to_unstage[@]}"
+    else
+      printf "${CL_YELLOW}Unstaging cancelled.${CL_NC}\n"
     fi
 }
