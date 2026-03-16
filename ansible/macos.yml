@@ -1,0 +1,7 @@
+---
+- name: Install packages using Homebrew Cask
+  community.general.homebrew_cask:
+    name:
+      - emacs-app
+    state: present
+    tags: [ macos, packages ]

@@ -1,0 +1,22 @@
+---
+- name: Configure my machine
+  hosts: local
+  tasks:
+    - name: MacOS-specific configuration
+      import_tasks: macos.yml
+      when: ansible_os_family == "Darwin"
+
+    - name: Linux-specific configuration
+      import_tasks: linux.yml
+      when: ansible_os_family == "RedHat"
+
+    - name: User dotfile configuration
+      file:
+        src: "{{ playbook_dir | dirname }}/{{ item }}"
+        dest: "{{ ansible_user_dir }}/{{ item }}"
+        state: link
+        force: yes
+      loop:
+        - .alias
+        - .tmux.conf
+      tags: [ shared, dotfiles, links ]

@@ -1,0 +1,10 @@
+---
+- name: Install packages using DNF
+  become: yes
+  ansible.builtin.dnf:
+    name:
+      - tmux
+    state: present
+    update_cache: no
+  when: false
+  tags: [ linux, packages ]
