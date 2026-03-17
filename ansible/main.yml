@@ -1,7 +1,45 @@
 ---
 - name: Configure my machine
   hosts: local
+  vars:
+    # Resolve the home directory to its physical path
+    physical_home: "{{ ansible_user_dir | realpath }}"
+
+    # Dynamic Path Discovery
+    # - `playbook_dir` is `/path/to/repo/ansible`
+    # - `repo_root` will be `/path/to/repo`
+    # - `repo_name` will be `repo`
+    repo_root: "{{ (playbook_dir | dirname) | realpath }}"
+    repo_name: "{{ repo_root | basename }}"
+
+    # Workspace Definitions
+    workspace_root: "{{ physical_home }}/Workspace"
+    personal_dir: "{{ workspace_root }}/personal"
+    work_dir: "{{ workspace_root }}/work"
+
+    # We define where the repo SHOULD be based on its current folder name
+    expected_repo_root: "{{ (personal_dir ~ '/' ~ repo_name) | realpath }}"
   tasks:
+    - name: Ensure Workspace structure exists
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - "{{ ansible_user_dir }}/Workspace"
+        - "{{ ansible_user_dir }}/Workspace/personal"
+        - "{{ ansible_user_dir }}/Workspace/work"
+
+    - name: Verify repository location
+      ansible.builtin.assert:
+        that:
+          - repo_root == expected_repo_root
+        fail_msg: |
+          ERROR: '{{ repo_name }}' is in the wrong place. Move and try again
+          Current: {{ repo_root }}
+          Expected: {{ expected_repo_root }}
+        success_msg: "Confirmed: '{{ repo_name }}' is correctly located under '{{ expected_repo_root }}'."
+
     - name: MacOS-specific configuration
       import_tasks: macos.yml
       when: ansible_os_family == "Darwin"
@@ -19,4 +57,7 @@
       loop:
         - .alias
         - .tmux.conf
+        - .gitconfig
+        - .gitconfig.amzn
+        - .git-commit-template
       tags: [ shared, dotfiles, links ]
