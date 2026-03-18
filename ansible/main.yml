@@ -19,6 +19,22 @@
 
     # We define where the repo SHOULD be based on its current folder name
     expected_repo_root: "{{ (personal_dir ~ '/' ~ repo_name) | realpath }}"
+
+    tracked_conf_files:
+      - .alias
+      - .emacs
+      - .git-commit-template
+      - .gitconfig
+      - .gitconfig-aliases.sh
+      - .gitconfig.amzn
+      - .tmux.conf
+      - .zsh.d
+      - .zshenv
+      - .zshrc
+    untracked_conf_files:
+      - .fzf
+      - .oh-my-zsh
+      - .zsh_history
   tasks:
     - name: Ensure Workspace structure exists
       ansible.builtin.file:
@@ -48,16 +64,44 @@
       import_tasks: linux.yml
       when: ansible_os_family == "RedHat"
 
-    - name: User dotfile configuration
-      file:
+    - name: Scan for tracked configuration files/directories
+      ansible.builtin.stat:
+        path: "{{ ansible_user_dir }}/{{ item }}"
+      loop: "{{ tracked_conf_files }}"
+      register: tracked_conf_files_stats
+
+    - name: Backup existing tracked configuration files/directories
+      ansible.builtin.command:
+        cmd: "mv {{ ansible_user_dir }}/{{ item.item }} {{ ansible_user_dir }}/{{ item.item }}.ORIG"
+      loop: "{{ tracked_conf_files_stats.results }}"
+      when:
+        - item.stat.exists
+        - not item.stat.islnk
+      loop_control:
+        # Only print limitted info in the output instead of the whole object
+        label: "{{ item.item }}"
+
+    - name: Create symbolic links to tracked configuration files/directories
+      ansible.builtin.file:
         src: "{{ playbook_dir | dirname }}/{{ item }}"
         dest: "{{ ansible_user_dir }}/{{ item }}"
         state: link
         force: yes
-      loop:
-        - .alias
-        - .tmux.conf
-        - .gitconfig
-        - .gitconfig.amzn
-        - .git-commit-template
+      loop: "{{ tracked_conf_files }}"
       tags: [ shared, dotfiles, links ]
+
+    - name: Scan for untracked but required configuration files/directories
+      ansible.builtin.stat:
+        path: "{{ item | expanduser }}"
+      loop: "{{ untracked_conf_files }}"
+      register: untracked_conf_files_stats
+
+    - name: Warn that untracked but required configuration files/directories do not exist.
+      ansible.builtin.debug:
+        msg: |
+          WARNING: '{{ item.item }}' could not be found.
+          Create it or copy it from your old machine if you are migrating.
+      loop: "{{ untracked_conf_files_stats.results }}"
+      when: not item.stat.exists
+      loop_control:
+        label: "{{ item.item }}"
