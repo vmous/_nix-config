@@ -49,6 +49,8 @@ export PROMPT="
 
 export RPROMPT=
 
+export AUTO_TITLE_SCREENS="NO"
+
 set-title() {
     echo -e "\e]0;${*}\007"
 }
@@ -303,3 +305,8 @@ if [[ "${JMACHINE}" == "mac" ]]; then
 elif [[ "${JMACHINE}" == "worklinux" ]] || [[ "${JMACHINE}" == "homelinux" ]]; then
     [ -f ${HOME}/.fzf.zsh ] && source ${HOME}/.fzf.zsh
 fi
+
+# if you wish to use IMDS set AWS_EC2_METADATA_DISABLED=false
+
+export AWS_EC2_METADATA_DISABLED=true
+

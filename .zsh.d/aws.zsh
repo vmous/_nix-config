@@ -1,16 +1,6 @@
-############################## aws ##############################################
-#
-# Amazon AWS CLI
-# https://w.amazon.com/bin/view/AmazonAwsCli/
-#
-alias aws-amzn='/apollo/bin/env -e AmazonAwsCli aws'
+############################## aws #############################################
 
-#
-# AWS Odin Credentials
-#
-alias j-aws-o-laguna='export AWS_CREDENTIALS_ODIN=com.amazon.access.a9-search-relevance-laguna-dev-1'
-alias j-aws-o-rel='export AWS_CREDENTIALS_ODIN=com.a9.relevance.common.aws'
-alias j-aws-o-anal-qnrmuc='export AWS_CREDENTIALS_ODIN=com.amazon.access.search-analytics-search-qnr-muc-1'
+
 
 #
 # AWS Console Access
@@ -22,7 +12,7 @@ alias j-aws-c-rel='open $(=ssh vmous.aka.corp.amazon.com /apollo/bin/env -e envI
 #
 # AWS EC2
 #
-alias j-aws-p2-start='j-aws-o-rel && aws-amzn --region us-east-1 ec2 start-instances --instance-ids i-0cec0591dbada1c76'
+alias j-aws-p2-start='j-aws-o-rel && aws --region us-east-1 ec2 start-instances --instance-ids i-0cec0591dbada1c76'
 
 #
 # AWS S3
@@ -244,9 +234,9 @@ function j-aws-s3-rm-cons {
   local FILE=$(echo ${KEY} | sed -e s,/,.,g)
   local S3_URI="s3://${BUCKET}/${KEY}"
 
-  local CMD="aws-amzn s3 rm"
+  local CMD="aws s3 rm"
 
-  IS_FOLDER=`aws-amzn s3 ls ${B}`
+  IS_FOLDER=`aws s3 ls ${B}`
   while true; do
     echo -n "Recursively remove (if applicable)? [y/n]: "
     read YN

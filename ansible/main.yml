@@ -20,7 +20,7 @@
     # We define where the repo SHOULD be based on its current folder name
     expected_repo_root: "{{ (personal_dir ~ '/' ~ repo_name) | realpath }}"
 
-    tracked_conf_files:
+    repo_conf_files:
       - .alias
       - .emacs
       - .git-commit-template
@@ -64,16 +64,16 @@
       import_tasks: linux.yml
       when: ansible_os_family == "RedHat"
 
-    - name: Scan for tracked configuration files/directories
+    - name: Scan for repo configuration files/directories
       ansible.builtin.stat:
         path: "{{ ansible_user_dir }}/{{ item }}"
-      loop: "{{ tracked_conf_files }}"
-      register: tracked_conf_files_stats
+      loop: "{{ repo_conf_files }}"
+      register: repo_conf_files_stats
 
-    - name: Backup existing tracked configuration files/directories
+    - name: Backup existing repo configuration files/directories
       ansible.builtin.command:
         cmd: "mv {{ ansible_user_dir }}/{{ item.item }} {{ ansible_user_dir }}/{{ item.item }}.ORIG"
-      loop: "{{ tracked_conf_files_stats.results }}"
+      loop: "{{ repo_conf_files_stats.results }}"
       when:
         - item.stat.exists
         - not item.stat.islnk
@@ -81,13 +81,13 @@
         # Only print limitted info in the output instead of the whole object
         label: "{{ item.item }}"
 
-    - name: Create symbolic links to tracked configuration files/directories
+    - name: Create symbolic links to repo configuration files/directories
       ansible.builtin.file:
         src: "{{ playbook_dir | dirname }}/{{ item }}"
         dest: "{{ ansible_user_dir }}/{{ item }}"
         state: link
         force: yes
-      loop: "{{ tracked_conf_files }}"
+      loop: "{{ repo_conf_files }}"
       tags: [ shared, dotfiles, links ]
 
     - name: Scan for untracked but required configuration files/directories

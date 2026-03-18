@@ -1,8 +1,8 @@
 #
-# Personal zshrc configuration for Amzn Dev Desktop
+# zsh configuration for Cloud Developer Desktop
 #
 # Add the following line on the very top of your .zshrc file
-# source /home/$USER/.zshrc_amzn
+# source ${HOME}/.zshrc
 #
 
 # Kiro CLI pre block. Keep at the top of this file.
