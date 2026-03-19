@@ -229,8 +229,6 @@ if [[ "${JMACHINE}" == "mac" ]]; then
     if cmd_exists rbenv; then
         eval "$(rbenv init -)"
     fi
-    # To link Rubies to Homebrew's OpenSSL 1.1 (which is upgraded)
-    export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
 
     # java
     export JAVA_HOME=/Library/Java/JavaVirtualMachines/amazon-corretto-21.jdk/Contents/Home
