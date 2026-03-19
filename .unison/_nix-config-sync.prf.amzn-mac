@@ -2,8 +2,8 @@
 
 # Roots of the synchronization
 # If you make these two equivalent, most things "just work"
-root = /Users/vmous/Workspace/
-root = ssh://vmous@vmous-clouddesk.aka.corp.amazon.com//local/workplace/vmous-personal/
+root = /Users/vmous/Workspace/personal/
+root = ssh://vmous@vmous-clouddesk.aka.corp.amazon.com//local/home/vmous/Workspace/personal/
 
 # Specific paths to synchronize (or leave out to sync all)
 path = _nix-config
