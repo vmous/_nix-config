@@ -20,6 +20,13 @@
     # We define where the repo SHOULD be based on its current folder name
     expected_repo_root: "{{ (personal_dir ~ '/' ~ repo_name) | realpath }}"
 
+    # TODO:
+    # - .emacs.d
+    # - .unison
+    # - Library
+    # - .bash_profile
+    # - .bashrc
+    # - .rtorrent.rc
     repo_conf_files:
       - .alias
       - .emacs
@@ -31,6 +38,7 @@
       - .zsh.d
       - .zshenv
       - .zshrc
+
     untracked_conf_files:
       - .fzf
       - .oh-my-zsh
@@ -44,7 +52,7 @@
       loop:
         - "{{ ansible_user_dir }}/Workspace"
         - "{{ ansible_user_dir }}/Workspace/personal"
-        - "{{ ansible_user_dir }}/Workspace/work"
+        - "{{ ansible_user_dir }}/Workspace/work"  # [ONLY FOR AMZN CDD] Add symlink to /local/workplace/vmous
 
     - name: Verify repository location
       ansible.builtin.assert:
