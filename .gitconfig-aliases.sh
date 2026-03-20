@@ -1,5 +1,9 @@
 #!/bin/shell
 
+################################################################################
+# Constants ####################################################################
+################################################################################
+
 # Color Definitions
 readonly CL_RED='\033[0;31m'
 readonly CL_GREEN='\033[0;32m'
@@ -8,6 +12,83 @@ readonly CL_CYAN='\033[0;36m'
 readonly CL_YELLOW='\033[1;33m'
 readonly CL_MAGENTA='\033[0;35m'
 readonly CL_NC='\033[0m' # No Color / Reset
+
+################################################################################
+# Utility functions ############################################################
+################################################################################
+
+# Helper: Collects null-terminated file lists into an array.
+# Usage: _collect_files <ArrayName> <GitCommand...>
+_collect_files() {
+    local -n _target_arr=$1
+    shift
+    while IFS= read -r -d '' file; do
+        _target_arr+=("$file")
+    done < <("$@" -z)
+}
+
+# Helper: Handles filtering, UI summary, and confirmation logic.
+# Usage: _bulk_execute <OpName> <GitCmd> <FilesToProcess_Ref> <IgnoreList_Ref>
+_bulk_execute() {
+    local op_name="$1"
+    local git_cmd="$2"
+    local -n __all_files=$3  # Nameref to the array in calling function
+    local -n __ignore_list=$4 # Nameref to the array in calling function
+
+    local files_to_process=()
+    local files_to_ignore=()
+
+    # Filtering logic
+    for f_item in "${__all_files[@]}"; do
+        local skip=false
+        for ignore_f_item in "${__ignore_list[@]}"; do
+            [[ "$f_item" == "$ignore_f_item" ]] && skip=true && break
+        done
+
+        if $skip; then
+            files_to_ignore+=("$f_item")
+        else
+            files_to_process+=("$f_item")
+        fi
+    done
+
+    if [ ${#files_to_process[@]} -eq 0 ]; then
+        printf "${CL_YELLOW}All discovered files are excluded. Nothing to $op_name.${CL_NC}\n"
+        return 0
+    fi
+
+    # Summary UI
+    printf "${CL_GREEN}--- $op_name Summary ---${CL_NC}\n"
+    if [ ${#files_to_ignore[@]} -gt 0 ]; then
+        printf "${CL_YELLOW}Excluded (${#files_to_ignore[@]}/${#__all_files[@]}):${CL_NC}\n"
+        for f in "${__ignore_list[@]}"; do
+            # Only list the ignore-item if it actually existed in the discovery set
+            for found in "${__all_files[@]}"; do
+                [[ "$found" == "$f" ]] && printf "${CL_YELLOW}  - $f${CL_NC}\n" && break
+            done
+        done
+    fi
+
+    printf "${CL_RED}To $op_name (${#files_to_process[@]}/${#__all_files[@]}):${CL_NC}\n"
+    for f in "${files_to_process[@]}"; do printf "${CL_RED}  - $f${CL_NC}\n"; done
+
+    # Interaction
+    printf "\n${CL_CYAN}Do you want to proceed? (yes/no): ${CL_NC}"
+    local confirmation
+    read -r confirmation
+    if [[ "$confirmation" =~ ^[Yy][Ee][Ss]$ ]]; then
+        printf "${CL_GREEN}Executing: $git_cmd ...${CL_NC}\n"
+        # Split git_cmd into array to handle flags properly
+        read -r -a cmd_array <<< "$git_cmd"
+        "${cmd_array[@]}" "${files_to_process[@]}"
+    else
+        printf "${CL_YELLOW}Operation cancelled.${CL_NC}\n"
+    fi
+}
+
+################################################################################
+# Workflows ####################################################################
+################################################################################
 
 # "Squash" all local commits into the first local commit reusing first
 # commit's message.
@@ -80,6 +161,22 @@ git_j_uncommited_to_last_local() {
     git commit --amend --no-edit
 }
 
+git_j_add_all_tracked_but() {
+  EXCLUDE_FILES=("$@");
+  git diff --name-only --diff-filter=MD | while read -r FILE; do
+    EXCLUDE=false;
+    for EXCL in "${EXCLUDE_FILES[@]}"; do
+      if [[ "$FILE" == "$EXCL" ]]; then
+        EXCLUDE=true
+        break
+      fi
+    done
+    if ! $EXCLUDE; then
+      git add "$FILE";
+    fi;
+  done;
+}
+
 # Function to restore all modified files except a specified list
 #
 # This workflow restores all the files in the current working
@@ -95,84 +192,16 @@ git_j_uncommited_to_last_local() {
 # you can restore all the files except from the 4 files you were working
 # on.
 git_j_restore_all_but() {
-  local all_modified_files_arr=()
-  while IFS= read -r -d '' file; do
-      all_modified_files_arr+=("$file")
-  done < <(git diff --name-only --diff-filter=M -z)
+    local discovered=()
+    _collect_files discovered git diff --name-only --diff-filter=M
 
-  if [ ${#all_modified_files_arr[@]} -eq 0 ]; then
-    printf "${CL_YELLOW}No modified files found in working directory.${CL_NC}\n"
-    return 0
-  fi
-
-  local files_to_keep=("$@")
-  local files_to_restore=()
-
-  for file in "${all_modified_files_arr[@]}"; do
-    local keep=false
-    for keep_file in "${files_to_keep[@]}"; do
-      if [ "${file}" = "${keep_file}" ]; then
-        keep=true
-        break
-      fi
-    done
-
-    if ! ${keep}; then
-      files_to_restore+=("${file}")
+    if [ ${#discovered[@]} -eq 0 ]; then
+        printf "${CL_YELLOW}No modified files found.${CL_NC}\n"
+        return 0
     fi
-  done
 
-  local total_modified=${#all_modified_files_arr[@]}
-  local to_restore_count=${#files_to_restore[@]}
-  local to_keep_count=$((total_modified - to_restore_count))
-
-  if [ ${to_restore_count} -eq 0 ]; then
-    printf "${CL_YELLOW}All modified files are in your exclusion list. Nothing to restore.${CL_NC}\n"
-    return 0
-  fi
-
-  printf "${CL_GREEN}--- Git Restore-All-But Summary ---${CL_NC}\n"
-
-  if [ ${to_keep_count} -gt 0 ]; then
-    printf "${CL_YELLOW}Files to keep:     ${to_keep_count}/${total_modified}${CL_NC}\n"
-    for file in "${files_to_keep[@]}"; do
-      printf "${CL_YELLOW}  - ${file}${CL_NC}\n"
-    done
-    printf "\n"
-  fi
-
-  printf "${CL_RED}Files to restore:  ${to_restore_count}/${total_modified}${CL_NC}\n"
-  for file in "${files_to_restore[@]}"; do
-    printf "${CL_RED}  - ${file}${CL_NC}\n"
-  done
-  printf "\n"
-
-  printf "${CL_CYAN}Do you want to proceed with restoring these files? (yes/no): ${CL_NC}"
-  local confirmation
-  read confirmation
-  if [[ "$confirmation" =~ ^[Yy][Ee][Ss]$ ]]; then
-    printf "${CL_GREEN}Proceeding with restore...${CL_NC}\n"
-    git restore -- "${files_to_restore[@]}"
-    printf "${CL_GREEN}Restore complete.${CL_NC}\n"
-  else
-    printf "${CL_YELLOW}Operation cancelled.${CL_NC}\n"
-  fi
-}
-
-git_j_add_all_tracked_but() {
-  EXCLUDE_FILES=("$@");
-  git diff --name-only --diff-filter=MD | while read -r FILE; do
-    EXCLUDE=false;
-    for EXCL in "${EXCLUDE_FILES[@]}"; do
-      if [[ "$FILE" == "$EXCL" ]]; then
-        EXCLUDE=true
-        break
-      fi
-    done
-    if ! $EXCLUDE; then
-      git add "$FILE";
-    fi;
-  done;
+    local ignore_list=("$@")
+    _bulk_execute "Restore" "git restore" discovered ignore_list
 }
 
 # Stage deleted files from the working directory to the staging area.
@@ -196,81 +225,16 @@ git_j_add_all_tracked_but() {
 # characters and provides a color-coded transparent preview of the
 # command being executed.
 git_j_stage_deleted_but() {
-    local deleted_files_all=()
-    # Use -z to handle spaces/quotes in filenames
-    while IFS= read -r -d '' file; do
-        deleted_files_all+=("$file")
-    done < <(git ls-files --deleted -z)
+    local discovered=()
+    _collect_files discovered git ls-files --deleted
 
-    if [ ${#deleted_files_all[@]} -eq 0 ]; then
-        printf "${CL_YELLOW}No deleted files found to stage.${CL_NC}\n"
+    if [ ${#discovered[@]} -eq 0 ]; then
+        printf "${CL_YELLOW}No deleted files found.${CL_NC}\n"
         return 0
     fi
 
-    local deleted_files_to_ignore=("$@")
-    local deleted_files_to_stage=()
-
-    for deleted_file in "${deleted_files_all[@]}"; do
-      local ignore=false
-      for ignore_file in "${deleted_files_to_ignore[@]}"; do
-        if [ "${deleted_file}" = "${ignore_file}" ]; then
-          ignore=true
-          break
-        fi
-      done
-
-      if ! ${ignore}; then
-        deleted_files_to_stage+=("${deleted_file}")
-      fi
-    done
-
-    local deleted_count=${#deleted_files_all[@]}
-    local to_stage_count=${#deleted_files_to_stage[@]}
-    local to_ignore_count=$((deleted_count - to_stage_count))
-
-    if [ ${to_stage_count} -eq 0 ]; then
-      printf "${CL_YELLOW}All deleted files are in your exclusion list. Nothing to stage.${CL_NC}\n"
-      return 0
-    fi
-
-    printf "${CL_GREEN}--- Operation Summary ---${CL_NC}\n"
-
-    if [ ${to_ignore_count} -gt 0 ]; then
-      printf "${CL_YELLOW}Files to ignore:     ${to_ignore_count}/${deleted_count}${CL_NC}\n"
-      for file in "${deleted_files_to_ignore[@]}"; do
-        printf "${CL_YELLOW}  - ${file}${CL_NC}\n"
-      done
-      printf "\n"
-    fi
-
-    printf "${CL_RED}Files to stage:  ${to_stage_count}/${deleted_count}${CL_NC}\n"
-    for file in "${deleted_files_to_stage[@]}"; do
-      printf "${CL_RED}  - ${file}${CL_NC}\n"
-    done
-    printf "\n"
-
-    printf "${CL_CYAN}Do you want to proceed with staging these deleted files? (yes/no): ${CL_NC}"
-    local confirmation
-    read confirmation
-    if [[ "$confirmation" =~ ^[Yy][Ee][Ss]$ ]]; then
-      printf "${CL_GREEN}Proceeding with staging...${CL_NC}\n"
-
-      # Build the display string
-      local display_str="git rm"
-      for f in "${deleted_files_to_stage[@]}"; do
-          # 1. Escape existing single quotes: O'Reilly -> O'\''Reilly
-          local escaped_f="${f//\'/\'\\\'\'}"
-          # 2. Wrap the escaped name in single quotes and Cyan color
-          display_str="${display_str} '$escaped_f'"
-      done
-
-      # Print the command
-      printf "${CL_GREEN}${display_str}${CL_NC}\n"
-
-      git rm -- "${deleted_files_to_stage[@]}"
-    else
-      printf "${CL_YELLOW}Staging cancelled.${CL_NC}\n"
-    fi
+    local ignore_list=("$@")
+    _bulk_execute "Stage Deletions" "git rm" discovered ignore_list
 }
 
 # Unstage deleted files from the staging area back to the working directory.
@@ -280,79 +244,14 @@ git_j_stage_deleted_but() {
 #
 # Symmetrical effect to `git_j_stage_deleted_but` above.
 git_j_unstage_deleted_but() {
-    local deleted_staged_all=()
+    local discovered=()
+    _collect_files discovered git diff --name-only --diff-filter=D --cached
 
-    # --diff-filter=D finds only deleted files
-    # --cached looks only at the staging area (index)
-    while IFS= read -r -d '' file; do
-        deleted_staged_all+=("$file")
-    done < <(git diff --name-only --diff-filter=D --cached -z)
-
-    if [ ${#deleted_staged_all[@]} -eq 0 ]; then
-        printf "${CL_YELLOW}No staged deletions found to unstage.${CL_NC}\n"
+    if [ ${#discovered[@]} -eq 0 ]; then
+        printf "${CL_YELLOW}No staged deletions found.${CL_NC}\n"
         return 0
     fi
 
-    local files_to_ignore=("$@")
-    local files_to_unstage=()
-
-    for staged_file in "${deleted_staged_all[@]}"; do
-      local ignore=false
-      for ignore_file in "${files_to_ignore[@]}"; do
-        if [ "${staged_file}" = "${ignore_file}" ]; then
-          ignore=true
-          break
-        fi
-      done
-
-      if ! ${ignore}; then
-        files_to_unstage+=("${staged_file}")
-      fi
-    done
-
-    local total_count=${#deleted_staged_all[@]}
-    local to_unstage_count=${#files_to_unstage[@]}
-    local to_ignore_count=$((total_count - to_unstage_count))
-
-    if [ ${to_unstage_count} -eq 0 ]; then
-        printf "${CL_YELLOW}All staged deletions are in your exclusion list. Nothing to unstage.${CL_NC}\n"
-        return 0
-    fi
-
-    printf "${CL_GREEN}--- Unstage Operation Summary ---${CL_NC}\n"
-
-    if [ ${to_ignore_count} -gt 0 ]; then
-        printf "${CL_YELLOW}Files to keep staged:  ${to_ignore_count}/${total_count}${CL_NC}\n"
-        for file in "${files_to_ignore[@]}"; do
-             # Only print if it was actually in the staged list
-             for f in "${deleted_staged_all[@]}"; do
-                 [[ "$f" == "$file" ]] && printf "${CL_YELLOW}  - ${file}${CL_NC}\n"
-             done
-        done
-        printf "\n"
-    fi
-
-    printf "${CL_RED}Files to unstage:  ${to_unstage_count}/${total_count}${CL_NC}\n"
-    for file in "${files_to_unstage[@]}"; do
-      printf "${CL_RED}  - ${file}${CL_NC}\n"
-    done
-    printf "\n"
-
-    printf "${CL_CYAN}Do you want to proceed with unstaging these deleted files? (yes/no): ${CL_NC}"
-    local confirmation
-    read confirmation
-    if [[ "$confirmation" =~ ^[Yy][Ee][Ss]$ ]]; then
-      printf "${CL_GREEN}Proceeding with unstaging...${CL_NC}\n"
-
-      local display_str="git restore --staged"
-      for f in "${files_to_unstage[@]}"; do
-          local escaped_f="${f//\'/\'\\\'\'}"
-          display_str="${display_str} '$escaped_f'"
-      done
-
-      printf "${CL_GREEN}${display_str}${CL_NC}\n"
-      git restore --staged -- "${files_to_unstage[@]}"
-    else
-      printf "${CL_YELLOW}Unstaging cancelled.${CL_NC}\n"
-    fi
+    local ignore_list=("$@")
+    _bulk_execute "Unstage Deletions" "git restore --staged" discovered ignore_list
 }
