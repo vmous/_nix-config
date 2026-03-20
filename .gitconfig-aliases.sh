@@ -40,7 +40,7 @@ git_j_uncommited_to_last_local() {
     UPSTREAM=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo origin/HEAD)
     LAST_REMOTE_ID=$(git merge-base "${UPSTREAM}" HEAD)
     LOCAL_COUNT=$(git rev-list --count "${LAST_REMOTE_ID}"..HEAD)
-    if [ -z "${LOCAL_COUNT}" ]; then
+    if [ "${LOCAL_COUNT}" -eq 0 ]; then
         echo "Error. No local commits found to merge changes into. Aborting..."
         return 1
     fi
