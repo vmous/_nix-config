@@ -65,12 +65,6 @@
 ;  :ensure t)
 
 
-;;;; px
-;; https://github.com/aaptel/preview-latex
-(use-package px
-  :ensure t)
-
-
 ;;;; latex-preview-pane
 ;; https://www.emacswiki.org/emacs/LaTeXPreviewPane
 ;;
@@ -79,7 +73,5 @@
 ;; * Open in External Program (Bound to M-P)
 (use-package latex-preview-pane
   :ensure t
-  :diminish "LPP"
-  :pin mepla-latex-preview-pane
   :init
   (latex-preview-pane-enable))
