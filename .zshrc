@@ -9,7 +9,7 @@ source ${HOME}/.zsh.d/utils.zsh
 ############################## platform #########################################
 JUNAME=`uname`
 JMACHINE="unknown"
-WORKLINUXMACHINEID="ec2149dcab7635ac20054547005dd667"
+WORKLINUXMACHINEID="ec2ae3c986f6895858c275e0e5e75175"
 if [[ "${JUNAME}" == "Linux" ]]; then
     JMACHINEID=`cat /etc/machine-id`
     if [[ "${JMACHINEID}" == "${WORKLINUXMACHINEID}" ]]; then
