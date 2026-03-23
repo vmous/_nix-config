@@ -62,6 +62,8 @@ ssh() {
 }
 
 ############################## autocomplete ####################################
+fpath=(~/.zsh.d/completion $fpath)
+
 # these are some (mostly) sane defaults, if you want your own settings, I
 # recommend using compinstall to choose them.  See 'man zshcompsys' for more
 # info about this stuff.
@@ -78,15 +80,6 @@ zstyle ':completion:*:*:kill:*' list-colors '=(#b) #([0-9]#)*( *[a-z])*=34=31=33
 # the system
 zstyle -e ':completion:*:scp:*' users 'reply=()'
 zstyle -e ':completion:*:ssh:*' users 'reply=()'
-
-# WARNING: This 'if' is needed because there is a conflict
-# in awscli completion with
-# source ${HOME}.zsh.d/amzn/core.zsh
-# if you do a below commands again it will break
-if [[ "${JMACHINE}" != "worklinux" ]]; then
-    autoload -U compinit
-    compinit
-fi
 
 ############################## zsh ##############################################
 setopt AUTO_PUSHD # push directories on every cd
@@ -308,3 +301,9 @@ fi
 
 export AWS_EC2_METADATA_DISABLED=true
 
+# IMPORTANT: Keep auto-completion engine initialization toward the end of the
+# .zshrc file. Auto-complete acts like a switch and configuration done before it
+# will be honored and any update after it is switched on it will be ignored
+# (unless the engine is restarted).
+autoload -Uz compinit
+compinit -i
