@@ -1,16 +1,13 @@
-<Mandatory - 1-line summary>
+<Mandatory - 1-line summary of the changes - try to be less than 80 chars - never exceed 120 chars>
 
-<Description>
+<Optional - Details on the change - Mention background (e.g., does it fix a bug, is it a new feature etc.) - Itemize the core changes (summarize when possible) included>
 
-IMPACT: <How is this change expected to chage production? (e.g. what it may break / regression, monitors...)>
+IMPACT: <Mandatory - How is the change affect the experience (e.g., a new files are created, new data are stored or printed in the output; anything that could help someone associate their new experience with the changes) - How is this change expected to chage production? (e.g. what it may break / regression, monitors...)>
 
-ROLLBACK IMPLICATIONS: <What will happen if this change were to be rolled back?>
+ROLLBACK IMPLICATIONS: <Optional - What will happen if this change were to be rolled back? - This is particularly important in distributed architectures when deployments are not instanteneous - If you decided not to add this section do not include this line at all>
 
-LAUNCH: <index1> <index2> <index3>, <experiment id>:<treatment>, <lane alias or lane numbers];
-<index4> <index5> <indexX>, <other experiment id>:<treatment>, <lane alias or lane numbers];
+SIM/TT/URL: <Optional - Links to related tracking and/or project information>
 
-SIM/TT/URL: <Links to related tracking and/or project information>
-
-QA/TEST: < How was this change tested>
+QA/TEST: <Mandatory - How was this change tested>
 
 CR: <Mandatory - Link to the CR>
