@@ -6,7 +6,7 @@ IMPACT: <Impact to customer / user - mandatory - multiline - 80 char line max>
 
 ROLLBACK IMPLICATIONS: <What to expect if the change gets rolled back - optional - multiline - 80 char line max>
 
-SIM/TT/URL: <Links to related tracking and/or project information - optional - multiline - itemized only>
+REFERENCES/ASANA/SIM/TT: <Links to related tracking and/or project information - optional - multiline - itemized only>
 
 QA/TEST: <How was this change tested - mandatory - multiline - itemized>
 
