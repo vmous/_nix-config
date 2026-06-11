@@ -2,8 +2,8 @@
 
 When asked to create a commit (or when it's clear a commit is needed):
 
-1. Use `~/.git-commit-template` as the structural template
-2. Inspect recent commit messages in the current repo for style/tone
+1. Use `~/.git-commit-template` as template for structure and basic formatting rules
+2. Read the repository's past commit messages to understand expected tone and style
 3. Write the message content:
    - Describe the change and its effects concisely
    - Avoid duplication across sections
@@ -20,3 +20,12 @@ When asked to create a commit (or when it's clear a commit is needed):
    - **Accept** — commit immediately with the message as-is
    - **Modify** — the user will copy the proposed message, edit it, and paste it back in their reply. Show the modified message back to the user and repeat this same 3-option prompt (loop until the user selects Accept or Reject)
    - **Reject** — do not commit; allow the user to provide follow-up feedback
+
+At all stages of the process keep the message properly formatted
+- message must be valid markdown
+  - references to code objects or variables must be enclosed in '`'
+- follow the formatting guidelines included in `~/.git-commit-template`
+- follow the agreed upon line character length limits
+  - do not remove or add content
+  - move the line breaks so that the resulted lines have the maximum possible characters but within the length limits
+- finish message's 1-line summary at the top with a full stop '.'
