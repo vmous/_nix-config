@@ -1,14 +1,65 @@
 ################################################################################
 ############################## 'ls' family #####################################
 ################################################################################
-# The above assumes you use a recent version of GNU ls
-alias ll="ls -lh"
-alias ls='ls -hFG'         # add colors for filetype recognition
-if [[ "${JUNAME}" == "Linux" ]]; then
-    # "ls -G" for BSD ls (comming from .alias that was just sourced)
-    # "ls --colour=auto" for GNU
-    alias ls='ls --color=auto'
+if [[ "$(uname)" == "Darwin" ]]; then
+    # Replacing BSD (default MacOS) with GNU `ls` (in other Linux-based systems)
+    # to preserve experience across
+    # NOTE: Make sure you have `gls` installed: `brew install coreutils`
+    alias ls='gls'
+
+    # Replicating my Linux's GNU `ls` color scheme
+    export LS_COLORS=""       # Initialize an empty LS_COLORS variable for Mac to build cleanly
+
+    # --- Core System & File Types ---
+    LS_COLORS+="no=00:"       # Normal, non-filename text (Default system color)
+    LS_COLORS+="fi=00:"       # Regular file (Default system color)
+    LS_COLORS+="di=01;34:"    # Directories: Bold Blue
+    LS_COLORS+="ln=01;36:"    # Healthy Symlinks: Bold Cyan
+    LS_COLORS+="pi=40;33:"    # Named Pipes (FIFO): Black Background, Yellow Text
+    LS_COLORS+="so=01;35:"    # Sockets: Bold Magenta
+    LS_COLORS+="do=01;35:"    # Doors (Solaris IPC): Bold Magenta
+    LS_COLORS+="bd=40;33;01:" # Block Devices: Black Background, Bold Yellow Text
+    LS_COLORS+="cd=40;33;01:" # Character Devices: Black Background, Bold Yellow Text
+    LS_COLORS+="or=01;05;31:" # Broken/Orphaned Symlinks: Bold, Blinking, Red Text
+    LS_COLORS+="ex=01;32:"    # Executable Files: Bold Green
+
+    # --- Archives & Compressed Files (Bold Red) ---
+    LS_COLORS+="*.tar=01;31:*.tgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:"
+    LS_COLORS+="*.zip=01;31:*.z=01;31:*.Z=01;31:*.gz=01;31:*.bz2=01;31:"
+    LS_COLORS+="*.deb=01;31:*.rpm=01;31:*.jar=01;31:"
+
+    # --- Multimedia, Images & Video (Bold Magenta) ---
+    LS_COLORS+="*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:"
+    LS_COLORS+="*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:"
+    LS_COLORS+="*.tif=01;35:*.tiff=01;35:*.png=01;35:*.mpg=01;35:*.mpeg=01;35:"
+    LS_COLORS+="*.avi=01;35:*.fli=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:"
+    LS_COLORS+="*.xwd=01;35:*.ogg=01;35:*.mp3=01;35:*.wav=01;35:"
+
+    # --- Documents & Source Code ---
+    LS_COLORS+="*.tex=01;33:"  # TeX files: Bold Yellow
+    LS_COLORS+="*.sxw=01;33:"  # OpenOffice Writer: Bold Yellow
+    LS_COLORS+="*.sxc=01;33:"  # OpenOffice Calc: Bold Yellow
+    LS_COLORS+="*.lyx=01;33:"  # LyX Documents: Bold Yellow
+    LS_COLORS+="*.pdf=0;35:"   # PDF Files: Regular Magenta
+    LS_COLORS+="*.ps=00;36:"   # PostScript Files: Regular Cyan
+    LS_COLORS+="*.asm=1;33:"   # Assembly Source: Bold Yellow
+    LS_COLORS+="*.S=0;33:"     # Assembly Source (Capital S): Regular Yellow
+    LS_COLORS+="*.s=0;33:"     # Assembly Source (Lowercase s): Regular Yellow
+    LS_COLORS+="*.h=0;31:"     # C Header Files: Regular Red
+    LS_COLORS+="*.c=0;35:"     # C Source Files: Regular Magenta
+    LS_COLORS+="*.cxx=0;35:"   # C++ Source Files (cxx): Regular Magenta
+    LS_COLORS+="*.cc=0;35:"    # C++ Source Files (cc): Regular Magenta
+    LS_COLORS+="*.C=0;35:"     # C++ Source Files (Capital C): Regular Magenta
+    LS_COLORS+="*.o=1;30:"     # Compiled Object Files: Bold Dark Gray (Onyx)
+    LS_COLORS+="*.am=1;33:"    # Automake Files: Bold Yellow
+    LS_COLORS+="*.py=0;34:"    # Python Files: Regular Blue
+
+    # Export the fully constructed string so sub-shells can read it
+    export LS_COLORS
 fi
+
+alias ls='ls -hF --color=auto'
+alias ll="ls -lh"          # long listing format with human-readable sizes
 alias la='ls -Al'          # show hidden files
 alias lx='ls -lXB'         # sort by extension
 alias lk='ls -lSr'         # sort by size, biggest last
