@@ -30,6 +30,20 @@ function is_text_file() {
   [[ -f "$1" ]] && file -bL --mime "$1" | grep -q "^text"
 }
 
+function run() {
+  # Echo a command, then run it (without re-parsing it via eval).
+  # Prefix with "dry" to print the command without executing it:
+  #   run <command>       # echo, then run
+  #   run dry <command>   # echo only
+  if [[ "${1}" == "dry" ]]; then
+    shift
+    echo "[dry-run] $*"
+    return 0
+  fi
+  echo "$*"
+  "$@"
+}
+
 function yes_or_no() {
   local _yn
   while true; do

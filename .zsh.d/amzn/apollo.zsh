@@ -17,10 +17,12 @@ alias j-aea='sudo /apollo/bin/runCommand -a Activate -e'
 # environment de-activate
 alias j-aed='sudo /apollo/bin/runCommand -a Deactivate -e'
 function j-acs {
+  # Commands are prefixed with "dry" so they are only printed, not executed.
+  # Remove the "dry" prefix from a command to actually run it.
   echo "According to https://w.amazon.com/index.php/Apollo/HowTo/CleanAHost"
-  local CMD="sudo /apollo/sbin/apolloLocalHostControl --status StayDown && sudo /apollo/bin/cleanupOldEnvSymlinks --all && sudo /apollo/sbin/apolloLocalHostControl --status
- StayDown --rebooted && sudo /apollo/sbin/apolloLocalHostControl --status Active && sudo rm -rf /local/apollo/_env/to_be_removed/*"
-
-  echo "Executing: ${CMD}"
-#  eval ${CMD}
+  run dry sudo /apollo/sbin/apolloLocalHostControl --status StayDown \
+    && run dry sudo /apollo/bin/cleanupOldEnvSymlinks --all \
+    && run dry sudo /apollo/sbin/apolloLocalHostControl --status StayDown --rebooted \
+    && run dry sudo /apollo/sbin/apolloLocalHostControl --status Active \
+    && run dry sudo rm -rf /local/apollo/_env/to_be_removed/*
 }

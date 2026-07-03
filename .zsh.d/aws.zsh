@@ -28,9 +28,8 @@ function j-aws-s3-multipart-workaround {
   fi
 
   local THRESHOLD=${1}
-  local CMD="aws-amzn configure set s3.multipart_threshold ${THRESHOLD}"
 
-  eval ${CMD}
+  run aws-amzn configure set s3.multipart_threshold ${THRESHOLD}
 }
 
 function j-aws-cred-update {
@@ -72,10 +71,8 @@ function j-aws-cred-update {
         echo "AWS credential configuration stale."
         echo "'aws_access_key_id': Replacing ${_old_aws_access_key_id} with ${_new_aws_access_key_id}"
         echo "'aws_secret_access_key': Replacing ${_old_aws_secret_access_key} with ${_new_aws_secret_access_key}"
-        _sed_str_1="sed -i '${_line_plus_one}s/.*/aws_access_key_id=${_new_aws_access_key_id}/' ${_aws_cred_file}"
-        eval ${_sed_str_1}
-        _sed_str_2="sed -i '${_line_plus_two}s/.*/aws_secret_access_key=${_new_aws_secret_access_key}/' ${_aws_cred_file}"
-        eval ${_sed_str_2}
+        run sed -i "${_line_plus_one}s/.*/aws_access_key_id=${_new_aws_access_key_id}/" ${_aws_cred_file}
+        run sed -i "${_line_plus_two}s/.*/aws_secret_access_key=${_new_aws_secret_access_key}/" ${_aws_cred_file}
     else
         echo "AWS credential configuration is up-to-date. Nothing to do."
     fi
@@ -128,16 +125,16 @@ function j-aws-s3-amzn {
             return
         fi
 
-        local _enc="${2}"
+        local _enc=()
         local _s3_url="${3}"
         local _local_object="${4}"
 
-        if [[ "${_enc}" = "krypt" ]]; then
-            _enc="--credential com.amazon.access.a9-search-relevance-laguna-dev-1 --encryption-material-provider Odin --material com.a9.relevance.common.crypt_keypair"
-        elif [[ "${_enc}" = "kms" ]]; then
-            _enc="--credential com.amazon.access.a9-search-relevance-laguna-dev-1 --encryption-material-provider KMS --kmsRegion us-east-1 --material \"dcda7203-d69b-4014-a560-377f9bbd3b5f\""
+        if [[ "${2}" = "krypt" ]]; then
+            _enc=(--credential com.amazon.access.a9-search-relevance-laguna-dev-1 --encryption-material-provider Odin --material com.a9.relevance.common.crypt_keypair)
+        elif [[ "${2}" = "kms" ]]; then
+            _enc=(--credential com.amazon.access.a9-search-relevance-laguna-dev-1 --encryption-material-provider KMS --kmsRegion us-east-1 --material dcda7203-d69b-4014-a560-377f9bbd3b5f)
         else
-            echo "Unsupported encoding argument \"${_enc}\"."
+            echo "Unsupported encoding argument \"${2}\"."
             echo ${_options}
             return
         fi
@@ -147,10 +144,7 @@ function j-aws-s3-amzn {
         _s3_url=$(echo ${_s3_url} | sed -e s,${_bucket},,g)
         local _key=$(echo ${_s3_url} | sed -e s,^/,,g)
 
-        local _cmd="s3PutEncrypted --bucket ${_bucket} --object ${_key} --region us-east-1 --endpoint s3.amazonaws.com ${_enc} ${_local_object}"
-
-        echo "Executing: ${_cmd}"
-        eval ${_cmd}
+        run s3PutEncrypted --bucket ${_bucket} --object ${_key} --region us-east-1 --endpoint s3.amazonaws.com ${_enc[@]} ${_local_object}
     }
 
     if [[ ${#} -lt 2 ]]; then
@@ -234,23 +228,18 @@ function j-aws-s3-rm-cons {
   local FILE=$(echo ${KEY} | sed -e s,/,.,g)
   local S3_URI="s3://${BUCKET}/${KEY}"
 
-  local CMD="aws s3 rm"
+  local CMD=(aws s3 rm)
 
   IS_FOLDER=`aws s3 ls ${B}`
-  while true; do
-    echo -n "Recursively remove (if applicable)? [y/n]: "
-    read YN
-    case ${YN} in
-      [Yy]* ) echo "Recursively removing..."; CMD="${CMD} --recursive"; break;;
-      [Nn]* ) return;;
-      * ) echo "Please answer yes or no.";;
-    esac
-  done
+  if [[ $(yes_or_no "Recursively remove (if applicable)?") == "n" ]]; then
+    return
+  fi
+  echo "Recursively removing..."
+  CMD+=(--recursive)
 
-  CMD="${CMD} s3://${BUCKET}/${KEY}"
+  CMD+=("s3://${BUCKET}/${KEY}")
 
-  echo "Executing: ${CMD}"
-  eval ${CMD}
+  run ${CMD[@]}
 }
 
 #
@@ -265,10 +254,7 @@ function j-aws-emr-tunnel {
     return
   fi
 
-  local CMD="ssh -o \"StrictHostKeyChecking no\" -i ${1} -J ec2-34-205-84-46.compute-1.amazonaws.com -ND 8157 hadoop@${2} &"
-  echo "Executing: ${CMD}"
-
-  eval ${CMD}
+  run ssh -o "StrictHostKeyChecking no" -i ${1} -J ec2-34-205-84-46.compute-1.amazonaws.com -ND 8157 hadoop@${2} &
 }
 
 function j-aws-emr-webuis {
