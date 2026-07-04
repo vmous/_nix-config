@@ -1,10 +1,10 @@
-<1-line summary of the changes - mandatory - oneline - 80 char line suggested or 120 char line max>
+<1-line summary of the changes - mandatory - oneline - 70 char line suggested or 120 char line max>
 
-<Details for the change - optional - multiline - 80 char line max>
+<Details for the change - optional - multiline - 70 char line max>
 
-IMPACT: <Impact to customer / user - mandatory - multiline - 80 char line max>
+IMPACT: <Impact to customer / user - mandatory - multiline - 70 char line max>
 
-ROLLBACK IMPLICATIONS: <What to expect if the change gets rolled back - optional - multiline - 80 char line max>
+ROLLBACK IMPLICATIONS: <What to expect if the change gets rolled back - optional - multiline - 70 char line max>
 
 REFERENCES/ASANA/SIM/TT: <Links to related tracking and/or project information - optional - multiline - itemized only>
 
