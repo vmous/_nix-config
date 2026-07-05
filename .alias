@@ -293,6 +293,66 @@ function j-which() {
 alias j-java-print-version='printf "\n☕️ Java\n\n" && which java && java -version'
 alias j-java-switch-version='sudo alternatives --config java && source ~/.zshrc'
 
+# Fonts
+function j-install-fonts() {
+  # Install the Cascadia Code fonts (including the Nerd Font variants).
+  if [[ "${JMACHINE}" == "mac" ]]; then
+    cmd_exists brew || { echo >&2 "Cannot find brew. Aborting."; return 1; }
+    run brew install --cask font-cascadia-code font-cascadia-code-nf
+  else
+    for _cmd in wget unzip fc-cache; do
+      cmd_exists "${_cmd}" || { echo >&2 "Cannot find ${_cmd}. Aborting."; return 1; }
+    done
+
+    local _fonts_dir="${HOME}/.local/share/fonts"
+    local _api="https://api.github.com/repos/microsoft/cascadia-code/releases/latest"
+
+    # Everything is staged in a scratch dir and only swapped into place once
+    # the download + extract fully succeed, so a failure never leaves the
+    # machine without fonts. The trap guarantees the scratch dir is removed
+    # on every exit path (return, error, or Ctrl-C) so nothing goes stale.
+    local _tmp_dir="$(mktemp -d)"
+    trap "rm -rf -- '${_tmp_dir}'" EXIT
+    local _zip="${_tmp_dir}/CascadiaCode.zip"
+    local _stage="${_tmp_dir}/stage"
+
+    # The release asset is version-stamped (e.g. CascadiaCode-2407.24.zip), so
+    # there is no stable .../latest/download/CascadiaCode.zip to hit directly.
+    # Ask the GitHub API for the latest release and pull the zip's URL out of
+    # the JSON (it is the only .zip download link in the payload).
+    local _url="$(wget -qO- "${_api}" \
+      | grep -oE 'https://[^"]*CascadiaCode[^"]*\.zip' | head -1)"
+    if [[ -z "${_url}" ]]; then
+      echo >&2 "Could not resolve the Cascadia Code download URL. Aborting."
+      return 1
+    fi
+
+    # Plain -O (no --show-progress; unsupported on GNU Wget < 1.16).
+    run wget -O "${_zip}" "${_url}" \
+      || { echo >&2 "Download failed. Aborting."; return 1; }
+    # Extract ALL static TrueType fonts into the staging area first.
+    run mkdir -p "${_stage}"
+    run unzip -j "${_zip}" "ttf/static/*.ttf" -d "${_stage}" \
+      || { echo >&2 "Extraction failed. Aborting."; return 1; }
+    # Guard against an upstream layout change silently installing nothing.
+    # (N) is a zsh null-glob qualifier: the pattern expands to nothing when
+    # there is no match instead of erroring under the default NOMATCH option.
+    local _staged=( "${_stage}"/*.ttf(N) )
+    if (( ${#_staged} == 0 )); then
+      echo >&2 "No TrueType fonts found in the archive. Aborting."
+      return 1
+    fi
+
+    # Only now that we have good fonts do we replace the installed set.
+    run mkdir -p "${_fonts_dir}"
+    # Drop any previously installed Cascadia faces so we start clean.
+    run rm -f "${_fonts_dir}"/*Cascadia*.ttf(N)
+    run mv "${_staged[@]}" "${_fonts_dir}"/
+    run fc-cache -fv
+  fi
+}
+
+
 # Crazy
 function terminal-benchmark() {
   # https://en.wikipedia.org/wiki/ANSI_escape_code
