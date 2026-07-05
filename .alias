@@ -294,60 +294,84 @@ alias j-java-print-version='printf "\n☕️ Java\n\n" && which java && java -ve
 alias j-java-switch-version='sudo alternatives --config java && source ~/.zshrc'
 
 # Fonts
+
+# Download the latest release of a GitHub-hosted TrueType font and install its
+# faces under ~/.local/share/fonts, replacing any previously installed copies.
+# Everything is staged in a scratch dir and only swapped into place once the
+# download + extract fully succeed, so a failure never leaves the machine
+# without the font. The trap removes the scratch dir on every exit path
+# (return, error, or Ctrl-C) so nothing goes stale. Callers are expected to
+# refresh the font cache (fc-cache) once after all fonts are installed.
+#   $1 label          - human-readable font name, used in messages
+#   $2 repo           - GitHub "owner/name" whose latest release is fetched
+#   $3 asset_match    - substring identifying the .zip asset in the release
+#   $4 archive_glob   - glob of the .ttf files to extract from the archive
+#   $5 installed_glob - glob of already-installed faces to replace
+function _j-install-github-font() {
+  local _label="$1" _repo="$2" _asset_match="$3" _archive_glob="$4" _installed_glob="$5"
+  local _fonts_dir="${HOME}/.local/share/fonts"
+  local _api="https://api.github.com/repos/${_repo}/releases/latest"
+
+  local _tmp_dir="$(mktemp -d)"
+  trap "rm -rf -- '${_tmp_dir}'" EXIT
+  local _zip="${_tmp_dir}/font.zip"
+  local _stage="${_tmp_dir}/stage"
+
+  echo "Installing ${_label}..."
+
+  # Release assets are version-stamped (e.g. CascadiaCode-2407.24.zip), so
+  # there is no stable .../latest/download/<name> URL to hit directly. Ask the
+  # GitHub API for the latest release and pull the matching .zip URL out of it.
+  local _url="$(wget -qO- "${_api}" \
+    | grep -oE "https://[^\"]*${_asset_match}[^\"]*\.zip" | head -1)"
+  if [[ -z "${_url}" ]]; then
+    echo >&2 "Could not resolve the ${_label} download URL. Aborting."
+    return 1
+  fi
+
+  # Plain -O (no --show-progress; unsupported on GNU Wget < 1.16).
+  run wget -O "${_zip}" "${_url}" \
+    || { echo >&2 "${_label}: download failed. Aborting."; return 1; }
+  # Extract the wanted TrueType faces into the staging area first.
+  run mkdir -p "${_stage}"
+  run unzip -j "${_zip}" "${_archive_glob}" -d "${_stage}" \
+    || { echo >&2 "${_label}: extraction failed. Aborting."; return 1; }
+  # Guard against an upstream layout change silently installing nothing.
+  # (N) is a zsh null-glob qualifier: the pattern expands to nothing when
+  # there is no match instead of erroring under the default NOMATCH option.
+  local _staged=( "${_stage}"/*.ttf(N) )
+  if (( ${#_staged} == 0 )); then
+    echo >&2 "${_label}: no TrueType fonts found in the archive. Aborting."
+    return 1
+  fi
+
+  # Only now that we have good fonts do we replace the installed set.
+  run mkdir -p "${_fonts_dir}"
+  # Drop any previously installed faces of this font so we start clean.
+  # (${~var} forces the glob stored in the variable to be expanded.)
+  run rm -f "${_fonts_dir}"/${~_installed_glob}(N)
+  run mv "${_staged[@]}" "${_fonts_dir}"/
+}
+
 function j-install-fonts() {
-  # Install the Cascadia Code fonts (including the Nerd Font variants).
+  # Install the coding fonts used across machines: Cascadia Code and
+  # JetBrains Mono (both including their Nerd Font variants).
   if [[ "${JMACHINE}" == "mac" ]]; then
     cmd_exists brew || { echo >&2 "Cannot find brew. Aborting."; return 1; }
-    run brew install --cask font-cascadia-code font-cascadia-code-nf
+    run brew install --cask \
+      font-cascadia-code font-cascadia-code-nf \
+      font-jetbrains-mono font-jetbrains-mono-nerd-font
   else
     for _cmd in wget unzip fc-cache; do
       cmd_exists "${_cmd}" || { echo >&2 "Cannot find ${_cmd}. Aborting."; return 1; }
     done
 
-    local _fonts_dir="${HOME}/.local/share/fonts"
-    local _api="https://api.github.com/repos/microsoft/cascadia-code/releases/latest"
+    _j-install-github-font "Cascadia Code" "microsoft/cascadia-code" \
+      "CascadiaCode" "ttf/static/*.ttf" "*Cascadia*.ttf" || return 1
+    _j-install-github-font "JetBrains Mono" "JetBrains/JetBrainsMono" \
+      "JetBrainsMono" "fonts/ttf/*.ttf" "*JetBrainsMono*.ttf" || return 1
 
-    # Everything is staged in a scratch dir and only swapped into place once
-    # the download + extract fully succeed, so a failure never leaves the
-    # machine without fonts. The trap guarantees the scratch dir is removed
-    # on every exit path (return, error, or Ctrl-C) so nothing goes stale.
-    local _tmp_dir="$(mktemp -d)"
-    trap "rm -rf -- '${_tmp_dir}'" EXIT
-    local _zip="${_tmp_dir}/CascadiaCode.zip"
-    local _stage="${_tmp_dir}/stage"
-
-    # The release asset is version-stamped (e.g. CascadiaCode-2407.24.zip), so
-    # there is no stable .../latest/download/CascadiaCode.zip to hit directly.
-    # Ask the GitHub API for the latest release and pull the zip's URL out of
-    # the JSON (it is the only .zip download link in the payload).
-    local _url="$(wget -qO- "${_api}" \
-      | grep -oE 'https://[^"]*CascadiaCode[^"]*\.zip' | head -1)"
-    if [[ -z "${_url}" ]]; then
-      echo >&2 "Could not resolve the Cascadia Code download URL. Aborting."
-      return 1
-    fi
-
-    # Plain -O (no --show-progress; unsupported on GNU Wget < 1.16).
-    run wget -O "${_zip}" "${_url}" \
-      || { echo >&2 "Download failed. Aborting."; return 1; }
-    # Extract ALL static TrueType fonts into the staging area first.
-    run mkdir -p "${_stage}"
-    run unzip -j "${_zip}" "ttf/static/*.ttf" -d "${_stage}" \
-      || { echo >&2 "Extraction failed. Aborting."; return 1; }
-    # Guard against an upstream layout change silently installing nothing.
-    # (N) is a zsh null-glob qualifier: the pattern expands to nothing when
-    # there is no match instead of erroring under the default NOMATCH option.
-    local _staged=( "${_stage}"/*.ttf(N) )
-    if (( ${#_staged} == 0 )); then
-      echo >&2 "No TrueType fonts found in the archive. Aborting."
-      return 1
-    fi
-
-    # Only now that we have good fonts do we replace the installed set.
-    run mkdir -p "${_fonts_dir}"
-    # Drop any previously installed Cascadia faces so we start clean.
-    run rm -f "${_fonts_dir}"/*Cascadia*.ttf(N)
-    run mv "${_staged[@]}" "${_fonts_dir}"/
+    # Refresh the font cache once, after all fonts are installed.
     run fc-cache -fv
   fi
 }
