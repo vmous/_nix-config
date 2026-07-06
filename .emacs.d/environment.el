@@ -43,12 +43,42 @@
 ;; `jazzy/font-size-default' is the point size of the `default' face; code
 ;; buffers and org blocks inherit it through their relative face remaps.
 ;;
+;; Each family is resolved from a preference list by
+;; `jazzy/funcs/preferred-font-family': the first installed candidate wins, and
+;; if none are installed it falls back to the running frame's default family.
+;; The result is therefore ALWAYS a valid family string, so consumers (`.emacs',
+;; `prog.el', `org.el') can use these constants directly without guarding
+;; against a missing font -- all the fallback logic stays here.
+;;
+;; The lists are platform-agnostic: Minion Pro is preferred for prose but is
+;; proprietary (macOS gets it bundled with Adobe Acrobat), so on Linux -- where
+;; it is absent -- resolution simply advances to the open Crimson Pro.
+;;
 ;; Note: The named fonts must be installed on the system to take effect (see
 ;; the `j-install-fonts' shell alias).
-(defconst jazzy/font-family-name-default "Source Code Pro"
-  "Font family for the `default' face, used everywhere that is not code.")
-(defconst jazzy/font-family-name-code "Monaspace Xenon NF"
-  "Font family for code buffers and org literal blocks.")
+(defun jazzy/funcs/preferred-font-family (families)
+  "Return the first installed family from FAMILIES, else the frame default.
+FAMILIES is a list of family-name strings tried in order (nil entries are
+skipped); a family is available when `find-font' locates it. When none are
+installed, the running frame's `default' face family is returned, so the
+result is always a usable family string rather than nil."
+  (or (catch 'found
+        (dolist (family families)
+          (when (and family (find-font (font-spec :family family)))
+            (throw 'found family)))
+        nil)
+      (face-attribute 'default :family)))
+
+(defconst jazzy/font-family-name-default
+  (jazzy/funcs/preferred-font-family '("Minion Pro" "Crimson Pro"))
+  "Font family for the `default' face, used everywhere that is not code.
+Always a valid family: the first installed of the preferred prose serifs,
+or the frame default when none are installed.")
+(defconst jazzy/font-family-name-code
+  (jazzy/funcs/preferred-font-family '("Monaspace Xenon NF"))
+  "Font family for code buffers and org literal blocks.
+Always a valid family: the preferred code font when installed, otherwise the
+frame default.")
 (defconst jazzy/font-size-default 12
   "Point size of the `default' face; inherited by code buffers and org blocks.")
 
