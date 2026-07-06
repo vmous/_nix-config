@@ -390,19 +390,18 @@ function _j-install-font-from-github-tree() {
   _j-install-font-from-zip "${_label}" "${_url}" "${_archive_glob}" "${_installed_glob}"
 }
 
-# Install font files that already exist somewhere on this machine by symlinking
+# Install font files that already exist somewhere on this machine by copying
 # them into a destination font directory. Unlike the download helpers above
 # this downloads nothing: its primary use case is for proprietary fonts that
 # ship bundled inside a licenced application already installed on your machine
 # (e.g. Adobe's `Minion Pro` / `Myriad Pro` whose OTFs come inside an Adobe
-# Acrobat installation). Symlinking (rather than copying) keeps the destination
-# in sync as the bundling app updates, and avoids duplicating the files on disk.
-# Missing sources are a clean no-op, not an error, so it is safe to call on a
-# machine that lacks the bundling app.
+# Acrobat installation). The faces are copied. Missing sources are a clean
+# no-op, not an error, so it is safe to call on a machine that lacks the
+# bundling app.
 #   $1  label    - human-readable font name, used in messages
-#   $2  dest_dir - directory to symlink the faces into
+#   $2  dest_dir - directory to copy the faces into
 #   $3  src_glob - glob (may contain spaces/**) matching source directories
-#   $4+ patterns - one or more filename globs of the faces to symlink
+#   $4+ patterns - one or more filename globs of the faces to copy
 function _j-install-font-from-local() {
   local _label="$1" _dest_dir="$2" _src_glob="$3"
   shift 3
@@ -427,9 +426,8 @@ function _j-install-font-from-local() {
   fi
 
   run mkdir -p "${_dest_dir}"
-  # Symlink (absolute sources) rather than copy; -f overwrites stale links so
-  # re-runs stay idempotent.
-  run ln -sf "${_found[@]}" "${_dest_dir}/"
+  # -f overwrites stale copies so re-runs stay idempotent.
+  run cp -f "${_found[@]}" "${_dest_dir}/"
   echo "${_label}: installed ${#_found} face(s) into ${_dest_dir}"
 }
 
