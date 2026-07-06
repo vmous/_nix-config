@@ -16,7 +16,7 @@
   "True if Emacs is running on my Amazon Linux system; nil otherwise.")
 
 
-;;;; Environment Variabes
+;;;; Environment Variables
 (when macosx-p
   (defun jazzy/funcs/set-exec-path-from-shell-PATH ()
     "Set up Emacs' `exec-path' and PATH environment variable to match that used by the user's shell. Ensures that PATH is taken from shell. Necessary on some environments without virtualenv. Taken from: http://stackoverflow.com/questions/8606954/path-and-exec-path-set-but-emacs-does-not-find-executable."
@@ -33,6 +33,24 @@
 
   ;; Fixing exec-path discrepancy between shell and Max OSX Finder launch
   (jazzy/funcs/set-exec-path-from-shell-PATH))
+
+;;;; Fonts
+;; Font family names and size reused across the configuration so they are
+;; defined in a single place. `jazzy/font-family-name-default' is the
+;; `default' face font applied frame-wide in `.emacs' (prose, dired, magit,
+;; org, help, ...); `jazzy/font-family-name-code' is the family remapped onto
+;; code buffers in `prog.el' and onto org literal blocks in `org.el'.
+;; `jazzy/font-size-default' is the point size of the `default' face; code
+;; buffers and org blocks inherit it through their relative face remaps.
+;;
+;; Note: The named fonts must be installed on the system to take effect (see
+;; the `j-install-fonts' shell alias).
+(defconst jazzy/font-family-name-default "Source Code Pro"
+  "Font family for the `default' face, used everywhere that is not code.")
+(defconst jazzy/font-family-name-code "Monaspace Xenon NF"
+  "Font family for code buffers and org literal blocks.")
+(defconst jazzy/font-size-default 12
+  "Point size of the `default' face; inherited by code buffers and org blocks.")
 
 ;;;; Backup/auto-save directory
 (defvar jazzy/env/backup-dir temporary-file-directory

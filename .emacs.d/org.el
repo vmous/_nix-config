@@ -30,6 +30,26 @@
   ;; Enable flyspell
   (when (require 'flyspell nil t)
     (add-hook 'org-mode-hook 'turn-on-flyspell))
+  :config
+  ;; Render literal blocks in the code font (`jazzy/font-family-name-code',
+  ;; see environment.el; also used by prog.el). The `org-block' face backs
+  ;; both #+begin_src and #+begin_example content; prose blocks
+  ;; (#+begin_quote, #+begin_verse) are unaffected and keep the default font.
+  ;; Only the family is overridden; the font-lock faces that native
+  ;; fontification layers on top of code set only colours/weight, so they
+  ;; inherit this family while keeping their syntax highlighting.
+  ;;
+  ;; NOTE: You can restrict the code font to `#+begin_src' blocks only (leaving
+  ;; `#+begin_example' in the default font) by setting `org-src-block-faces'
+  ;; instead. Each entry maps a source-block language to a face; there is no
+  ;; catch-all that stays code-only (the "" key also matches example blocks),
+  ;; so every language must be listed explicitly and unlisted languages fall
+  ;; back to the default font. Extend as needed:
+  ;;   (setq org-src-block-faces
+  ;;         `(("python"     (:family ,jazzy/font-family-name-code))
+  ;;           ("emacs-lisp" (:family ,jazzy/font-family-name-code))
+  ;;           ("shell"      (:family ,jazzy/font-family-name-code))))
+  (set-face-attribute 'org-block nil :family jazzy/font-family-name-code)
   :bind(("C-c a" . org-agenda)))
 
 

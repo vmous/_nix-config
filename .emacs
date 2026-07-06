@@ -21,12 +21,16 @@
 ;;")
 
 
-;;;; Font: Adobe Source Code Pro
-;; https://github.com/adobe-fonts/source-code-pro
+;;;; Font (default)
 ;;
-;; Note: You need to install the fonts on your system in order for this
-;; to take effect.
-(set-frame-font "Source Code Pro-12")
+;; This is the `default' face used everywhere that is not a code buffer
+;; (prose, dired, magit, org, help, ...). Code buffers override the
+;; family via a buffer-local face remap on `prog-mode' in `emacs.d/prog.el'.
+;; The family name and point size come from `jazzy/font-family-name-default'
+;; and `jazzy/font-size-default' (see environment.el), combined into an
+;; XLFD-style "Family-Size" font spec.
+(set-frame-font
+ (format "%s-%d" jazzy/font-family-name-default jazzy/font-size-default) nil t)
 (column-number-mode t)
 (delete-selection-mode t)
 (display-time)
