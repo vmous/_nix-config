@@ -295,17 +295,17 @@ alias j-java-switch-version='sudo alternatives --config java && source ~/.zshrc'
 
 # Fonts
 
-# Download the latest release of a GitHub-hosted TrueType font and install its
-# faces under ~/.local/share/fonts, replacing any previously installed copies.
-# Everything is staged in a scratch dir and only swapped into place once the
-# download + extract fully succeed, so a failure never leaves the machine
-# without the font. The trap removes the scratch dir on every exit path
-# (return, error, or Ctrl-C) so nothing goes stale. Callers are expected to
-# refresh the font cache (fc-cache) once after all fonts are installed.
+# Download the latest release of a GitHub-hosted font and install its faces
+# (TrueType .ttf or OpenType .otf) under ~/.local/share/fonts, replacing any
+# previously installed copies. Everything is staged in a scratch dir and only
+# swapped into place once the download + extract fully succeed, so a failure
+# never leaves the machine without the font. The trap removes the scratch dir
+# on every exit path (return, error, or Ctrl-C) so nothing goes stale. Callers
+# are expected to refresh the font cache (fc-cache) once after all installs.
 #   $1 label          - human-readable font name, used in messages
 #   $2 repo           - GitHub "owner/name" whose latest release is fetched
 #   $3 asset_match    - substring identifying the .zip asset in the release
-#   $4 archive_glob   - glob of the .ttf files to extract from the archive
+#   $4 archive_glob   - glob of the font files to extract from the archive
 #   $5 installed_glob - glob of already-installed faces to replace
 function _j-install-github-font() {
   local _label="$1" _repo="$2" _asset_match="$3" _archive_glob="$4" _installed_glob="$5"
@@ -332,16 +332,16 @@ function _j-install-github-font() {
   # Plain -O (no --show-progress; unsupported on GNU Wget < 1.16).
   run wget -O "${_zip}" "${_url}" \
     || { echo >&2 "${_label}: download failed. Aborting."; return 1; }
-  # Extract the wanted TrueType faces into the staging area first.
+  # Extract the wanted faces into the staging area first.
   run mkdir -p "${_stage}"
   run unzip -j "${_zip}" "${_archive_glob}" -d "${_stage}" \
     || { echo >&2 "${_label}: extraction failed. Aborting."; return 1; }
   # Guard against an upstream layout change silently installing nothing.
   # (N) is a zsh null-glob qualifier: the pattern expands to nothing when
   # there is no match instead of erroring under the default NOMATCH option.
-  local _staged=( "${_stage}"/*.ttf(N) )
+  local _staged=( "${_stage}"/*.(ttf|otf)(N) )
   if (( ${#_staged} == 0 )); then
-    echo >&2 "${_label}: no TrueType fonts found in the archive. Aborting."
+    echo >&2 "${_label}: no font files found in the archive. Aborting."
     return 1
   fi
 
@@ -354,13 +354,17 @@ function _j-install-github-font() {
 }
 
 function j-install-fonts() {
-  # Install the coding fonts used across machines: Cascadia Code and
-  # JetBrains Mono (both including their Nerd Font variants).
+  # Install the coding fonts used across machines (Cascadia Code, JetBrains
+  # Mono, Source Code Pro, Fira Code and Monaspace); on macOS the Nerd Font
+  # variants are pulled in too where a cask exists.
   if [[ "${JMACHINE}" == "mac" ]]; then
     cmd_exists brew || { echo >&2 "Cannot find brew. Aborting."; return 1; }
     run brew install --cask \
       font-cascadia-code font-cascadia-code-nf \
-      font-jetbrains-mono font-jetbrains-mono-nerd-font
+      font-jetbrains-mono font-jetbrains-mono-nerd-font \
+      font-source-code-pro font-sauce-code-pro-nerd-font \
+      font-fira-code font-fira-code-nerd-font \
+      font-monaspace font-monaspace-nf
   else
     for _cmd in wget unzip fc-cache; do
       cmd_exists "${_cmd}" || { echo >&2 "Cannot find ${_cmd}. Aborting."; return 1; }
@@ -368,8 +372,16 @@ function j-install-fonts() {
 
     _j-install-github-font "Cascadia Code" "microsoft/cascadia-code" \
       "CascadiaCode" "ttf/static/*.ttf" "*Cascadia*.ttf" || return 1
+    _j-install-github-font "Fira Code" "tonsky/FiraCode" \
+      "Fira_Code" "ttf/*.ttf" "*FiraCode*.ttf" || return 1
     _j-install-github-font "JetBrains Mono" "JetBrains/JetBrainsMono" \
       "JetBrainsMono" "fonts/ttf/*.ttf" "*JetBrainsMono*.ttf" || return 1
+    # Monaspace ships OpenType (.otf) faces in per-family subdirectories, so
+    # its archive glob differs from the TrueType fonts above.
+    _j-install-github-font "Monaspace" "githubnext/monaspace" \
+      "monaspace-static" "*.otf" "*Monaspace*.otf" || return 1
+    _j-install-github-font "Source Code Pro" "adobe-fonts/source-code-pro" \
+      "TTF-source-code-pro" "TTF/*.ttf" "*SourceCodePro*.ttf" || return 1
 
     # Refresh the font cache once, after all fonts are installed.
     run fc-cache -fv
