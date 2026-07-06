@@ -4,18 +4,20 @@
 
 ;;;; Font (code)
 ;;
-;; Code buffers use their own family (`jazzy/font-family-name-code', see
-;; `.emacs.d/environment.el') while everything else keeps the `default' face
-;; font set in `.emacs'. The remap is buffer-local and relative, so only the
-;; family is overridden; the size and weight are inherited from the default
-;; face, keeping the two fonts visually consistent.
+;; Code buffers use their own family and size (`jazzy/font-family-name-code'
+;; and `jazzy/font-size-code', see `.emacs.d/environment.el') while everything
+;; else keeps the `default' face font set in `.emacs'. The remap is
+;; buffer-local and relative; the family is overridden and the size is set as an
+;; absolute height (points * 10) so it is independent of the default face size.
 ;;
 ;; `conf-mode' (and its variants for `.conf'/`.ini'/`.properties' files) is not
 ;; derived from `prog-mode', so it gets its own hook. Org source blocks are
 ;; handled separately via the `org-block' face in org.el.
 (defun jazzy/use-code-font ()
-  "Remap the `default' face to the code font in the current buffer."
-  (face-remap-add-relative 'default :family jazzy/font-family-name-code))
+  "Remap the `default' face to the code font and size in the current buffer."
+  (face-remap-add-relative 'default
+                           :family jazzy/font-family-name-code
+                           :height (* 10 jazzy/font-size-code)))
 (add-hook 'prog-mode-hook #'jazzy/use-code-font)
 (add-hook 'conf-mode-hook #'jazzy/use-code-font)
 

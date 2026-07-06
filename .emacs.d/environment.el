@@ -70,7 +70,7 @@ result is always a usable family string rather than nil."
       (face-attribute 'default :family)))
 
 (defconst jazzy/font-family-name-default
-  (jazzy/funcs/preferred-font-family '("Minion Pro" "Crimson Pro"))
+  (jazzy/funcs/preferred-font-family '("Source Code Pro"))
   "Font family for the `default' face, used everywhere that is not code.
 Always a valid family: the first installed of the preferred prose serifs,
 or the frame default when none are installed.")
@@ -80,7 +80,12 @@ or the frame default when none are installed.")
 Always a valid family: the preferred code font when installed, otherwise the
 frame default.")
 (defconst jazzy/font-size-default 12
-  "Point size of the `default' face; inherited by code buffers and org blocks.")
+  "Point size of the `default' face, used everywhere that is not code.")
+(defconst jazzy/font-size-code 12
+  "Point size for code buffers and org literal blocks.
+Applied as an absolute face height by the code-font remap in `prog.el' and
+the `org-block' face in `org.el', so it is independent of
+`jazzy/font-size-default'.")
 
 ;;;; Backup/auto-save directory
 (defvar jazzy/env/backup-dir temporary-file-directory
