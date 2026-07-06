@@ -295,39 +295,29 @@ alias j-java-switch-version='sudo alternatives --config java && source ~/.zshrc'
 
 # Fonts
 
-# Download the latest release of a GitHub-hosted font and install its faces
-# (TrueType .ttf or OpenType .otf) under ~/.local/share/fonts, replacing any
-# previously installed copies. Everything is staged in a scratch dir and only
-# swapped into place once the download + extract fully succeed, so a failure
-# never leaves the machine without the font. The trap removes the scratch dir
-# on every exit path (return, error, or Ctrl-C) so nothing goes stale. Callers
-# are expected to refresh the font cache (fc-cache) once after all installs.
+# Download a .zip from a URL and install the font faces it contains (TrueType
+# .ttf or OpenType .otf) under ~/.local/share/fonts, replacing any previously
+# installed copies. Everything is staged in a scratch dir and only swapped into
+# place once the download + extract fully succeed, so a failure never leaves the
+# machine without the font. The trap removes the scratch dir on every exit path
+# (return, error, or Ctrl-C) so nothing goes stale. Callers are expected to
+# refresh the font cache (fc-cache) once after all installs.
+#
+# This is the shared core behind `_j-install-font-from-github-release`
+# (release archives) and `_j-install-font-from-github-tree` (repository
+# source archives); those resolve the right URL and delegate here.
 #   $1 label          - human-readable font name, used in messages
-#   $2 repo           - GitHub "owner/name" whose latest release is fetched
-#   $3 asset_match    - substring identifying the .zip asset in the release
-#   $4 archive_glob   - glob of the font files to extract from the archive
-#   $5 installed_glob - glob of already-installed faces to replace
-function _j-install-github-font() {
-  local _label="$1" _repo="$2" _asset_match="$3" _archive_glob="$4" _installed_glob="$5"
+#   $2 url            - .zip URL to download
+#   $3 archive_glob   - glob of the font files to extract from the archive
+#   $4 installed_glob - glob of already-installed faces to replace
+function _j-install-font-from-zip() {
+  local _label="$1" _url="$2" _archive_glob="$3" _installed_glob="$4"
   local _fonts_dir="${HOME}/.local/share/fonts"
-  local _api="https://api.github.com/repos/${_repo}/releases/latest"
 
   local _tmp_dir="$(mktemp -d)"
   trap "rm -rf -- '${_tmp_dir}'" EXIT
   local _zip="${_tmp_dir}/font.zip"
   local _stage="${_tmp_dir}/stage"
-
-  echo "Installing ${_label}..."
-
-  # Release assets are version-stamped (e.g. CascadiaCode-2407.24.zip), so
-  # there is no stable .../latest/download/<name> URL to hit directly. Ask the
-  # GitHub API for the latest release and pull the matching .zip URL out of it.
-  local _url="$(wget -qO- "${_api}" \
-    | grep -oE "https://[^\"]*${_asset_match}[^\"]*\.zip" | head -1)"
-  if [[ -z "${_url}" ]]; then
-    echo >&2 "Could not resolve the ${_label} download URL. Aborting."
-    return 1
-  fi
 
   # Plain -O (no --show-progress; unsupported on GNU Wget < 1.16).
   run wget -O "${_zip}" "${_url}" \
@@ -353,20 +343,67 @@ function _j-install-github-font() {
   run mv "${_staged[@]}" "${_fonts_dir}"/
 }
 
+# Install a font published as a GitHub *release* asset. Resolves the versioned
+# .zip URL from the latest release, then delegates to
+# `_j-install-font-from-zip`.
+#   $1 label          - human-readable font name, used in messages
+#   $2 repo           - GitHub "owner/name" whose latest release is fetched
+#   $3 asset_match    - substring identifying the .zip asset in the release
+#   $4 archive_glob   - glob of the font files to extract from the archive
+#   $5 installed_glob - glob of already-installed faces to replace
+function _j-install-font-from-github-release() {
+  local _label="$1" _repo="$2" _asset_match="$3" _archive_glob="$4" _installed_glob="$5"
+  local _api="https://api.github.com/repos/${_repo}/releases/latest"
+
+  echo "Installing ${_label}..."
+
+  # Release assets are version-stamped (e.g. CascadiaCode-2407.24.zip), so
+  # there is no stable .../latest/download/<name> URL to hit directly. Ask the
+  # GitHub API for the latest release and pull the matching .zip URL out of it.
+  local _url="$(wget -qO- "${_api}" \
+    | grep -oE "https://[^\"]*${_asset_match}[^\"]*\.zip" | head -1)"
+  if [[ -z "${_url}" ]]; then
+    echo >&2 "Could not resolve the ${_label} download URL. Aborting."
+    return 1
+  fi
+
+  _j-install-font-from-zip "${_label}" "${_url}" "${_archive_glob}" "${_installed_glob}"
+}
+
+# Install a font that lives in a GitHub repository *tree* rather than a release
+# (some projects, e.g. Crimson Pro, ship no release archives). Downloads the
+# repository source archive for a branch via the codeload endpoint, then
+# delegates to `_j-install-font-from-zip`. Because the whole repo is fetched the
+# `archive_glob` must include the archive's top-level "<repo>-<branch>/" prefix
+# -- a leading "*/" handles that.
+#   $1 label          - human-readable font name, used in messages
+#   $2 repo           - GitHub "owner/name" to fetch
+#   $3 branch         - branch to download (e.g. main, master)
+#   $4 archive_glob   - glob of the font files to extract from the archive
+#   $5 installed_glob - glob of already-installed faces to replace
+function _j-install-font-from-github-tree() {
+  local _label="$1" _repo="$2" _branch="$3" _archive_glob="$4" _installed_glob="$5"
+  local _url="https://github.com/${_repo}/archive/refs/heads/${_branch}.zip"
+
+  echo "Installing ${_label}..."
+
+  _j-install-font-from-zip "${_label}" "${_url}" "${_archive_glob}" "${_installed_glob}"
+}
+
 # Install font files that already exist somewhere on this machine by symlinking
-# them into a destination font directory. Unlike `_j-install-github-font` this
-# downloads nothing: its primary use case is for proprietary fonts that ship
-# bundled inside a licenced application already installed on your machine (e.g.
-# Adobe's `Minion Pro` / `Myriad Pro` whose OTFs come inside an Adobe Acrobat
-# installation). Symlinking (rather than copying) keeps the destination in sync
-# as the bundling app updates, and avoids duplicating the files on disk.
+# them into a destination font directory. Unlike the download helpers above
+# this downloads nothing: its primary use case is for proprietary fonts that
+# ship bundled inside a licenced application already installed on your machine
+# (e.g. Adobe's `Minion Pro` / `Myriad Pro` whose OTFs come inside an Adobe
+# Acrobat installation). Symlinking (rather than copying) keeps the destination
+# in sync as the bundling app updates, and avoids duplicating the files on disk.
 # Missing sources are a clean no-op, not an error, so it is safe to call on a
 # machine that lacks the bundling app.
 #   $1  label    - human-readable font name, used in messages
 #   $2  dest_dir - directory to symlink the faces into
 #   $3  src_glob - glob (may contain spaces/**) matching source directories
 #   $4+ patterns - one or more filename globs of the faces to symlink
-function _j-install-local-font() {
+function _j-install-font-from-local() {
   local _label="$1" _dest_dir="$2" _src_glob="$3"
   shift 3
   local _patterns=( "$@" )
@@ -398,32 +435,78 @@ function _j-install-local-font() {
 
 function j-install-fonts() {
   # Install fonts across machines
+  #
+  # Cascadia
+  # - Website: https://learn.microsoft.com/en-us/windows/terminal/cascadia-code
+  # - Github: https://github.com/microsoft/cascadia-code
+  # - Homebrew: https://formulae.brew.sh/cask/font-cascadia-code
+  # - Notes: open source; source-code monospace;
+  #
+  # Crimson Pro
+  # - Website: https://fonts.google.com/specimen/Crimson+Pro
+  # - Github: https://github.com/Fonthausen/CrimsonPro
+  # - Homebrew: https://formulae.brew.sh/cask/font-crimson-pro
+  # - Notes: open source; prose/body serif;
+  #
+  # Fira Code
+  # - Website: -
+  # - Github: https://github.com/tonsky/FiraCode
+  # - Homebrew: https://formulae.brew.sh/cask/font-fira-code
+  # - Notes: open source; source-code monospace;
+  #
+  # JetBrains Mono
+  # - Website: https://www.jetbrains.com/lp/mono/
+  # - Github: https://github.com/JetBrains/JetBrainsMono
+  # - Homebrew: https://formulae.brew.sh/cask/font-jetbrains-mono
+  # - Notes: open source; source-code monospace;
+  #
+  # Minion Pro
+  # - Website: https://fonts.adobe.com/fonts/minion
+  # - Notes: closed source/proprietary; prose/body serif; ships together with
+  #          licensed Adobe Acrobat / Reader installations
+  #
+  # Monaspace
+  # - Website: https://monaspace.githubnext.com/
+  # - Github: https://github.com/githubnext/monaspace
+  # - Homebrew: https://formulae.brew.sh/cask/font-monaspace
+  # - Notes: open source; source-code monospace;
+  #
+  # Myriad Pro
+  # - Website: https://fonts.adobe.com/fonts/myriad
+  # - Notes: closed source/proprietary; prose/body serif; ships together with
+  #          licensed Adobe Acrobat / Reader installations
+  #
+  # Source Code Pro
+  # - Website: https://fonts.adobe.com/fonts/source-code-pro
+  # - Github: https://github.com/adobe-fonts/source-code-pro
+  # - Homebrew: https://formulae.brew.sh/cask/font-source-code-pro
+  # - Notes: open source; source-code monospace;
+  #
+  # Source Serif 4
+  # - Website: https://fonts.adobe.com/fonts/source-serif
+  # - Github: https://github.com/adobe-fonts/source-serif
+  # - Homebrew: https://formulae.brew.sh/cask/font-source-serif-4
+  # - Notes: open source; prose/body serif;
   if [[ "${JMACHINE}" == "mac" ]]; then
     cmd_exists brew || { echo >&2 "Cannot find brew. Aborting."; return 1; }
     run brew install --cask \
       font-cascadia-code font-cascadia-code-nf \
+      font-crimson-pro \
       font-fira-code font-fira-code-nerd-font \
       font-jetbrains-mono font-jetbrains-mono-nerd-font \
       font-monaspace font-monaspace-nf \
-      font-source-code-pro font-sauce-code-pro-nerd-font
+      font-source-code-pro font-sauce-code-pro-nerd-font \
+      font-source-serif-4
 
     ########## Install proprietary fonts ##########
     # Install fonts that are not freely downloadable by copying the OTFs
     # that ship inside licenced software already available on your systems.
 
-    # Minion Pro
-    # https://fonts.adobe.com/fonts/minion
-    # No Github repository - proprietary font - ships together with licensed
-    # Adobe Acrobat / Reader installations
-    _j-install-local-font "Minion Pro" "${HOME}/Library/Fonts" \
+    _j-install-font-from-local "Minion Pro" "${HOME}/Library/Fonts" \
       "/Applications/Adobe Acrobat*/**/Resource/Font" \
       "Minion*.otf"
 
-    # Myriad Pro
-    # https://fonts.adobe.com/fonts/myriad
-    # No Github repository - proprietary font - ships together with licensed
-    # Adobe Acrobat / Reader installations
-    _j-install-local-font "Myriad Pro" "${HOME}/Library/Fonts" \
+    _j-install-font-from-local "Myriad Pro" "${HOME}/Library/Fonts" \
       "/Applications/Adobe Acrobat*/**/Resource/Font" \
       "MyriadPro-*.otf"
   else
@@ -431,44 +514,33 @@ function j-install-fonts() {
       cmd_exists "${_cmd}" || { echo >&2 "Cannot find ${_cmd}. Aborting."; return 1; }
     done
 
-    # Cascadia
-    # https://learn.microsoft.com/en-us/windows/terminal/cascadia-code
-    # https://github.com/microsoft/cascadia-code
-    # Source-code-optimized font family
-    _j-install-github-font "Cascadia Code" "microsoft/cascadia-code" \
+    _j-install-font-from-github-release "Cascadia Code" "microsoft/cascadia-code" \
       "CascadiaCode" "ttf/static/*.ttf" "*Cascadia*.ttf" || return 1
 
-    # Fira Code
-    # -
-    # https://github.com/tonsky/FiraCode
-    # Source-code-optimized font family
-    _j-install-github-font "Fira Code" "tonsky/FiraCode" \
+    # Ships no release archives, so it is fetched from the repository tree
+    # (`master` branch). The static TTFs live under `fonts/ttf/` inside the
+    # archive's top-level dir.
+    _j-install-font-from-github-tree "Crimson Pro" "Fonthausen/CrimsonPro" \
+      "master" "*/fonts/ttf/*.ttf" "*CrimsonPro*.ttf" || return 1
+
+    _j-install-font-from-github-release "Fira Code" "tonsky/FiraCode" \
       "Fira_Code" "ttf/*.ttf" "*FiraCode*.ttf" || return 1
 
-    # JetBrains Mono
-    # https://www.jetbrains.com/lp/mono/
-    # https://github.com/JetBrains/JetBrainsMono
-    # Source-code-optimized font family
-    _j-install-github-font "JetBrains Mono" "JetBrains/JetBrainsMono" \
+    _j-install-font-from-github-release "JetBrains Mono" "JetBrains/JetBrainsMono" \
       "JetBrainsMono" "fonts/ttf/*.ttf" "*JetBrainsMono*.ttf" || return 1
 
-    # Monaspace
-    # https://monaspace.githubnext.com/
-    # https://github.com/githubnext/monaspace
-    # Source-code-optimized font family
-    # Open source
-    # NOTE: Monaspace ships OpenType (.otf) faces in per-family subdirectories,
-    # so its archive glob differs from the TrueType fonts above.
-    _j-install-github-font "Monaspace" "githubnext/monaspace" \
+    # Ships OpenType (`.otf`) faces in per-family subdirectories, so its archive
+    # glob differs from TrueType fonts.
+    _j-install-font-from-github-release "Monaspace" "githubnext/monaspace" \
       "monaspace-static" "*.otf" "*Monaspace*.otf" || return 1
 
-    # Source Code Pro
-    # https://fonts.adobe.com/fonts/source-code-pro
-    # https://github.com/adobe-fonts/source-code-pro
-    # Source-code-optimized font family
-    # Open source
-    _j-install-github-font "Source Code Pro" "adobe-fonts/source-code-pro" \
+    _j-install-font-from-github-release "Source Code Pro" "adobe-fonts/source-code-pro" \
       "TTF-source-code-pro" "TTF/*.ttf" "*SourceCodePro*.ttf" || return 1
+
+    # The desktop archive nests the static faces under a versioned top dir,
+    # hence the `"*/TTF/*.ttf"` glob.
+    _j-install-font-from-github-release "Source Serif 4" "adobe-fonts/source-serif" \
+      "Desktop" "*/TTF/*.ttf" "*SourceSerif4*.ttf" || return 1
 
     # Refresh the font cache once, after all fonts are installed.
     run fc-cache -fv
