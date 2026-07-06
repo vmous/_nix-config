@@ -30,6 +30,18 @@ function is_text_file() {
   [[ -f "$1" ]] && file -bL --mime "$1" | grep -q "^text"
 }
 
+echo_warning() {
+  # Print a yellow warning message to stderr. Colour is emitted only when
+  # stderr is a terminal, so redirected or piped output stays free of escape
+  # codes. Centralises warning styling so callers just pass the message text.
+  # Kept POSIX sh-compliant (only `[ -t 2 ]` and `printf`, no tput/zsh builtins).
+  if [ -t 2 ]; then
+    printf '\033[33m[WARN] %s\033[0m\n' "$*" >&2
+  else
+    printf '[WARN] %s\n' "$*" >&2
+  fi
+}
+
 function run() {
   # Echo a command, then run it (without re-parsing it via eval).
   # Prefix with "dry" to print the command without executing it:
