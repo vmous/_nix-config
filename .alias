@@ -348,7 +348,12 @@ function _j-install-font-from-zip() {
 # `_j-install-font-from-zip`.
 #   $1 label          - human-readable font name, used in messages
 #   $2 repo           - GitHub "owner/name" whose latest release is fetched
-#   $3 asset_match    - substring identifying the .zip asset in the release
+#   $3 asset_match    - substring identifying the .zip asset in the release.
+#                       It is matched at a word boundary: the substring must be
+#                       followed by a non-letter (a version separator) or the
+#                       ".zip" suffix, so e.g. "Iosevka" will not match
+#                       "IosevkaTerm.zip". This makes selection independent of
+#                       the order assets happen to appear in the API response.
 #   $4 archive_glob   - glob of the font files to extract from the archive
 #   $5 installed_glob - glob of already-installed faces to replace
 function _j-install-font-from-github-release() {
@@ -360,8 +365,10 @@ function _j-install-font-from-github-release() {
   # Release assets are version-stamped (e.g. CascadiaCode-2407.24.zip), so
   # there is no stable .../latest/download/<name> URL to hit directly. Ask the
   # GitHub API for the latest release and pull the matching .zip URL out of it.
+  # The "([^A-Za-z]...)?\.zip" tail anchors the match to a word boundary so a
+  # prefix like "Iosevka" does not also match "IosevkaTerm.zip".
   local _url="$(wget -qO- "${_api}" \
-    | grep -oE "https://[^\"]*${_asset_match}[^\"]*\.zip" | head -1)"
+    | grep -oE "https://[^\"]*${_asset_match}([^A-Za-z][^\"]*)?\.zip" | head -1)"
   if [[ -z "${_url}" ]]; then
     echo >&2 "Could not resolve the ${_label} download URL. Aborting."
     return 1
@@ -452,6 +459,14 @@ function j-install-fonts() {
   # - Homebrew: https://formulae.brew.sh/cask/font-fira-code
   # - Notes: open source; source-code monospace;
   #
+  # Iosevka (base + Nerd Font) and Iosevka Term Nerd Font
+  # - Website: https://typeof.net/Iosevka/
+  # - Github:
+  #   - https://github.com/be5invis/Iosevka (upstream)
+  #   - https://github.com/ryanoasis/nerd-fonts (for nerd font)
+  # - Homebrew: https://formulae.brew.sh/cask/font-iosevka
+  # - Notes: open source; source-code monospace;
+  #
   # JetBrains Mono
   # - Website: https://www.jetbrains.com/lp/mono/
   # - Github: https://github.com/JetBrains/JetBrainsMono
@@ -491,6 +506,7 @@ function j-install-fonts() {
       font-cascadia-code font-cascadia-code-nf \
       font-crimson-pro \
       font-fira-code font-fira-code-nerd-font \
+      font-iosevka font-iosevka-nerd-font font-iosevka-term-nerd-font \
       font-jetbrains-mono font-jetbrains-mono-nerd-font \
       font-monaspace font-monaspace-nf \
       font-source-code-pro font-sauce-code-pro-nerd-font \
@@ -523,6 +539,28 @@ function j-install-fonts() {
 
     _j-install-font-from-github-release "Fira Code" "tonsky/FiraCode" \
       "Fira_Code" "ttf/*.ttf" "*FiraCode*.ttf" || return 1
+
+    # Iosevka
+    # Shipped from official upstream (be5invis/Iosevka)
+    # The release ships many packs; "PkgTTF-Iosevka" selects the base family;
+    # faces sit at the archive root, hence the flat "*.ttf" glob; the
+    # "Iosevka-*.ttf" cleanup glob is scoped so it does not remove sibling
+    # Iosevka variants installed below.
+    _j-install-font-from-github-release "Iosevka" "be5invis/Iosevka" \
+      "PkgTTF-Iosevka" "*.ttf" "Iosevka-*.ttf" || return 1
+
+    # Iosevka NF
+    # Patched faces pulled from ryanoasis/nerd-fonts (as official upstream
+    # ships no Nerd Font build).
+    # The Iosevka.zip / IosevkaTerm.zip assets hold the NerdFont / NerdFontMono
+    # / NerdFontPropo faces at the archive root; the word-boundary asset match
+    # keeps "Iosevka" from selecting "IosevkaTerm"; the cleanup globs are
+    # scoped to each family so they do not clobber base Iosevka above or each
+    # other.
+    _j-install-font-from-github-release "Iosevka Nerd Font" "ryanoasis/nerd-fonts" \
+      "Iosevka" "*.ttf" "IosevkaNerdFont*.ttf" || return 1
+    _j-install-font-from-github-release "Iosevka Term Nerd Font" "ryanoasis/nerd-fonts" \
+      "IosevkaTerm" "*.ttf" "IosevkaTermNerdFont*.ttf" || return 1
 
     _j-install-font-from-github-release "JetBrains Mono" "JetBrains/JetBrainsMono" \
       "JetBrainsMono" "fonts/ttf/*.ttf" "*JetBrainsMono*.ttf" || return 1
