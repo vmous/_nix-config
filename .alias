@@ -223,7 +223,8 @@ function j-fs-del-line-in-file {
 ############################
 
 function j-tmux() {
-  cmd_exists tmux || { echo >&2 "Cannot find tmux. Aborting."; return; }
+  local _fn="${0}"  # this function's name, for user-facing messages
+  cmd_exists tmux || { echo_error "${_fn}: cannot find tmux. Aborting."; return 1; }
 
   local _legal=true
   if [[ ${#} -eq 0 ]]; then
@@ -311,6 +312,7 @@ alias j-java-switch-version='sudo alternatives --config java && source ~/.zshrc'
 #   $3 archive_glob   - glob of the font files to extract from the archive
 #   $4 installed_glob - glob of already-installed faces to replace
 function _j-install-font-from-zip() {
+  local _fn="${0}"  # this function's name, for user-facing messages
   local _label="$1" _url="$2" _archive_glob="$3" _installed_glob="$4"
   local _fonts_dir="${HOME}/.local/share/fonts"
 
@@ -321,17 +323,17 @@ function _j-install-font-from-zip() {
 
   # Plain -O (no --show-progress; unsupported on GNU Wget < 1.16).
   run wget -O "${_zip}" "${_url}" \
-    || { echo >&2 "${_label}: download failed. Aborting."; return 1; }
+    || { echo_error "${_fn}: download of ${_label} failed. Aborting."; return 1; }
   # Extract the wanted faces into the staging area first.
   run mkdir -p "${_stage}"
   run unzip -j "${_zip}" "${_archive_glob}" -d "${_stage}" \
-    || { echo >&2 "${_label}: extraction failed. Aborting."; return 1; }
+    || { echo_error "${_fn}: extraction of ${_label} failed. Aborting."; return 1; }
   # Guard against an upstream layout change silently installing nothing.
   # (N) is a zsh null-glob qualifier: the pattern expands to nothing when
   # there is no match instead of erroring under the default NOMATCH option.
   local _staged=( "${_stage}"/*.(ttf|otf)(N) )
   if (( ${#_staged} == 0 )); then
-    echo >&2 "${_label}: no font files found in the archive. Aborting."
+    echo_error "${_fn}: no ${_label} font files found in the archive. Aborting."
     return 1
   fi
 
@@ -357,6 +359,7 @@ function _j-install-font-from-zip() {
 #   $4 archive_glob   - glob of the font files to extract from the archive
 #   $5 installed_glob - glob of already-installed faces to replace
 function _j-install-font-from-github-release() {
+  local _fn="${0}"  # this function's name, for user-facing messages
   local _label="$1" _repo="$2" _asset_match="$3" _archive_glob="$4" _installed_glob="$5"
   local _api="https://api.github.com/repos/${_repo}/releases/latest"
 
@@ -370,7 +373,7 @@ function _j-install-font-from-github-release() {
   local _url="$(wget -qO- "${_api}" \
     | grep -oE "https://[^\"]*${_asset_match}([^A-Za-z][^\"]*)?\.zip" | head -1)"
   if [[ -z "${_url}" ]]; then
-    echo >&2 "Could not resolve the ${_label} download URL. Aborting."
+    echo_error "${_fn}: could not resolve the ${_label} download URL. Aborting."
     return 1
   fi
 
@@ -410,6 +413,7 @@ function _j-install-font-from-github-tree() {
 #   $3  src_glob - glob (may contain spaces/**) matching source directories
 #   $4+ patterns - one or more filename globs of the faces to copy
 function _j-install-font-from-local() {
+  local _fn="${0}"  # this function's name, for user-facing messages
   local _label="$1" _dest_dir="$2" _src_glob="$3"
   shift 3
   local _patterns=( "$@" )
@@ -428,7 +432,7 @@ function _j-install-font-from-local() {
   done
 
   if (( ${#_found} == 0 )); then
-    echo_warning "${_label}: no source font files found (is the bundling app installed?). Skipping."
+    echo_warning "${_fn}: no source font files found for ${_label} (is the bundling app installed?). Skipping."
     return 0
   fi
 
@@ -438,70 +442,72 @@ function _j-install-font-from-local() {
   echo "${_label}: installed ${#_found} face(s) into ${_dest_dir}"
 }
 
+# Install fonts across machines
+#
+# Cascadia
+# - Website: https://learn.microsoft.com/en-us/windows/terminal/cascadia-code
+# - Github: https://github.com/microsoft/cascadia-code
+# - Homebrew: https://formulae.brew.sh/cask/font-cascadia-code
+# - Notes: open source; source-code monospace;
+#
+# Crimson Pro
+# - Website: https://fonts.google.com/specimen/Crimson+Pro
+# - Github: https://github.com/Fonthausen/CrimsonPro
+# - Homebrew: https://formulae.brew.sh/cask/font-crimson-pro
+# - Notes: open source; prose/body serif;
+#
+# Fira Code
+# - Website: -
+# - Github: https://github.com/tonsky/FiraCode
+# - Homebrew: https://formulae.brew.sh/cask/font-fira-code
+# - Notes: open source; source-code monospace;
+#
+# Iosevka (base + Nerd Font) and Iosevka Term Nerd Font
+# - Website: https://typeof.net/Iosevka/
+# - Github:
+#   - https://github.com/be5invis/Iosevka (upstream)
+#   - https://github.com/ryanoasis/nerd-fonts (for nerd font)
+# - Homebrew: https://formulae.brew.sh/cask/font-iosevka
+# - Notes: open source; source-code monospace;
+#
+# JetBrains Mono
+# - Website: https://www.jetbrains.com/lp/mono/
+# - Github: https://github.com/JetBrains/JetBrainsMono
+# - Homebrew: https://formulae.brew.sh/cask/font-jetbrains-mono
+# - Notes: open source; source-code monospace;
+#
+# Minion Pro
+# - Website: https://fonts.adobe.com/fonts/minion
+# - Notes: closed source/proprietary; prose/body serif; ships together with
+#          licensed Adobe Acrobat / Reader installations
+#
+# Monaspace
+# - Website: https://monaspace.githubnext.com/
+# - Github: https://github.com/githubnext/monaspace
+# - Homebrew: https://formulae.brew.sh/cask/font-monaspace
+# - Notes: open source; source-code monospace;
+#
+# Myriad Pro
+# - Website: https://fonts.adobe.com/fonts/myriad
+# - Notes: closed source/proprietary; prose/body serif; ships together with
+#          licensed Adobe Acrobat / Reader installations
+#
+# Source Code Pro
+# - Website: https://fonts.adobe.com/fonts/source-code-pro
+# - Github: https://github.com/adobe-fonts/source-code-pro
+# - Homebrew: https://formulae.brew.sh/cask/font-source-code-pro
+# - Notes: open source; source-code monospace;
+#
+# Source Serif 4
+# - Website: https://fonts.adobe.com/fonts/source-serif
+# - Github: https://github.com/adobe-fonts/source-serif
+# - Homebrew: https://formulae.brew.sh/cask/font-source-serif-4
+# - Notes: open source; prose/body serif;
 function j-install-fonts() {
-  # Install fonts across machines
-  #
-  # Cascadia
-  # - Website: https://learn.microsoft.com/en-us/windows/terminal/cascadia-code
-  # - Github: https://github.com/microsoft/cascadia-code
-  # - Homebrew: https://formulae.brew.sh/cask/font-cascadia-code
-  # - Notes: open source; source-code monospace;
-  #
-  # Crimson Pro
-  # - Website: https://fonts.google.com/specimen/Crimson+Pro
-  # - Github: https://github.com/Fonthausen/CrimsonPro
-  # - Homebrew: https://formulae.brew.sh/cask/font-crimson-pro
-  # - Notes: open source; prose/body serif;
-  #
-  # Fira Code
-  # - Website: -
-  # - Github: https://github.com/tonsky/FiraCode
-  # - Homebrew: https://formulae.brew.sh/cask/font-fira-code
-  # - Notes: open source; source-code monospace;
-  #
-  # Iosevka (base + Nerd Font) and Iosevka Term Nerd Font
-  # - Website: https://typeof.net/Iosevka/
-  # - Github:
-  #   - https://github.com/be5invis/Iosevka (upstream)
-  #   - https://github.com/ryanoasis/nerd-fonts (for nerd font)
-  # - Homebrew: https://formulae.brew.sh/cask/font-iosevka
-  # - Notes: open source; source-code monospace;
-  #
-  # JetBrains Mono
-  # - Website: https://www.jetbrains.com/lp/mono/
-  # - Github: https://github.com/JetBrains/JetBrainsMono
-  # - Homebrew: https://formulae.brew.sh/cask/font-jetbrains-mono
-  # - Notes: open source; source-code monospace;
-  #
-  # Minion Pro
-  # - Website: https://fonts.adobe.com/fonts/minion
-  # - Notes: closed source/proprietary; prose/body serif; ships together with
-  #          licensed Adobe Acrobat / Reader installations
-  #
-  # Monaspace
-  # - Website: https://monaspace.githubnext.com/
-  # - Github: https://github.com/githubnext/monaspace
-  # - Homebrew: https://formulae.brew.sh/cask/font-monaspace
-  # - Notes: open source; source-code monospace;
-  #
-  # Myriad Pro
-  # - Website: https://fonts.adobe.com/fonts/myriad
-  # - Notes: closed source/proprietary; prose/body serif; ships together with
-  #          licensed Adobe Acrobat / Reader installations
-  #
-  # Source Code Pro
-  # - Website: https://fonts.adobe.com/fonts/source-code-pro
-  # - Github: https://github.com/adobe-fonts/source-code-pro
-  # - Homebrew: https://formulae.brew.sh/cask/font-source-code-pro
-  # - Notes: open source; source-code monospace;
-  #
-  # Source Serif 4
-  # - Website: https://fonts.adobe.com/fonts/source-serif
-  # - Github: https://github.com/adobe-fonts/source-serif
-  # - Homebrew: https://formulae.brew.sh/cask/font-source-serif-4
-  # - Notes: open source; prose/body serif;
+  local _fn="${0}"  # this function's name, for user-facing messages
+
   if [[ "${JMACHINE}" == "mac" ]]; then
-    cmd_exists brew || { echo >&2 "Cannot find brew. Aborting."; return 1; }
+    cmd_exists brew || { echo_error "${_fn}: cannot find brew. Aborting."; return 1; }
     run brew install --cask \
       font-cascadia-code font-cascadia-code-nf \
       font-crimson-pro \
@@ -525,7 +531,7 @@ function j-install-fonts() {
       "MyriadPro-*.otf"
   else
     for _cmd in wget unzip fc-cache; do
-      cmd_exists "${_cmd}" || { echo >&2 "Cannot find ${_cmd}. Aborting."; return 1; }
+      cmd_exists "${_cmd}" || { echo_error "${_fn}: cannot find ${_cmd}. Aborting."; return 1; }
     done
 
     _j-install-font-from-github-release "Cascadia Code" "microsoft/cascadia-code" \
@@ -585,10 +591,9 @@ function j-install-fonts() {
 
 # Spell-checking
 
+# Install hunspell and download dictionaries to expected directory
 function j-install-spell-checking() {
-  # Install hunspell and download dictionaries to expected directory
-
-  local _fn="${0}"
+  local _fn="${0}"  # this function's name, for user-facing messages
 
   # Languages to install dictionaries for. Each entry is either:
   #   - a bare prefix (e.g. "en", "es") -- installs every variant the language
@@ -605,12 +610,12 @@ function j-install-spell-checking() {
 
   # Install hunspell only when it is not already
   if ! cmd_exists hunspell; then
-    cmd_exists brew || { echo >&2 "Cannot find brew. Aborting."; return 1; }
+    cmd_exists brew || { echo_error "${_fn}: cannot find brew. Aborting."; return 1; }
     run brew install hunspell \
-      || { echo >&2 "hunspell install failed. Aborting."; return 1; }
+      || { echo_error "${_fn}: hunspell install failed. Aborting."; return 1; }
   fi
 
-  cmd_exists curl || { echo >&2 "Cannot find curl. Aborting."; return 1; }
+  cmd_exists curl || { echo_error "${_fn}: cannot find curl. Aborting."; return 1; }
 
   # Ensure the user dictionary directory exists (already searched by
   #    hunspell by default on macOS).
