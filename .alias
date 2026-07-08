@@ -583,6 +583,95 @@ function j-install-fonts() {
   fi
 }
 
+# Spell-checking
+
+function j-install-spell-checking() {
+  # Install hunspell and download dictionaries to expected directory
+
+  local _fn="${0}"
+
+  # Languages to install dictionaries for. Each entry is either:
+  #   - a bare prefix (e.g. "en", "es") -- installs every variant the language
+  #     ships (en_US, en_GB, ...; all 20+ Spanish locales, ...), or
+  #   - a full locale (e.g. "es_ES")    -- installs only that one dictionary.
+  # The upstream directory is always resolved from the base prefix (so both
+  # "es" and "es_ES" look in the "es" directory, and "el"/"el_GR" in "el_GR").
+  local _langs=(el en_GB en_US es_ES)
+
+  if [[ "${JMACHINE}" != "mac" ]]; then
+    echo_warning "${_fn}: automatic installation is not supported yet on '${JMACHINE}'. Skipping."
+    return 0
+  fi
+
+  # Install hunspell only when it is not already
+  if ! cmd_exists hunspell; then
+    cmd_exists brew || { echo >&2 "Cannot find brew. Aborting."; return 1; }
+    run brew install hunspell \
+      || { echo >&2 "hunspell install failed. Aborting."; return 1; }
+  fi
+
+  cmd_exists curl || { echo >&2 "Cannot find curl. Aborting."; return 1; }
+
+  # Ensure the user dictionary directory exists (already searched by
+  #    hunspell by default on macOS).
+  local _dict_dir="${HOME}/Library/Spelling"
+  [[ -d "${_dict_dir}" ]] || run mkdir -p "${_dict_dir}"
+
+  # Download the dictionaries for the configured languages from the LibreOffice
+  # dictionaries repo. The repo groups variants of a language under a single
+  # directory (e.g. `en' holds en_US/en_GB/...; `es' holds every es_XX locale),
+  # while some languages live under a locale-named directory (e.g. `el_GR');
+  # the loop therefore resolves the directory from each entry's base prefix.
+  local _base="https://cgit.freedesktop.org/libreoffice/dictionaries"
+  local _lang _base_lang _name_pat _dir _file _count=0
+  for _lang in "${_langs[@]}"; do
+    echo "Fetching '${_lang}' dictionaries..."
+    # The base prefix (text before the first `_'/`-') selects the upstream
+    # directory; a full locale (e.g. `es_ES') narrows the downloaded files to
+    # that exact stem, while a bare prefix (e.g. `es') matches every stem.
+    _base_lang="${_lang%%[_-]*}"
+    if [[ "${_lang}" == "${_base_lang}" ]]; then
+      _name_pat='[^'\''"/]+'   # any filename stem
+    else
+      _name_pat="${_lang}"     # only this exact locale
+    fi
+    # Discover the top-level language directories (exactly `xx' or starting
+    # `xx_'/`xx-') by scraping the cgit tree root, so both `el' and `el_GR'
+    # style names are handled.
+    local _dirs=( $(curl -fsSL "${_base}/tree/" \
+      | grep -oiE "/tree/${_base_lang}([_-][a-z0-9]+)?" \
+      | sed 's#.*/##' | sort -u) )
+    if (( ${#_dirs} == 0 )); then
+      echo_warning "${_fn}: no '${_lang}' language directory found upstream. Skipping."
+      continue
+    fi
+    for _dir in "${_dirs[@]}"; do
+      # Pull the matching .aff/.dic filenames out of the directory's cgit tree
+      # listing (`_name_pat' is a single stem for a full locale, or any stem
+      # for a bare prefix). `hyph_*' files are hyphenation patterns, not
+      # spelling dictionaries, so they are filtered out.
+      local _files=( $(curl -fsSL "${_base}/tree/${_dir}" \
+        | grep -oE "/tree/${_dir}/${_name_pat}\.(aff|dic)" \
+        | sed 's#.*/##' | grep -v '^hyph_' | sort -u) )
+      if (( ${#_files} == 0 )); then
+        echo_warning "${_fn}: no .aff/.dic files found in '${_dir}'. Skipping."
+        continue
+      fi
+      for _file in "${_files[@]}"; do
+        # cgit serves raw blobs under the 'plain' endpoint.
+        if run curl -fsSL -o "${_dict_dir}/${_file}" \
+             "${_base}/plain/${_dir}/${_file}"; then
+          (( _count++ ))
+        else
+          echo_warning "${_fn}: failed to download '${_dir}/${_file}'."
+        fi
+      done
+    done
+  done
+
+  echo "${_fn}: installed ${_count} dictionary file(s) into ${_dict_dir}"
+}
+
 
 # Crazy
 function terminal-benchmark() {
