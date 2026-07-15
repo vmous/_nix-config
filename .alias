@@ -591,7 +591,19 @@ function j-install-fonts() {
 
 # Spell-checking
 
-# Install hunspell and download dictionaries to expected directory
+# Install `hunspell` and download dictionaries.
+# This script downloads dictionaries from LibreOffice's repo:
+# https://cgit.freedesktop.org/libreoffice/dictionaries/tree
+# into one of the speller's known paths:
+# - Mac: `~/Library/Spelling/`
+# - Linux: `~/.openoffice.org2/user/wordbook/`
+#
+# With `hunspell -D` you can see the paths (`SEARCH PATH`) that `hunspell`
+# searches in for dictionaries.
+#
+# TODO: Bug in running `hunspell -D el_GR` I get error `Can't open el_GR.`.
+# There is something wrong with `SEARCH PATH` resolution that prevents
+# `hunspell` from finding the needed files.
 function j-install-spell-checking() {
   local _fn="${0}"  # this function's name, for user-facing messages
 

@@ -5,20 +5,9 @@
 ;;;; flyspell
 ;; https://www.emacswiki.org/emacs/FlySpell
 ;;
-;; Below the ispell program is hunspell (http://hunspell.github.io/).
-;; You need to install it on your system:
-;; - MacOSX: brew install hunspell
-;; - Debian: sudo apt-get install hunspell
-;;
-;; Check the following:
-;; $ hunspell -D
-;; If you don't find the dictionary you want in the output then do it manually.
-;; Go to LibreOffice repo: https://cgit.freedesktop.org/libreoffice/dictionaries/tree
-;; and wget *.aff *.dic into location a designated location in your machine.
-;; The above command (hunspell -D) will tell you the default locations it searches.
-;; e.g. Mac:    ~/Library/Spelling/
-;;      AL2002: ~/.openoffice.org2/user/wordbook/
-;;
+;; Below the ispell program is `hunspell' (http://hunspell.github.io/).
+;; For installing `hunspell' and corresponding dictionaries refer to
+;; `j-install-spell-checking' utility function.
 (use-package flyspell
 ;;  :diminish " 🔡" ;; 🐝
   :init
