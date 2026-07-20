@@ -164,31 +164,64 @@ else
     source ${HOME}/.zsh.d/.zshrc.oh-my-zsh
 fi
 
-# SSH uses a Unix socket to communicate with other processes. The socket's path
-# can be found by looking at the environment variable `${SSH_AUTH_SOCK}`. When
-# you re-connect to a multiplexer session (e.g., tmux or scree) that was started
-# during a previous SSH session, this variable will contain the path of the
-# previous SSH authentication socket, and this will cause processes that try to
-# connect to your authentication agent to fail.
+# Keep a stable SSH agent socket across multiplexer (tmux/screen) reattaches.
 #
-# To fix this, we can have a symlink to always point to the active SSH
-# authentication socket and have the multiplexer sessions point to that symlink.
+# The Problem
+# The SSH authentication agent is reached through a Unix socket whose path lives
+# in the `${SSH_AUTH_SOCK}` environment variable. When you SSH in with agent
+# forwarding, `sshd` creates a volatile forwarding socket for that connection
+# (e.g., /tmp/ssh-XXXX/agent.NNN) and exports its path into your login shell.
+# That socket only lives as long as that particular SSH connection. The problem
+# arises when using multiplexers because when created they capture the
+# environment - including `${SSH_AUTH_SOCK}` - once, when its server first
+# starts, and hands that captured value to every shell inside it. So the typical
+# daily cycle breaks things: connect (socket A created) -> start `tmux` (it
+# caches socket A) -> detach and disconnect (socket A dies) -> later reconnect
+# (new socket B) -> reattach `tmux`. The shells inside `tmux` still point at the
+# dead socket A, so anything that talks to the agent (`ssh`, `ssh-add`,
+# `git` over SSH, ...) fails.
 #
-# For GNU Screen add the following in your `${HOME}/.screenrc`:
+# The Fix
+# Create a layer of indirection (symbolic link) to establish a stable well-known
+# path to the *current* connection socket. Keep the symlink up-to-date by
+# updating it every time a new SSH session is created (and .zshrc is run) as is
+# done below.
+#
+# Guards, all of which must hold before we (re)create the symlink:
+# - `test -S`: only point the symlink at a live socket. This also rejects a
+#   previously broken (e.g. self-referential) symlink, so the link self-heals.
+# - `! test "${TMUX}"`: inside `tmux`, `${SSH_AUTH_SOCK}` is already the symlink
+#   itself (see `.tmux.conf`), so there is nothing to update.
+# - inequality check: never link the file to its own path, which would create a
+#   self-referential symlink and cause "Too many levels of symbolic links".
+#
+# With the symlink available and properly refreshed, multiplexers should be
+# configured to point to it so their long-running reconnect-surviving sessions
+# always have access to the current/latest valid SSH connection socket. For GNU
+# `screen` add the following in your `${HOME}/.screenrc`:
 # ```
 # unsetenv SSH_AUTH_SOCK
 # setenv SSH_AUTH_SOCK ${HOME}/.ssh/ssh-auth-sock.${HOSTNAME}
 # ```
-#
-# For Tmux add the follwing in your `${HOME}/.tmux.conf`:
+# For `tmux` add the following in your `${HOME}/.tmux.conf`:
 # ```
 # setenv -g SSH_AUTH_SOCK ${HOME}/.ssh/ssh_auth_sock
 # set -g update-environment -r
 # ```
 #
-# We can keep the symlink up to date by updating it every time a new SSH session
-# is created (and .zshrc is run) as is done below
-if test "${SSH_AUTH_SOCK}" && ! test "${TMUX}"; then
+# NOTE: As an alternative to the above approach would be to have an alias and do
+# the `SSH_AUTH_SOCK` update manually like so (from blog
+# http://justinchouinard.com/blog/2010/04/10/fix-stale-ssh-environment-variables-in-gnu-screen-and-tmux/):
+# ```
+# if [[ -n $TMUX ]]; then
+#   NEW_SSH_AUTH_SOCK=`=tmux showenv|grep '^SSH_AUTH_SOCK'|cut -d = -f 2`
+#   if [[ -n $NEW_SSH_AUTH_SOCK ]] && [[ -S $NEW_SSH_AUTH_SOCK ]]; then
+#     export SSH_AUTH_SOCK=$NEW_SSH_AUTH_SOCK
+#   fi
+# fi
+# ```
+if test -S "${SSH_AUTH_SOCK}" && ! test "${TMUX}" \
+   && [[ "${SSH_AUTH_SOCK}" != "${HOME}/.ssh/ssh_auth_sock" ]]; then
     ln -sf ${SSH_AUTH_SOCK} ${HOME}/.ssh/ssh_auth_sock
 fi
 
