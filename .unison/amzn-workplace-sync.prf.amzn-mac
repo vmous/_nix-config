@@ -55,9 +55,9 @@ ignore = Name {*.tsv,*.csv,*.parquet}
 # If you have unison-fsmonitor, set this to "watch" for filesystem events instead of polling
 repeat = watch
 
-# Backup settings. Keep 5 backups of all changed files
+# Backup settings. Keep 2 backups of all changed files
 backup = Name *
-maxbackups = 5
+maxbackups = 2
 
 # Retry once on failure
 retry = 1

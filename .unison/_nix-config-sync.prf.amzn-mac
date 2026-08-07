@@ -20,9 +20,9 @@ ignore = Name {TheVolumeSettingsFolder,.Metadata,.filler,.idsff,.Spotlight,.DS_S
 # If you have unison-fsmonitor, you can set this to "watch" to listen for fs notifications rather than repeatedly poll the entire file list
 repeat = 5
 
-# Backup settings. Keep 5 backups of all changed files
+# Backup settings. Keep 2 backups of all changed files
 backup = Name *
-maxbackups = 5
+maxbackups = 2
 
 # Retry once on failure
 retry = 1
