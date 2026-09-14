@@ -11,3 +11,6 @@ fi
 
 # Rust/Cargo environment
 [[ -f "$HOME/.cargo/env" ]] && . "$HOME/.cargo/env"
+
+# AIM MCP servers (managed by AIM CLI)
+export PATH="$HOME/.aim/mcp-servers:$PATH"
