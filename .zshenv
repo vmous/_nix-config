@@ -8,3 +8,6 @@ MY_PATH="/apollo/env/EnvImprovement/var/lib/zsh/${ZSH_VERSION}/"
 if [[ -d ${MY_PATH} && ${module_path[(I)${MY_PATH}]} -eq 0 ]]; then
     module_path+=(${MY_PATH})
 fi
+
+# Rust/Cargo environment
+[[ -f "$HOME/.cargo/env" ]] && . "$HOME/.cargo/env"
