@@ -3,11 +3,11 @@ alias SHUTUP='export MAKE_OUTPUT_LEVEL=QUIET'
 ############################## authentication ###################################
 function _midway_cert_is_fresh {
   # Predicate: is the Midway SSH certificate at ${1} still fresh (not expired)?
-  # True when the file exists and was modified within the last 1220 minutes.
+  # True when the file exists and was modified within the last 1200 minutes.
   # This is the single place that defines how Midway freshness is computed; it
   # is shared by every platform branch in `j-authenticate`.
   local _cert="${1}"
-  test -f "${_cert}" && ! test "`find ${_cert} -mmin +1220`"
+  test -f "${_cert}" && ! test "`find ${_cert} -mmin +1200`"
 }
 
 function j-authenticate {
