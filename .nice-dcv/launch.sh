@@ -66,34 +66,6 @@ usage() {
     echo
 }
 
-# Utilities to display stdout messages in given color
-RED="\033[31m"
-GREEN="\033[32m"
-BLUE="\033[34m"
-YELLOW="\033[33m"
-RESET="\033[0m"
-
-cecho() {
-    # Usage:
-    #   cecho "message"
-    #   cecho COLOR "message"
-
-    local color msg
-
-    case "$1" in
-        "${RED}" | "${GREEN}" | "${BLUE}" | "${YELLOW}")
-            color="$1"
-            shift
-            ;;
-        *)
-            color="${BLUE}"
-            ;;
-    esac
-
-    msg="$*"
-    printf "%b\n" "${color}${msg}${RESET}"
-}
-
 # Validate input arguments
 if [[ $# -gt 1 ]]; then
     echo "Too many arguments provided. Doing nothing."
@@ -104,7 +76,7 @@ fi
 NICE_DCV_LAUNCH_WRAPPER="python3 /opt/nice-dcv/dcv-cdd.py --debug connect vmous-clouddesk.aka.corp.amazon.com --wssh"
 # Check if an active DCV client is already running
 if pgrep -f "${NICE_DCV_LAUNCH_WRAPPER}" > /dev/null; then
-    cecho "NICE DCV client already running. Nothing to do."
+    echo_info "NICE DCV client already running. Nothing to do."
     exit 1
 fi
 
@@ -113,11 +85,11 @@ fi
 # process group id (PGID). We need the PID so that we can wait on the
 # process in the end of the script. We need PGID so that we can properly
 # terminate all related processes when needed.
-cecho "Running: ${NICE_DCV_LAUNCH_WRAPPER}"
+echo_info "Running: ${NICE_DCV_LAUNCH_WRAPPER}"
 eval "${NICE_DCV_LAUNCH_WRAPPER} &" #  Note the '&' in the end!
 PID=$!
 PGID=$(ps -o pgid= -p ${PID} | tr -d ' ')
-cecho "Spinning up parent NICE DCV client process (pid=${PID} / pgid=${PGID})"
+echo_info "Spinning up parent NICE DCV client process (pid=${PID} / pgid=${PGID})"
 
 if [[ $# -eq 1 ]]; then
     POSITIONING_MODE=$1
@@ -143,7 +115,7 @@ if [[ $# -eq 1 ]]; then
             POSITION_HEIGHT=1367
             ;;
         *)
-            cecho "Unknown NICE DCV client window positioning mode: \"${POSITIONING_MODE}\". Ignoring positioning..."
+            echo_info "Unknown NICE DCV client window positioning mode: \"${POSITIONING_MODE}\". Ignoring positioning..."
             usage
             # No coordinates to apply; just keep the client running and skip the
             # positioning logic below (which would otherwise use unset presets).
@@ -152,11 +124,11 @@ if [[ $# -eq 1 ]]; then
             ;;
     esac
 
-    cecho "Attempting NICE DCV client window positioning (mode: \"${POSITIONING_MODE}\")..."
+    echo_info "Attempting NICE DCV client window positioning (mode: \"${POSITIONING_MODE}\")..."
 
     if ! cmd_exists yabai || ! yabai -m query --windows >/dev/null 2>&1; then
-        cecho "${YELLOW}" "yabai unavailable! Skipping window positioning."
-        cecho "${YELLOW}" "Check launcher script documentation on how to install and start the yabai server."
+        echo_warning "yabai unavailable! Skipping window positioning."
+        echo_warning "Check launcher script documentation on how to install and start the yabai server."
     else
         # The client window can take a few seconds to appear; poll for it.
         WIN_ID=""
@@ -167,7 +139,7 @@ if [[ $# -eq 1 ]]; then
         done
 
         if [ -z "${WIN_ID}" ]; then
-            cecho "${YELLOW}" "Could not find the DCV client window via yabai; skipping positioning."
+            echo_warning "Could not find the DCV client window via yabai; skipping positioning."
         else
             # A native-fullscreen window cannot be moved or resized; exit it first.
             if [ "$(yabai -m query --windows --window ${WIN_ID} | jq -r '.["is-native-fullscreen"]')" = "true" ]; then
@@ -175,7 +147,7 @@ if [[ $# -eq 1 ]]; then
                 sleep 2
             fi
 
-            cecho "Positioning NICE DCV client window (id=${WIN_ID}) using coordinates x: ${POSITION_X} y: ${POSITION_Y} w: ${POSITION_WIDTH} h: ${POSITION_HEIGHT}"
+            echo_info "Positioning NICE DCV client window (id=${WIN_ID}) using coordinates x: ${POSITION_X} y: ${POSITION_Y} w: ${POSITION_WIDTH} h: ${POSITION_HEIGHT}"
             # Always move before resizing (avoids clamping when growing beyond
             # the display edges. Notice that we apply the move+resize twice
             # specifically for clients that use "DCV" -> "Preferences" ->
@@ -190,9 +162,9 @@ if [[ $# -eq 1 ]]; then
             if position_dcv_window; then
                 sleep 2
                 position_dcv_window
-                cecho "Positioning NICE DCV client window complete!"
+                echo_info "Positioning NICE DCV client window complete!"
             else
-                cecho "${RED}" "yabai failed to position the window."
+                echo_error "yabai failed to position the window."
             fi
         fi
     fi

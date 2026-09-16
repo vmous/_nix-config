@@ -54,6 +54,26 @@ echo_error() {
   fi
 }
 
+echo_info() {
+  # Print an informational message ([INFO] prefix) to stdout. An optional first
+  # argument names a colour (red|green|blue|yellow); without it the terminal's
+  # default colour is used. Colour is emitted only when stdout is a terminal, so
+  # redirected or piped output stays free of escape codes.
+  # Kept POSIX sh-compliant (only `[ -t 1 ]` and `printf`, no tput/zsh builtins).
+  local _open='' _close=''
+  case "$1" in
+    red)    _open='\033[31m'; _close='\033[0m'; shift ;;
+    green)  _open='\033[32m'; _close='\033[0m'; shift ;;
+    blue)   _open='\033[34m'; _close='\033[0m'; shift ;;
+    yellow) _open='\033[33m'; _close='\033[0m'; shift ;;
+  esac
+  if [ -t 1 ] && [ -n "${_open}" ]; then
+    printf "${_open}[INFO] %s${_close}\n" "$*"
+  else
+    printf '[INFO] %s\n' "$*"
+  fi
+}
+
 function run() {
   # Echo a command, then run it (without re-parsing it via eval).
   # Prefix with "dry" to print the command without executing it:
