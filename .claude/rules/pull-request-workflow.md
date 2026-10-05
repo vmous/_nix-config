@@ -2,16 +2,19 @@
 
 Terminology clarification: The term "pull request" is based on original Git workflow terminology. Depending on the platform used then "merge request" or "code review" are terms that can be used interchangeably.
 
-When asked to create a pull request:
+When asked to create a pull request, or a new revision of an existing pull request:
 
 1. Make sure all packages in the workspace build successfully
 2. Ask the user whether they have already committed the changes to be included to the pull request
    - If "yes" jump to step 4
 3. Indentify packages that have uncommited changes and commit them
    - Ask the user to verify the files to be included in the commit for each file. User must have the ability exclude files from the commit (especially untracked files)
-   - Use standard commit worflow to write the commit message
+   - Use standard commit workflow to write the commit message
    - Use the same commit message for all packages you are committing changes to
 4. Use the same commit message to create the summary and description of the pull request
+   - This applies to every revision: when publishing a new revision of an existing pull request, set its summary and description from the commit message of that revision, replacing whatever a previous revision set
+   - Use the commit message as written in step 3, not any text the publish tool appends to it (see step 5)
+   - Pass the summary and description explicitly to the publish tool (or update them right after publishing); do not rely on the platform to keep or refresh them across revisions
 5. Run the tool that publishes the pull request.
    - If running the publish tool results in a new commit (commit hash is changed) ensure that:
      - The new commit message text includes the original commit message text intact and only new text is added to before the beginning or after the end the original commit message text.
