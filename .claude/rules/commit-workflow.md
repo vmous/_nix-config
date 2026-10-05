@@ -40,7 +40,4 @@ At all stages of the process keep the message properly formatted
 
 ## Agreeing on the commit message
 
-Present the proposed commit message you wrote above in a fenced code block. Prompt the user with a selection widget offering three options:
-- **Accept** — commit immediately with the message as-is
-- **Modify** — the user will copy the proposed message, edit it, and paste it back in their reply; show the modified message back to the user and repeat this same 3-option prompt (loop until the user selects Accept or Reject); when presenting back the user modified message verify it follows the rules mentioned in the "Writing the commit message" and propose updates if needed
-- **Reject** — do not commit; allow the user to provide follow-up feedback
+1. Present the proposed commit message you wrote above in a fenced code block.
