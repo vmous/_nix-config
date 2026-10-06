@@ -1,18 +1,35 @@
 alias SHUTUP='export MAKE_OUTPUT_LEVEL=QUIET'
 
 ############################## authentication ###################################
-function _midway_cert_is_fresh {
-  # Predicate: is the Midway SSH certificate at ${1} still fresh (not expired)?
-  # True when the file exists and was modified within the last 1200 minutes.
-  # This is the single place that defines how Midway freshness is computed; it
-  # is shared by every platform branch in `j-authenticate`.
+function _midway_local_is_valid {
+  # True when the local Midway credentials are valid: the SSH certificate at
+  # ${1} exists and was modified within the last 1200 minutes and, when
+  # `mcscli` is installed, the local MCS session is valid too, ignoring any
+  # forwarded session.
   local _cert="${1}"
-  test -f "${_cert}" && ! test "`find ${_cert} -mmin +1200`"
+  test -f "${_cert}" && ! test "`find ${_cert} -mmin +1200`" || return 1
+  ! cmd_exists mcscli || mcscli is-valid session --local &>/dev/null
+}
+
+function _midway_forwarded_session_exists {
+  # True when `mcscli` is installed and the agent behind `${SSH_AUTH_SOCK}`
+  # holds the forwarded MCS key; false for NICE DCV, plain `ssh`, or a tmux
+  # pane whose agent symlink is stale.
+  cmd_exists mcscli && ssh-add -l 2>/dev/null | grep -q "MidwayClientSuite"
+}
+
+function _midway_forwarded_session_is_valid {
+  # True when the forwarded MCS session is valid (not expired). `mcscli`
+  # silently falls back to local credentials when it cannot use the forwarded
+  # session, so this also requires the reported source to be the forwarded one.
+  local _status=$(mcscli is-valid session --output json 2>/dev/null)
+  [[ "${_status}" == *'"session_source":"session_forwarding"'* \
+     && "${_status}" == *'"is_valid":true'* ]]
 }
 
 function j-authenticate {
   # https://w.amazon.com/index.php/NextGenMidway/UserGuide/mwinit/Advanced_Daily_Setup_Process
-  local USAGE="Usage: ${0} [force|upgrade]. Without an argument authenticate with Midway; 'force' re-authenticates even when not expired; 'upgrade' installs or upgrades the mwinit binary."
+  local USAGE="Usage: ${0} [force|upgrade]. Without an argument refresh the local Midway credentials if expired; 'force' refreshes them even when not expired; 'upgrade' installs or upgrades the mwinit binary."
 
   if [[ ${#} -gt  1 ]]; then
     echo "Wrong number of arguments"
@@ -52,27 +69,19 @@ function j-authenticate {
         # Kerberos: nothing to do. On Mac managed by the KSSO (key icon on
         # menu bar).
         # Midway: the FIDO2/YubiKey security key is attached locally, so
-        # authenticate with U2F ('--fido2'). This signs the local SSH public key
-        # and writes a fresh certificate to ~/.ssh/id_ecdsa-cert.pub. The
-        # freshness of that certificate gates whether re-authentication is
-        # needed.
+        # authenticate with U2F ('--fido2'). This writes a fresh certificate to
+        # ~/.ssh/id_ecdsa-cert.pub and refreshes ~/.midway/cookie and the MCS
+        # session that `wssh fwd` forwards to remote hosts. No ssh-add is
+        # needed: SSH here loads the certificate next to ~/.ssh/id_ecdsa from
+        # disk, and `wssh fwd` forwards the MCS agent, not the default one.
         local PRIVATE_KEY=${HOME}/.ssh/id_ecdsa
         local SSH_CERT=${PRIVATE_KEY}-cert.pub
 
-        if [[ "${FORCE_AUTH}" != true ]] && _midway_cert_is_fresh "${SSH_CERT}"; then
-          echo_warning "Midway token available and not expired. Nothing to do."
+        if [[ "${FORCE_AUTH}" != true ]] && _midway_local_is_valid "${SSH_CERT}"; then
+          echo_warning "Local Midway credentials available and not expired. Nothing to do."
         elif ! mwinit --fido2; then
-          echo_error "Failed to authenticate with Midway!"
+          echo_error "Failed to refresh local Midway credentials!"
           return 1
-        else
-          # Reload the refreshed certificate into the SSH agent. The Mac is the
-          # origin of SSH agent forwarding and daily SSH here is served by the
-          # agent, so the on-disk certificate is not enough: it must live in the
-          # agent to be usable locally and forwardable to remote hosts. 'ssh-add
-          # -D' clears the stale entry (it deletes all agent identities, ignoring
-          # the argument) before re-adding the fresh one.
-          ssh-add -D ${PRIVATE_KEY}
-          ssh-add ${PRIVATE_KEY}
         fi
       elif [[ "${JMACHINE}" == "worklinux" ]]; then
         local PRIVATE_KEY=${HOME}/.ssh/id_rsa
@@ -90,18 +99,31 @@ function j-authenticate {
         fi
 
         # Midway: the FIDO2/YubiKey security key is not attached to this remote
-        # host, so authenticate with a One Time Password ('-o') instead of U2F,
-        # and sign the local SSH public key ('-s'). mwinit authenticates here and
-        # writes a fresh Midway-signed certificate to ~/.ssh/id_rsa-cert.pub on
-        # this machine (it does not reuse credentials from the originating Mac
-        # session). Its freshness gates whether re-authentication is needed. No
-        # ssh-add is needed because SSH auto-loads the certificate sitting next
-        # to the default identity ~/.ssh/id_rsa.
-        if [[ "${FORCE_AUTH}" != true ]] && _midway_cert_is_fresh "${SSH_CERT}"; then
-          echo_warning "Midway token available and not expired. Nothing to do."
-        elif ! mwinit -s -o; then
-          echo_error "Failed to authenticate with Midway!"
-          return 1
+        # host, so authenticate with a One Time Password ('-o') and sign the
+        # local SSH public key ('-s'), writing ~/.ssh/id_rsa-cert.pub (auto-
+        # loaded by SSH next to ~/.ssh/id_rsa) and ~/.midway/cookie. A session
+        # forwarded from the Mac by `wssh fwd` covers MCS-aware tools in shells
+        # opened through it, but not NICE DCV, sessions without the forwarded
+        # agent, or tools that read ~/.midway/cookie directly, so the local
+        # credentials are always kept valid; the forwarded session is only
+        # reported.
+        if ! _midway_forwarded_session_exists; then
+          echo_warning "No forwarded Midway session (not connected through \`wssh fwd\`)."
+        elif _midway_forwarded_session_is_valid; then
+          echo_info "Valid forwarded Midway session identified."
+        else
+          echo_warning "Invalid forwarded Midway session identified."
+          echo_warning "Run \`j-authenticate\` on the Mac to refresh the forwarded Midway session."
+        fi
+
+        if [[ "${FORCE_AUTH}" != true ]] && _midway_local_is_valid "${SSH_CERT}"; then
+          echo_warning "Local Midway credentials available and not expired. Nothing to do."
+        else
+          echo_info "Refreshing local Midway credentials."
+          if ! mwinit -s -o; then
+            echo_error "Failed to refresh local Midway credentials!"
+            return 1
+          fi
         fi
       else
         echo_warning "mwinit is not required on this machine. Nothing to do."
