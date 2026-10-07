@@ -3,11 +3,14 @@ alias SHUTUP='export MAKE_OUTPUT_LEVEL=QUIET'
 ############################## authentication ###################################
 function _midway_local_is_valid {
   # True when the local Midway credentials are valid: the SSH certificate at
-  # ${1} exists and was modified within the last 1200 minutes and, when
-  # `mcscli` is installed, the local MCS session is valid too, ignoring any
-  # forwarded session.
+  # ${1} has not expired and, when `mcscli` is installed, the local MCS
+  # session is valid too, ignoring any forwarded session. The expiry is read
+  # from the certificate itself (`ssh-keygen -L` prints it as local-time ISO
+  # 8601, which compares correctly as a string); a missing or unreadable
+  # certificate yields no expiry and counts as invalid.
   local _cert="${1}"
-  test -f "${_cert}" && ! test "`find ${_cert} -mmin +1200`" || return 1
+  local _expiry=$(ssh-keygen -L -f "${_cert}" 2>/dev/null | sed -n 's/.*Valid: from .* to //p')
+  [[ -n "${_expiry}" && "$(date +%Y-%m-%dT%H:%M:%S)" < "${_expiry}" ]] || return 1
   ! cmd_exists mcscli || mcscli is-valid session --local &>/dev/null
 }
 
