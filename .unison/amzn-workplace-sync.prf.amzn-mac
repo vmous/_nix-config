@@ -30,18 +30,25 @@ ignore = Path */intellij_compiler_output
 ignore = Name {[._]*.s[a-v][a-z],[._]*.sw[a-p],[._]s[a-v][a-z],[._]sw[a-p],Session.vim,Sessionx.vim}
 # Brazil
 ignore = BelowPath */{env,logs}
-# Brazil - target of `WORKSPACE/src/PACKAGE/build` symlink
-# Brazil - Ignore everything inside except for integration test output
+# Brazil - files Brazil has discarded and is about to delete; syncing them only adds churn
+ignore = Name .brazil_trash
+# Brazil - package build output `WORKSPACE/build/PACKAGE/PACKAGE-VERSION/PLATFORM/FLAVOR/build`
+# (where the `WORKSPACE/src/PACKAGE/build` symlink points); ignore everything inside it...
 ignore    = Path */build/*/*/*/*/build/{,.}?*
+# Brazil - ...except for integration test output
 ignorenot = Path */build/*/*/*/*/build/brazil-integ-tests
 ignore    = Path */build/*/*/*/*/build/brazil-integ-tests/{,.}?*
 ignorenot = Path */build/*/*/*/*/build/brazil-integ-tests/{*.html,*.css,com}
+# Brazil - ...except for CDK synth output
+ignorenot = Path */build/*/*/*/*/build/cdk.out
 # Brazil - uncomment to sync `package/build` contents. Doing so may confuse BrazilCLI2.0 and/or your IDE
 #ignorenot = Path */src/*/build/generated-src
 # Log files, in general
 ignore = Name log{,s}/*.log{,.*}
-# Python
-ignore = Path */venv
+# Python - per-machine environments and caches (architecture specific, regenerable)
+ignore = Name {venv,.venv,.hatch,.mypy_cache,.pytest_cache,.ruff_cache,__pycache__}
+# Node.js - per-machine dependencies (native modules are architecture specific, regenerable)
+ignore = Name node_modules
 # Perl
 # Perl - Builds sometimes includes both "pod" and "Pod", which can't sync to a case-insensitive filesystem
 ignore = Regex .*/runtime/perl/lib/perl...-dist/[pP]od
@@ -55,8 +62,14 @@ ignore = Name {*.tsv,*.csv,*.parquet}
 # If you have unison-fsmonitor, set this to "watch" for filesystem events instead of polling
 repeat = watch
 
-# Backup settings. Keep 2 backups of all changed files
+# Backup settings. Keep 2 backups of all changed files, except build output
+# (any `build` or `.aws-sam` folder, at any depth): every build regenerates it,
+# so its backups only pile up. It is still synced as configured above.
 backup = Name *
+backupnot = Regex .*/build(/.*)?
+backupnot = Regex .*/[.]aws-sam(/.*)?
+# Same for Brazil's version set metadata, refetched on every metadata sync
+backupnot = Regex .*/release-info(/.*)?
 maxbackups = 2
 
 # Retry once on failure
