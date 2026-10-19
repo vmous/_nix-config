@@ -5,6 +5,7 @@
 #
 
 source ${HOME}/.zsh.d/utils.zsh
+source ${HOME}/.zsh.d/tools.zsh
 
 ############################## platform #########################################
 JUNAME=`uname`
