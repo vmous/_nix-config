@@ -25,8 +25,10 @@ alias bbra='brcb apollo-pkg'
 alias brcp='brazil-recursive-cmd-parallel -j 8'
 alias brcpall='brcp --allPackages'
 
-# package cache
-alias bpcclean='${HOME}/.toolbox/bin/brazil-package-cache clean --days 30 --keepCacheHours 24'
+# purge cached packages older than 30 days, keeping any used in the last 24h
+function bpcclean {
+  ${HOME}/.toolbox/bin/brazil-package-cache clean --days 30 --keepCacheHours 24
+}
 alias bpcrestart='${HOME}/.toolbox/bin/brazil-package-cache stop && rm ${HOME}/brazil-pkg-cache/daemon-lck && ${HOME}/.toolbox/bin/brazil-package-cache start'
 
 # brazil-path
