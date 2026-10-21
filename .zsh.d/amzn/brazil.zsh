@@ -27,7 +27,36 @@ alias brcpall='brcp --allPackages'
 
 # purge cached packages older than 30 days, keeping any used in the last 24h
 function bpcclean {
-  ${HOME}/.toolbox/bin/brazil-package-cache clean --days 30 --keepCacheHours 24
+  # Ask before cleaning, showing how many package versions are unused for more
+  # than 30 days and their size. The package cache daemon decides what it actually
+  # purges, so that size is an estimate (based on when each version folder was
+  # last touched); the space really released is reported afterwards.
+  local _bpc=${HOME}/.toolbox/bin/brazil-package-cache
+  local _packages="$(${_bpc} cache_root 2>/dev/null | tail -1)"
+  _packages="${_packages%/}/packages"
+  if [[ ! -d "${_packages}" ]]; then
+    echo_error "Cannot find the Brazil package cache (${_packages}). Aborting."
+    return 1
+  fi
+
+  # (N/m+30): directories last modified more than 30 days ago, nothing if none.
+  local -a _stale=( "${_packages}"/*/*(N/m+30) )
+  if (( ${#_stale} == 0 )); then
+    echo_info "No cached packages unused for more than 30 days in ${_packages}. Nothing to clean."
+    return 0
+  fi
+
+  local _estimate_kb=$(du -skc "${_stale[@]}" 2>/dev/null | tail -1 | cut -f1)
+  echo_info "${#_stale} cached package version(s) in ${_packages} have not been used for more than 30 days."
+  if [[ $(yes_or_no "Do you want to delete the cache of these packages? It will release about $(kb_to_human ${_estimate_kb}) of storage.") != "y" ]]; then
+    echo_info "Nothing deleted."
+    return 0
+  fi
+
+  local _before_kb=$(du -sk "${_packages}" 2>/dev/null | cut -f1)
+  run ${_bpc} clean --days 30 --keepCacheHours 24 || return 1
+  local _after_kb=$(du -sk "${_packages}" 2>/dev/null | cut -f1)
+  echo_info "Released $(kb_to_human $(( _before_kb - _after_kb ))) of storage."
 }
 alias bpcrestart='${HOME}/.toolbox/bin/brazil-package-cache stop && rm ${HOME}/brazil-pkg-cache/daemon-lck && ${HOME}/.toolbox/bin/brazil-package-cache start'
 

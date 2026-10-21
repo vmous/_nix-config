@@ -88,6 +88,16 @@ function run() {
   "$@"
 }
 
+function kb_to_human() {
+  # Format a size given in KiB (e.g. from `du -k`) with the largest fitting
+  # unit: KB, MB, GB or TB (powers of 1024), e.g. `kb_to_human 1536` -> 1.5 MB.
+  awk -v kb="${1:-0}" 'BEGIN {
+    split("KB MB GB TB", unit); i = 1
+    while (kb >= 1024 && i < 4) { kb /= 1024; i++ }
+    if (i == 1) printf "%d %s", kb, unit[i]; else printf "%.1f %s", kb, unit[i]
+  }'
+}
+
 function yes_or_no() {
   local _yn
   while true; do
