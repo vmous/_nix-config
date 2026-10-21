@@ -61,10 +61,15 @@ function j-tools-cleanup-orphaned-unison-backup {
     return 0
   fi
 
-  echo_info "Found ${#_orphans} backup entries in ${_backup_dir} whose projects are no longer present:"
-  printf '  %s\n' "${_orphans[@]:t}"
+  echo_info "Found ${#_orphans} backup entries in ${_backup_dir} whose projects are no longer present (measuring their size, this can take a while):"
+  local _kb _total_kb=0
+  for _entry in "${_orphans[@]}"; do
+    _kb=$(du -sk "${_entry}" 2>/dev/null | cut -f1)
+    (( _total_kb += ${_kb:-0} ))
+    printf '  %10s  %s\n' "$(kb_to_human ${_kb})" "${_entry:t}"
+  done
 
-  if [[ $(yes_or_no "Delete these ${#_orphans} backup entries from ${_backup_dir}?") == "y" ]]; then
+  if [[ $(yes_or_no "Do you want to delete the above backup directories? It will release $(kb_to_human ${_total_kb}) of storage.") == "y" ]]; then
     run rm -rf -- "${_orphans[@]}"
   else
     echo_info "Nothing deleted."
