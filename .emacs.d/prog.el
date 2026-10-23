@@ -157,7 +157,7 @@
 ;; - https://projectile.readthedocs.io/en/latest/configuration/#configure-a-projects-compilation-test-and-run-commands
 (use-package projectile
   :ensure t
-  :init (projectile-global-mode)
+  :init (projectile-mode +1)
   :config
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
 ;  (projectile-discover-projects-in-directory jazzy/env/workspace)
