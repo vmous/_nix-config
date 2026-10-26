@@ -1,106 +1,97 @@
 ;;;;;;;; scala.el
 ;;;;
 ;; File defining configuration for Scala development.
+;;
+;; We use Metals (https://scalameta.org/metals), the Scala language server
+;; built on the Language Server Protocol and developed by Scala Center
+;; and VirtusLab. Follows the official Metals setup for Emacs:
+;; https://scalameta.org/metals/docs/editors/emacs
+;;
+;; `scala-mode' provides the major mode, `sbt-mode' runs sbt, and `lsp-mode'
+;; with `lsp-metals' connects to Metals for completion, navigation,
+;; diagnostics and code actions. Completion (`company'), diagnostics
+;; (`flycheck') and snippets (`yasnippet') reuse the setup in prog.el.
+;;
+;; Requirements: Java 11 or 17 (`JAVA_HOME'). On first use in a Scala buffer
+;; lsp-mode offers to download Metals (or run `M-x lsp-install-server'; or
+;; install it manually with `coursier install metals' and put it on `PATH').
 
 ;;;; Scala mode
-;; https://github.com/ensime/emacs-scala-mode
+;; https://github.com/hvesalai/emacs-scala-mode
 (use-package scala-mode
   :ensure t
+  :interpreter ("scala" . scala-mode)
   :init
   (add-hook 'scala-mode-hook
             (lambda () (setq prettify-symbols-alist scala-prettify-symbols-alist)
               (prettify-symbols-mode)))
-  :interpreter
-  ("scala" . scala-mode))
-
-
-;;;; ENhanced Scala Interaction Mode for Emacs
-;; https://github.com/ensime
-;; http://ensime.github.io/
-;;
-;; Add the following three lines in your global sbt,
-;; e.g., ~/.sbt/0.13/plugins/plugins.sbt
-;;
-;; ```sbt
-;; 1 if (sys.props("java.version").startsWith("1.6"))
-;; 2   addSbtPlugin("org.ensime" % "sbt-ensime" % "1.0.0")
-;; 3 else
-;; 4   addSbtPlugin("org.ensime" % "sbt-ensime" % "1.11.0")
-;; ```
-;;
-;; Then, in you project directory run:
-;; $ sbt ensimeConfig
-;; $ sbt ensimeConfigProject
-;;
-;; Lastly, open a Scala buffer and use ```M-x ensime``` to start a connection.
-(use-package ensime
-  :ensure t
-  :pin melpa-stable
-  :after scala-mode
-  :commands ensime ensime-mode
-  :init
-  (add-hook 'scala-mode-hook 'ensime-mode)
-  (defun ensime-goto-test--test-template-scalatest-wordspec-2 ()
-  "ENSIME template for ScalaCheck WordSpec style test."
-  "package %TESTPACKAGE%
-
-import org.scalatest.{ BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpec }
-
-class %TESTCLASS% extends WordSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll {
-
-  override def beforeAll() = {
-  }
-
-  after {
-  }
-
-  \"\" should {
-    \"\" in pending
-  }
-
-}
-")
-  (defun ensime-goto-test--test-template-scalatest-funsuite ()
-  "ENSIME template for ScalaCheck FunSuite style test."
-  "package %TESTPACKAGE%
-
-import org.scalatest.FunSuite
-
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-
-@RunWith(classOf[JUnitRunner])
-class %TESTCLASS% extends FunSuite {
-
-  test(\"Testing\") {
-    assert(true)
-  }
-
-}
-")
-  (custom-set-variables
-   '(ensime-goto-test-config-defaults
-     (quote
-      (:test-class-names-fn ensime-goto-test--test-class-names
-       :test-class-suffixes ("Suite" "Spec" "Test" "Check" "Specification")
-       :impl-class-name-fn ensime-goto-test--impl-class-name
-       :impl-to-test-dir-fn ensime-goto-test--impl-to-test-dir
-       :is-test-dir-fn ensime-goto-test--is-test-dir
-       :test-template-fn ensime-goto-test--test-template-scalatest-funsuite))))
   :config
-  ;; Disable message for tracking SNAPSHOT version of ensime-server
-  (setq ensime-startup-snapshot-notification nil
-	ensime-graphical-tooltips t
-	ensime-auto-generate-config t
-	ensime-completion-style 'company)
-  (push '(ensime-company) company-backends)
   ;; Adding asterisk in newline for multiline comments.
   (defun lunaryorn-newline-and-indent-with-asterisk ()
     (interactive)
     (newline-and-indent)
     (scala-indent:insert-asterisk-on-multiline-comment))
-  (define-key ensime-mode-map (kbd "C-c C-v m") 'ensime-import-type-at-point)
-  (define-key ensime-mode-map (kbd "C-c C-v M") 'ensime-imported-type-path-at-point)
   (define-key scala-mode-map (kbd "RET")
     #'lunaryorn-newline-and-indent-with-asterisk)
-  (define-key scala-mode-map (kbd "C-c C-v c") 'sbt-clear))
+  (define-key scala-mode-map (kbd "C-c C-v c") #'sbt-clear))
+
+;;;; sbt
+;; https://github.com/hvesalai/emacs-sbt-mode
+(use-package sbt-mode
+  :ensure t
+  :commands sbt-start sbt-command sbt-clear
+  :config
+  ;; WORKAROUND: https://github.com/ensime/emacs-sbt-mode/issues/31
+  ;; allows using SPACE when in the minibuffer
+  (substitute-key-definition
+   'minibuffer-complete-word
+   'self-insert-command
+   minibuffer-local-completion-map)
+  ;; sbt-supershell kills sbt-mode: https://github.com/hvesalai/emacs-sbt-mode/issues/152
+  (setq sbt:program-options '("-Dsbt.supershell=false")))
+
+;;;; Language Server Protocol client
+;; https://emacs-lsp.github.io/lsp-mode/
+(use-package lsp-mode
+  :ensure t
+  :commands lsp
+  :hook ((scala-mode . lsp)
+         (lsp-mode . lsp-lens-mode))
+  :config
+  ;; Report diagnostics through flycheck (configured in prog.el), not flymake.
+  (setq lsp-prefer-flymake nil
+        lsp-completion-provider :capf
+        ;; Shut the Metals server down once all of a project's buffers close.
+        ;; https://emacs-lsp.github.io/lsp-mode/page/settings/mode/#lsp-keep-workspace-alive
+        lsp-keep-workspace-alive nil))
+
+;;;; Metals backend for lsp-mode
+;; https://github.com/emacs-lsp/lsp-metals
+;;
+;; Pinned to MELPA: the latest MELPA Stable release (1.2.0, 2021) fails to load
+;; against current treemacs ("Eager macro-expansion failure:
+;; (wrong-number-of-arguments (1 . 1) 0)" in `lsp-metals-treeview.el').
+(use-package lsp-metals
+  :ensure t
+  :pin melpa
+  :after lsp-mode
+  :init
+  ;; lsp-metals installs Metals with coursier, which it downloads first, but it
+  ;; always picks the x86_64 build on macOS. Under Rosetta that build aborts
+  ;; ("The current machine does not support all of the following CPU features
+  ;; ...") and the install silently produces no server. Use the native build on
+  ;; Apple Silicon. Must be set before lsp-metals loads (read at load time).
+  (when (and (eq system-type 'darwin)
+             (string-prefix-p "aarch64" system-configuration))
+    (setq lsp-metals-coursier-download-url
+          "https://github.com/coursier/launchers/raw/master/cs-aarch64-apple-darwin.gz")))
+
+;;;; Navigate into dependency sources
+;; Metals returns `jar:file:' URIs for symbols defined in external libraries;
+;; jarchive lets `M-.' (`xref-find-definitions') open them.
+;; https://git.sr.ht/~dannyfreeman/jarchive
+(use-package jarchive
+  :ensure t
+  :after lsp-mode
+  :config
+  (jarchive-mode 1))

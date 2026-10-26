@@ -20,8 +20,6 @@ ignore = Name .FBCLockFolder
 ignore = Path */{.metadata,.settings,.project,.classpath}
 ignore = Name */src/*/eclipse-bin
 ignore = Path */RemoteSystemsTempFiles
-# Ensime
-ignore = Path */.ensime_cache/*
 # JetBrains/IntelliJ
 ignore = Name {.iml,.iws}
 ignore = Path */.idea

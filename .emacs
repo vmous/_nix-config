@@ -162,23 +162,34 @@ This command does not push text to `kill-ring'."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   (quote
-    ("4e753673a37c71b07e3026be75dc6af3efbac5ce335f3707b7d6a110ecb636a3" "afbb40954f67924d3153f27b6d3399df221b2050f2a72eb2cfa8d29ca783c5a8" default)))
- '(ensime-goto-test-config-defaults
-   (quote
-    (:test-class-names-fn ensime-goto-test--test-class-names :test-class-suffixes
-			  ("Suite" "Spec" "Test" "Check" "Specification")
-			  :impl-class-name-fn ensime-goto-test--impl-class-name :impl-to-test-dir-fn ensime-goto-test--impl-to-test-dir :is-test-dir-fn ensime-goto-test--is-test-dir :test-template-fn ensime-goto-test--test-template-scalatest-funsuite)))
+   '("4e753673a37c71b07e3026be75dc6af3efbac5ce335f3707b7d6a110ecb636a3"
+     "afbb40954f67924d3153f27b6d3399df221b2050f2a72eb2cfa8d29ca783c5a8"
+     default))
  '(package-selected-packages
-   (quote
-    (org-mode json-mode minimap sublimity ensime markdown-preview-eww markdown-preview-mode markdown-mode+ jedi java-snippets projectile markdown-mode visual-regexp flyspell-popup smartparens ido-grid-mode popup-imenu window-numbering scala-mode ido-occur impatient-mode flycheck-pos-tip highlight-symbol magit flycheck-tip irony-eldoc flycheck-irony flycheck company-irony-c-headers company-gtags company-irony company ggtags yasnippet sr-speedbar zenburn-theme which-key use-package smex ido-vertical-mode ido-ubiquitous flx-ido auto-complete))))
+   '(0blayout adaptive-wrap auto-complete auto-virtualenvwrapper calfw
+              calfw-gcal calfw-ical calfw-org company company-gtags
+              company-irony company-irony-c-headers company-quickhelp
+              consult csv-mode discover-my-major elpy embark
+              embark-consult expand-region fireplace flx-ido flycheck
+              flycheck-irony flycheck-pos-tip flycheck-tip
+              flyspell-popup ggtags google-translate highlight-symbol
+              ido-grid-mode ido-occur ido-ubiquitous ido-vertical-mode
+              impatient-mode irony-eldoc jarchive java-snippets jedi
+              json-mode keycast lsp-metals lsp-mode magit marginalia
+              markdown-mode markdown-mode+ markdown-preview-eww
+              markdown-preview-mode minimap nerd-icons-completion
+              orderless org-bullets org-gcal org-mode pdf-tools
+              pig-mode popup-imenu projectile sbt-mode scala-mode
+              smartparens smex sr-speedbar sublimity use-package
+              vertico visual-regexp which-key window-numbering
+              yafolding yaml-mode yasnippet zenburn-theme)))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
-)
+ )
 
 
 ;;;; package
@@ -287,7 +298,7 @@ This command does not push text to `kill-ring'."
 
 ;;;;;; Scala
 
-;;(load "~/.emacs.d/scala.el")
+(load "~/.emacs.d/scala.el")
 
 ;;;;;; C/C++/Obj-C
 
