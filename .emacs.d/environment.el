@@ -8,16 +8,48 @@
 (load "~/.emacs.d/secrets.el")
 
 ;;;;; System conditionals
-(defconst macosx-p (string= system-name jazzy/secrets/system-name/macosx)
+;; operating system identification
+(defconst jazzy/env/is-macosx (eq system-type 'darwin)
+  "True if Emacs is running on macOS; nil otherwise.")
+(defconst jazzy/env/is-linux (eq system-type 'gnu/linux)
+  "True if Emacs is running on Linux; nil otherwise.")
+
+;; system architecture identification
+(defconst jazzy/env/is-arch-x86
+  (and (string-match-p "\\`\\(x86_64\\|i[3-6]86\\)-" system-configuration) t)
+  "True if Emacs was built for an x86 CPU; nil otherwise.")
+(defconst jazzy/env/is-arch-arm
+  (and (string-match-p "\\`\\(aarch64\\|arm\\)" system-configuration) t)
+  "True if Emacs was built for an ARM CPU; nil otherwise.")
+
+;; operating system and architecture identification
+(defconst jazzy/env/is-macosx-x86
+  (and jazzy/env/is-macosx jazzy/env/is-arch-x86)
+  "True if Emacs is running on macOS on an x86 (Intel) CPU; nil otherwise.")
+(defconst jazzy/env/is-macosx-arm
+  (and jazzy/env/is-macosx jazzy/env/is-arch-arm)
+  "True if Emacs is running on macOS on an ARM (Apple Silicon) CPU; nil
+otherwise.")
+(defconst jazzy/env/is-linux-x86
+  (and jazzy/env/is-linux jazzy/env/is-arch-x86)
+  "True if Emacs is running on Linux on an x86 CPU; nil otherwise.")
+(defconst jazzy/env/is-linux-arm
+  (and jazzy/env/is-linux jazzy/env/is-arch-arm)
+  "True if Emacs is running on Linux on an ARM CPU; nil otherwise.")
+
+;; host name identification
+(defconst jazzy/env/is-my-macosx
+  (string= system-name jazzy/secrets/system-name/macosx)
   "True if Emacs is running on my Mac OS X system; nil otherwise.")
-(defconst linux-p (string= system-name jazzy/secrets/system-name/linux)
+(defconst jazzy/env/is-my-linux
+  (string= system-name jazzy/secrets/system-name/linux)
   "True if Emacs is running on my Linux system; nil otherwise.")
-(defconst amznlinux-p (string= system-name jazzy/secrets/system-name/amznlinux)
+(defconst jazzy/env/is-my-amznlinux
+  (string= system-name jazzy/secrets/system-name/amznlinux)
   "True if Emacs is running on my Amazon Linux system; nil otherwise.")
 
-
 ;;;; Environment Variables
-(when macosx-p
+(when jazzy/env/is-my-macosx
   (defun jazzy/funcs/set-exec-path-from-shell-PATH ()
     "Set up Emacs' `exec-path' and PATH environment variable to match that used by the user's shell. Ensures that PATH is taken from shell. Necessary on some environments without virtualenv. Taken from: http://stackoverflow.com/questions/8606954/path-and-exec-path-set-but-emacs-does-not-find-executable."
     (interactive)
@@ -101,7 +133,9 @@ Defaults to the system's temporary directory (e.g., /tmp/ for *nix).")
           (setq jazzy/env/backup-dir _backup-dir)))))
 
 ;;;; Workspace
-(when (or linux-p macosx-p amznlinux-p)
+(when (or jazzy/env/is-my-linux
+          jazzy/env/is-my-macosx
+          jazzy/env/is-my-amznlinux)
   (defvar jazzy/env/workspace (substitute-in-file-name "${HOME}")
     "The workspace directory which is assumed to contain project folders as first level directories (known usages: `projectile').
 

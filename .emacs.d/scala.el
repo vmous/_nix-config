@@ -81,8 +81,7 @@
   ;; ("The current machine does not support all of the following CPU features
   ;; ...") and the install silently produces no server. Use the native build on
   ;; Apple Silicon. Must be set before lsp-metals loads (read at load time).
-  (when (and (eq system-type 'darwin)
-             (string-prefix-p "aarch64" system-configuration))
+  (when jazzy/env/is-macosx-arm
     (setq lsp-metals-coursier-download-url
           "https://github.com/coursier/launchers/raw/master/cs-aarch64-apple-darwin.gz")))
 

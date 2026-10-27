@@ -6,7 +6,7 @@
 (defvar jazzy/env/latex/bin "")
 
 
-(when macosx-p
+(when jazzy/env/is-my-macosx
   (setq jazzy/env/latex/bin "/Library/TeX/texbin"))
 
 

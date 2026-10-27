@@ -12,7 +12,7 @@
 (defvar jazzy/JAVA "")
 
 
-(when macosx-p
+(when jazzy/env/is-my-macosx
 ;;  (setq jazzy/eclim-eclipse-dirs "/Users/vmous/Applications/Eclipse.app/Contents/Eclipse")
 ;;  (setq jazzy/eclim-executable "/Users/vmous/Applications/Eclipse.app/Contents/Eclipse/eclim")
 ;;  (setq jazzy/eclimd-executable "/Users/vmous/Applications/Eclipse.app/Contents/Eclipse/eclimd")
@@ -23,7 +23,7 @@
 )
 
 
-(when linux-p
+(when jazzy/env/is-my-linux
 ;;  (setq jazzy/eclim-eclipse-dirs "")
 ;;  (setq jazzy/eclim-executable "")
 ;;  (setq jazzy/eclimd-executable "")
@@ -34,7 +34,7 @@
 )
 
 
-(when amznlinux-p
+(when jazzy/env/is-my-amznlinux
 ;;  (setq jazzy/eclim-eclipse-dirs "")
 ;;  (setq jazzy/eclim-executable "")
 ;;  (setq jazzy/eclimd-executable "")
