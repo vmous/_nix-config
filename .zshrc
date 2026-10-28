@@ -258,7 +258,15 @@ if [[ "${JMACHINE}" == "mac" ]]; then
     fi
 
     # java
-    export JAVA_HOME=/Library/Java/JavaVirtualMachines/amazon-corretto-21.jdk/Contents/Home
+    # The newest installed JDK (also imported by Emacs, see
+    # .emacs.d/environment.el); unset when no JDK is installed.
+    if JAVA_HOME=$(/usr/libexec/java_home 2>/dev/null); then
+        export JAVA_HOME
+        # Also the JDK tools /usr/bin has no launcher stubs for (e.g., `jfr').
+        export PATH=$JAVA_HOME/bin:$PATH
+    else
+        unset JAVA_HOME
+    fi
 fi
 
 if [[ "${JMACHINE}" == "worklinux" ]] || [[ "${JMACHINE}" == "mac" ]]; then

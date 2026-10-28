@@ -167,6 +167,23 @@
 )
 
 
+;;;; Language Server Protocol client
+;; https://emacs-lsp.github.io/lsp-mode/
+;;
+;; Language-specific files hook their major modes to `lsp' and configure their
+;; language server (e.g., scala.el with Metals).
+(use-package lsp-mode
+  :ensure t
+  :commands lsp
+  :hook (lsp-mode . lsp-lens-mode)
+  :config
+  (setq lsp-diagnostics-provider :flycheck ; report through flycheck (above)
+        lsp-completion-provider :capf
+        ;; Shut a language server down once all of its project's buffers close.
+        ;; https://emacs-lsp.github.io/lsp-mode/page/settings/mode/#lsp-keep-workspace-alive
+        lsp-keep-workspace-alive nil))
+
+
 ;;;; TABS
 ;; https://www.emacswiki.org/emacs/NoTabs
 ;; https://www.emacswiki.org/emacs/TabsAreEvil

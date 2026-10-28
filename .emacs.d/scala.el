@@ -9,10 +9,11 @@
 ;;
 ;; `scala-mode' provides the major mode, `sbt-mode' runs sbt, and `lsp-mode'
 ;; with `lsp-metals' connects to Metals for completion, navigation,
-;; diagnostics and code actions. Completion (`company'), diagnostics
-;; (`flycheck') and snippets (`yasnippet') reuse the setup in prog.el.
+;; diagnostics and code actions. `lsp-mode', completion (`company'),
+;; diagnostics (`flycheck') and snippets (`yasnippet') reuse the setup in
+;; prog.el.
 ;;
-;; Requirements: Java 11 or 17 (`JAVA_HOME'). On first use in a Scala buffer
+;; Requirements: Java 17 or later (`JAVA_HOME'). On first use in a Scala buffer
 ;; lsp-mode offers to download Metals (or run `M-x lsp-install-server'; or
 ;; install it manually with `coursier install metals' and put it on `PATH').
 
@@ -25,6 +26,8 @@
   (add-hook 'scala-mode-hook
             (lambda () (setq prettify-symbols-alist scala-prettify-symbols-alist)
               (prettify-symbols-mode)))
+  ;; Start Metals through lsp-mode (see prog.el) in Scala buffers.
+  (add-hook 'scala-mode-hook #'lsp)
   :config
   ;; Adding asterisk in newline for multiline comments.
   (defun lunaryorn-newline-and-indent-with-asterisk ()
@@ -50,21 +53,6 @@
   ;; sbt-supershell kills sbt-mode: https://github.com/hvesalai/emacs-sbt-mode/issues/152
   (setq sbt:program-options '("-Dsbt.supershell=false")))
 
-;;;; Language Server Protocol client
-;; https://emacs-lsp.github.io/lsp-mode/
-(use-package lsp-mode
-  :ensure t
-  :commands lsp
-  :hook ((scala-mode . lsp)
-         (lsp-mode . lsp-lens-mode))
-  :config
-  ;; Report diagnostics through flycheck (configured in prog.el), not flymake.
-  (setq lsp-prefer-flymake nil
-        lsp-completion-provider :capf
-        ;; Shut the Metals server down once all of a project's buffers close.
-        ;; https://emacs-lsp.github.io/lsp-mode/page/settings/mode/#lsp-keep-workspace-alive
-        lsp-keep-workspace-alive nil))
-
 ;;;; Metals backend for lsp-mode
 ;; https://github.com/emacs-lsp/lsp-metals
 ;;
@@ -84,13 +72,3 @@
   (when jazzy/env/is-macosx-arm
     (setq lsp-metals-coursier-download-url
           "https://github.com/coursier/launchers/raw/master/cs-aarch64-apple-darwin.gz")))
-
-;;;; Navigate into dependency sources
-;; Metals returns `jar:file:' URIs for symbols defined in external libraries;
-;; jarchive lets `M-.' (`xref-find-definitions') open them.
-;; https://git.sr.ht/~dannyfreeman/jarchive
-(use-package jarchive
-  :ensure t
-  :after lsp-mode
-  :config
-  (jarchive-mode 1))

@@ -49,22 +49,33 @@ otherwise.")
   "True if Emacs is running on my Amazon Linux system; nil otherwise.")
 
 ;;;; Environment Variables
+;; Emacs started from the macOS Dock or Finder is launched by launchd and gets
+;; none of the environment set up by the shell's startup files, so import it.
 (when jazzy/env/is-my-macosx
-  (defun jazzy/funcs/set-exec-path-from-shell-PATH ()
-    "Set up Emacs' `exec-path' and PATH environment variable to match that used by the user's shell. Ensures that PATH is taken from shell. Necessary on some environments without virtualenv. Taken from: http://stackoverflow.com/questions/8606954/path-and-exec-path-set-but-emacs-does-not-find-executable."
-    (interactive)
-    (let ((path-from-shell (shell-command-to-string "$SHELL --login -i -c 'echo $PATH'")))
-      (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
-      (setq exec-path (append exec-path '("/usr/local/bin")))
-      ;; strip cowsay
-      (setq path-from-shell (replace-regexp-in-string "^[ <].*$" "" path-from-shell))
-      ;; trim spaces, tabs and new liners from end of lines
-      (setq path-from-shell (replace-regexp-in-string "[ \t\n]*$" "" path-from-shell))
-      (setenv "PATH" path-from-shell)
-      (setq exec-path (split-string path-from-shell path-separator))))
+  (defconst jazzy/env/shell-variables '("PATH" "JAVA_HOME")
+    "Environment variables imported from the user's login shell.")
 
-  ;; Fixing exec-path discrepancy between shell and Max OSX Finder launch
-  (jazzy/funcs/set-exec-path-from-shell-PATH))
+  (defun jazzy/funcs/import-env-from-shell ()
+    "Set `jazzy/env/shell-variables' as in the user's interactive login shell.
+Also set `exec-path' to match `PATH'."
+    (interactive)
+    ;; Mark each value, so other output of the interactive shell (e.g., a
+    ;; greeting) is ignored.
+    (let ((output (shell-command-to-string
+                   (format "$SHELL --login -i -c '%s'"
+                           (mapconcat
+                            (lambda (var)
+                              (format
+                               "printf \"\\n__jazzy_env__ %s=%%s\\n\" \"$%s\""
+                               var var))
+                            jazzy/env/shell-variables "; ")))))
+      (dolist (var jazzy/env/shell-variables)
+        (when (string-match (format "^__jazzy_env__ %s=\\(.+\\)$" var) output)
+          (setenv var (match-string 1 output))))
+      (setq exec-path (append (parse-colon-path (getenv "PATH"))
+                              (list exec-directory)))))
+
+  (jazzy/funcs/import-env-from-shell))
 
 ;;;; Fonts
 ;; Font family names and size reused across the configuration so they are
