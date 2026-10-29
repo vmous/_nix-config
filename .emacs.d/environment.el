@@ -1,4 +1,4 @@
-;;;;;;;; environment.el
+;;;;;;;; environment.el  -*- lexical-binding: t -*-
 ;;;;
 ;; File defining the runtime environment sensitive variables.
 

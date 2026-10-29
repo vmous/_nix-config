@@ -1,4 +1,4 @@
-;;;;;;;; java.el
+;;;;;;;; java.el  -*- lexical-binding: t -*-
 ;;;;
 ;; File defining configuration for Java and other JVM-based development.
 

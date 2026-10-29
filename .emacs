@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t -*-
 (load "~/.emacs.d/environment.el")
 
 ;;;;;; General Settings

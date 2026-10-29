@@ -1,4 +1,4 @@
-;;;;;;;; pdf.el
+;;;;;;;; pdf.el  -*- lexical-binding: t -*-
 ;;;;
 ;; File defining pdf viewing.
 

@@ -1,4 +1,4 @@
-;;;;;;;; txt.el
+;;;;;;;; txt.el  -*- lexical-binding: t -*-
 ;;;;
 ;; File defining generic text functionality configuration.
 

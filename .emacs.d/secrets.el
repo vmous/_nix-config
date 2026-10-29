@@ -1,4 +1,4 @@
-;;;;;; secrets.el
+;;;;;; secrets.el  -*- lexical-binding: t -*-
 ;;;;
 ;; File containing sensitive information. All variables are published as empty
 ;; strings. Documentation provided in order to be easily reproducible in case of

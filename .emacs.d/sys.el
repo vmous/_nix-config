@@ -1,4 +1,4 @@
-;;;;;;;; sys.el
+;;;;;;;; sys.el  -*- lexical-binding: t -*-
 ;;;;
 ;; File defining system features configuration.
 

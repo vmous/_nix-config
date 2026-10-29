@@ -1,4 +1,4 @@
-;;;;;;;; prog.el
+;;;;;;;; prog.el  -*- lexical-binding: t -*-
 ;;;;
 ;; File defining generic configuration for development.
 

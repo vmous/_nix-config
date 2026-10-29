@@ -1,4 +1,4 @@
-;;;;;;;; misc.el
+;;;;;;;; misc.el  -*- lexical-binding: t -*-
 ;;;;
 ;; File defining configuration for miscellaneous packages.
 

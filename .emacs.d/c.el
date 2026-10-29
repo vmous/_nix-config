@@ -1,4 +1,4 @@
-;;;;;;;; c.el
+;;;;;;;; c.el  -*- lexical-binding: t -*-
 ;;;;
 ;; File defining configuration for C/C++/Obj-C development.
 

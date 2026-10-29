@@ -1,4 +1,4 @@
-;;;;;;;; python.el
+;;;;;;;; python.el  -*- lexical-binding: t -*-
 ;;;;
 ;; File defining configuration for Python development.
 

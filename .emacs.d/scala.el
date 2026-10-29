@@ -1,4 +1,4 @@
-;;;;;;;; scala.el
+;;;;;;;; scala.el  -*- lexical-binding: t -*-
 ;;;;
 ;; File defining configuration for Scala development.
 ;;

@@ -1,4 +1,4 @@
-;;;;;;;; markdown.el
+;;;;;;;; markdown.el  -*- lexical-binding: t -*-
 ;;;;
 ;; File defining configuration for markdown.
 

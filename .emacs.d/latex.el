@@ -1,4 +1,4 @@
-;;;;;;;; latex.el
+;;;;;;;; latex.el  -*- lexical-binding: t -*-
 ;;;;
 ;; File defining configuration for LaTeX editing.
 

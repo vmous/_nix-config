@@ -1,4 +1,4 @@
-;;;;;;;; core.el
+;;;;;;;; core.el  -*- lexical-binding: t -*-
 ;;;;
 ;; File defining core Emacs configuration.
 

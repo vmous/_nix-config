@@ -1,4 +1,4 @@
-;;;;;;;; html.el
+;;;;;;;; html.el  -*- lexical-binding: t -*-
 ;;;;
 ;; File defining configuration for HTML development.
 

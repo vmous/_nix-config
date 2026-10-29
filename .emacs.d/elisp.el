@@ -1,4 +1,4 @@
-;;;;;;;; elisp.el
+;;;;;;;; elisp.el  -*- lexical-binding: t -*-
 ;;;;
 ;; File defining configuration for Emacs Lisp development.
 
