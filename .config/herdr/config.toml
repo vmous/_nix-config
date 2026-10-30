@@ -1,5 +1,35 @@
+#
+# herdr configuration
+#
+# We try to streamline the experience with tmux and herdr (see .tmux.conf).
+#
+
 onboarding = false
 
 [theme]
 name = "catppuccin-latte"
 auto_switch = false
+
+[keys]
+# Pressing the prefix twice sends a literal C-a to the pane.
+prefix = "ctrl+a"
+
+last_pane = "prefix+a"
+detach = ["prefix+q", "prefix+d"]
+rename_tab = ["prefix+shift+t", "prefix+comma"]
+close_tab = ["prefix+shift+x", "prefix+ampersand"]
+split_vertical = ["prefix+v", "prefix+|"]
+
+# Shift+h/j/k/l resizes panes; Alt+h/j/k/l swaps them (needs the terminal to
+# send Option as Alt).
+resize_pane_left = "prefix+shift+h"
+resize_pane_down = "prefix+shift+j"
+resize_pane_up = "prefix+shift+k"
+resize_pane_right = "prefix+shift+l"
+swap_pane_left = "prefix+alt+h"
+swap_pane_down = "prefix+alt+j"
+swap_pane_up = "prefix+alt+k"
+swap_pane_right = "prefix+alt+l"
+
+move_tab_previous = "prefix+<"
+move_tab_next = "prefix+>"

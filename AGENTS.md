@@ -37,3 +37,4 @@ Commits use the template in `.git-commit-template`. The subject line is prefixed
 - Oh-My-Zsh is expected at `~/.oh-my-zsh` but is not tracked here (listed in `untracked_conf_files`).
 - `compinit` must remain near the end of `.zshrc` — completion configuration before it is honored; configuration after it is ignored.
 - SSH agent socket is kept stable across tmux reattaches via a symlink at `~/.ssh/ssh_auth_sock`.
+- tmux (`.tmux.conf`) and herdr (`.config/herdr/config.toml`) are kept in step. When adjusting either, make the same workflow available in the other as far as it supports it (e.g., the `C-a` prefix, `|`/`-` splits, `h`/`j`/`k`/`l` pane navigation), so a pattern learned in one works in both.
