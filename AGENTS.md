@@ -36,5 +36,6 @@ Commits use the template in `.git-commit-template`. The subject line is prefixed
 - Dotfiles are **symlinked** into `$HOME`, not copied. Edits should happen in this repo.
 - Oh-My-Zsh is expected at `~/.oh-my-zsh` but is not tracked here (listed in `untracked_conf_files`).
 - `compinit` must remain near the end of `.zshrc` — completion configuration before it is honored; configuration after it is ignored.
+- Shared zsh logic lives in `.zsh.d/utils.zsh`, sourced early by `.zshrc`. Before writing zsh scripts, functions or aliases, read that file for the current set of helpers and reuse them instead of re-implementing them; logic that other places could use should be added there as a new helper.
 - SSH agent socket is kept stable across tmux reattaches via a symlink at `~/.ssh/ssh_auth_sock`.
 - tmux (`.tmux.conf`) and herdr (`.config/herdr/config.toml`) are kept in step. When adjusting either, make the same workflow available in the other as far as it supports it (e.g., the `C-a` prefix, `|`/`-` splits, `h`/`j`/`k`/`l` pane navigation), so a pattern learned in one works in both.
