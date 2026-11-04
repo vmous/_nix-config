@@ -53,10 +53,6 @@ Verify every change before reporting it done, using the checks for its area in R
 - When a change affects both `mac` and `worklinux`, check it on both, or say which one was not checked.
 - Report what was verified and what wasn't.
 
-## Commit Message Convention
-
-Commits use the template in `.git-commit-template`. The subject line is prefixed with a bracketed scope indicating what area changed, e.g. `[zsh]`, `[emacs]`, `[git]`, `[ansible]`. See recent `git log` for examples.
-
 ## Key Design Decisions
 
 ### General
@@ -94,3 +90,12 @@ Commits use the template in `.git-commit-template`. The subject line is prefixed
 - Regenerable artifacts (e.g., virtualenvs, `node_modules`, caches) are not synced. Build outputs are synced but not backed up (`backupnot`).
 - Changes to the sync rules leave existing backups alone; deleting backups is left to the cleanup tool in `.zsh.d/tools.zsh`, which asks first.
 - Update the ignore rules when adding or retiring a tool that generates files.
+
+## Development Workflow
+
+- Implement what was asked. Propose related improvements instead of folding them into the change.
+- When removing or replacing anything (a tool, package, function, variable, file or setting), also remove what refers to it: configuration, ignore rules, comments, documentation and leftover files.
+- Comments and documentation explain why, not what. At a non-obvious workaround, quote the error it fixes and link the source. Don't enumerate things that go stale (function names, lists of settings); point to the file that defines them. This applies to `AGENTS.md` too.
+- It is recommended that commits follow the `.git-commit-template`. Specific to this repository:
+    - The subject starts with the bracketed scope of the area changed, using the scopes in `git log` (e.g., `[emacs]`, `[zsh]`, `[ai]`). When a change spans areas, stack them in alphabetical order (e.g., `[emacs][zsh]`).
+    - `QA/TEST` lists the checks from Verification that were run, and says which were not (e.g., the other machine).
