@@ -99,3 +99,4 @@ Verify every change before reporting it done, using the checks for its area in R
 - It is recommended that commits follow the `.git-commit-template`. Specific to this repository:
     - The subject starts with the bracketed scope of the area changed, using the scopes in `git log` (e.g., `[emacs]`, `[zsh]`, `[ai]`). When a change spans areas, stack them in alphabetical order (e.g., `[emacs][zsh]`).
     - `QA/TEST` lists the checks from Verification that were run, and says which were not (e.g., the other machine).
+- Before committing, check whether the work behind the change settled a design decision or convention, or corrected how an agent approached the task, that `AGENTS.md` doesn't cover yet. If so, propose a minimal update (refine an existing bullet rather than add a new one), show the diff, and ask whether to include it in the commit. Capture only durable, repository-wide guidance, not task-specific details or what the code and `git log` already show.
