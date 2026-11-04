@@ -59,9 +59,38 @@ Commits use the template in `.git-commit-template`. The subject line is prefixed
 
 ## Key Design Decisions
 
+### General
+
 - Dotfiles are **symlinked** into `$HOME`, not copied. Edits should happen in this repo.
+- The shell is the single source of truth for environment variables (e.g., `PATH`, `JAVA_HOME`). On the Mac, Emacs imports them from the login shell (see the imported variables in `.emacs.d/environment.el`), so add a new variable there rather than re-detecting it in Elisp.
+- Work-specific configuration lives in `.zsh.d/amzn/`, `.gitconfig.amzn` and `*.amzn-*` files. Personal configuration must work without them.
+
+### Zsh
+
 - Oh-My-Zsh is expected at `~/.oh-my-zsh` but is not tracked here (listed in `untracked_conf_files`).
 - `compinit` must remain near the end of `.zshrc` — completion configuration before it is honored; configuration after it is ignored.
 - Shared zsh logic lives in `.zsh.d/utils.zsh`, sourced early by `.zshrc`. Before writing zsh scripts, functions or aliases, read that file for the current set of helpers and reuse them instead of re-implementing them; logic that other places could use should be added there as a new helper.
+- New user-facing commands are named `j-*`, and their internal helpers start with `_`.
+- Use a function rather than an alias when other functions call it: aliases expand when a function is defined. Shared code must check that optional or work-only functions exist before calling them, e.g. `(( ${+functions[name]} ))`.
+- Destructive commands show what they'll remove as totals and sizes, not full listings, and confirm through the shared yes/no helper. Cleanup commands report the space actually freed.
+
+### Emacs
+
+- For machine- or platform-specific behaviour use the conditionals in `.emacs.d/environment.el` (read it for the current set), never raw `system-type`. OS and CPU conditionals are for platform behaviour; host-name conditionals (matched via secrets) are for settings that belong to one particular machine.
+- Generic programming setup (e.g., `lsp-mode`, `company`, `flycheck`, `projectile`) goes in `prog.el`, and JVM-generic setup in `java.el`. Language files such as `scala.el` hold only language-specific parts: the major mode, the language server client, the hook to `lsp`, and that language's requirements.
+- Elisp symbols use the `jazzy/<area>/` namespace. Boolean constants are named `is-*`, not `-p`, which Elisp reserves for predicate functions.
+- Every Emacs Lisp file starts with `-*- lexical-binding: t -*-`.
+- Packages are installed with `use-package` and `:ensure t`. Archive priority is gnu > melpa-stable > melpa; use `:pin melpa` only when the stable release is broken, with a comment saying why. Never edit `~/.emacs.d/elpa`: fix package problems through configuration, or by regenerating autoloads and recompiling.
+- Never put `:after` on a package whose `:init` has to run before it loads, such as hooks that trigger loading it.
+- The `custom-set-variables` block in `.emacs` is managed by Emacs; don't edit it by hand.
+
+### tmux and herdr
+
 - SSH agent socket is kept stable across tmux reattaches via a symlink at `~/.ssh/ssh_auth_sock`.
 - tmux (`.tmux.conf`) and herdr (`.config/herdr/config.toml`) are kept in step. When adjusting either, make the same workflow available in the other as far as it supports it (e.g., the `C-a` prefix, `|`/`-` splits, `h`/`j`/`k`/`l` pane navigation), so a pattern learned in one works in both.
+
+### Unison
+
+- Regenerable artifacts (e.g., virtualenvs, `node_modules`, caches) are not synced. Build outputs are synced but not backed up (`backupnot`).
+- Changes to the sync rules leave existing backups alone; deleting backups is left to the cleanup tool in `.zsh.d/tools.zsh`, which asks first.
+- Update the ignore rules when adding or retiring a tool that generates files.
