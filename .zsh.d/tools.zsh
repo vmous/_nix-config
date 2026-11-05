@@ -126,13 +126,64 @@ function _j-tools-ai-plugin {
   run "${_client}" plugin "${_install}" "${_plugin}"
 }
 
+function j-tools-ai-claude-settings {
+  # Apply the Claude Code preferences below to ~/.claude/settings.json and leave
+  # every other key alone: AIM, plugins, herdr and Claude Code itself write the
+  # rest, so the file is not linked from this repo. Safe to re-run.
+  #
+  # The output style is Concise, unless Caveman is installed in Claude Code and
+  # the user chooses it instead: using both doubles the brevity instructions.
+  local _settings="${HOME}/.claude/settings.json" _style=Concise _caveman _changes
+  local _wanted='{
+    "theme": "auto",
+    "includeCoAuthoredBy": false,
+    "tui": "fullscreen"
+  }'
+
+  if ! cmd_exists claude || ! cmd_exists jq; then
+    echo_warning "claude: Claude Code and jq are needed to update ${_settings}. Skipping."
+    return 1
+  fi
+
+  _caveman=$(claude plugin list --json 2>/dev/null \
+    | jq -r '.[] | select(.id == "caveman@caveman") | .enabled')
+  if [[ -n "${_caveman}" ]]; then
+    if [[ $(yes_or_no "Caveman is installed in Claude Code. Do you want to use it instead of the Concise output style?") == "y" ]]; then
+      _style=""
+      [[ "${_caveman}" == "true" ]] || run claude plugin enable caveman@caveman --scope user || return 1
+    else
+      [[ "${_caveman}" == "false" ]] || run claude plugin disable caveman@caveman --scope user || return 1
+    fi
+  fi
+
+  [[ -f "${_settings}" ]] || print '{}' > "${_settings}"
+  _wanted=$(jq -c --arg s "${_style}" \
+    'if $s != "" then . + {outputStyle: $s} else . end' <<< "${_wanted}") || return 1
+  _changes=$(jq -nr --argjson w "${_wanted}" --arg s "${_style}" --slurpfile cur "${_settings}" \
+    '($w | to_entries[] | select(.value != $cur[0][.key])
+      | "  \(.key): \($cur[0][.key]) -> \(.value)"),
+     (select($s == "" and ($cur[0] | has("outputStyle")))
+      | "  outputStyle: \($cur[0].outputStyle) -> (none)")') || return 1
+  if [[ -z "${_changes}" ]]; then
+    echo_info "claude: the settings are already set."
+    return 0
+  fi
+  echo_info "claude: updating ${_settings}:"
+  print -r -- "${_changes}"
+  jq --argjson w "${_wanted}" --arg s "${_style}" \
+    '. + $w | if $s == "" then del(.outputStyle) else . end' \
+    "${_settings}" > "${_settings}.tmp" \
+    && mv "${_settings}.tmp" "${_settings}"
+}
+
 function j-tools-ai-setup {
   # Install herdr, Ponytail and Caveman into the AI coding agents found on this
-  # machine (Claude Code, Codex, Kiro). Safe to re-run: anything installed
-  # already is skipped. Clients missing here are skipped too.
+  # machine (Claude Code, Codex, Kiro), and set the Claude Code preferences.
+  # Safe to re-run: anything installed already is skipped. Clients missing here
+  # are skipped too.
   #
-  # Caveman is not installed into Claude Code, whose "Concise" output style
-  # covers the same ground.
+  # Caveman is installed into Claude Code disabled; j-tools-ai-claude-settings,
+  # run last, asks whether to use it instead of the Concise output style.
   local _status=0 _client
   local _codex_home="${CODEX_HOME:-${HOME}/.codex}"
 
@@ -169,7 +220,7 @@ function j-tools-ai-setup {
   if cmd_exists codex; then
     _j-tools-ai-plugin codex ponytail@ponytail DietrichGebert/ponytail || _status=1
   fi
-  if [[ -d "${HOME}/.kiro" ]]; then
+  if cmd_exists kiro-cli; then
     if [[ -f "${HOME}/.kiro/steering/ponytail.md" ]]; then
       echo_info "kiro: Ponytail is already installed."
     else
@@ -181,6 +232,16 @@ function j-tools-ai-setup {
   fi
 
   echo_info "Caveman..."
+  if cmd_exists claude; then
+    # Installed disabled: j-tools-ai-claude-settings, run last, asks whether to
+    # use it instead of the Concise output style.
+    if claude plugin list --json 2>/dev/null | grep -q '"caveman@caveman"'; then
+      echo_info "claude: caveman@caveman is already installed."
+    else
+      _j-tools-ai-plugin claude caveman@caveman JuliusBrussee/caveman \
+        && run claude plugin disable caveman@caveman --scope user || _status=1
+    fi
+  fi
   if cmd_exists codex; then
     if [[ -d "${_codex_home}/caveman" ]]; then
       echo_info "codex: Caveman is already installed."
@@ -188,12 +249,17 @@ function j-tools-ai-setup {
       run npx -y github:JuliusBrussee/caveman -- --only codex || _status=1
     fi
   fi
-  if [[ -d "${HOME}/.kiro" ]]; then
+  if cmd_exists kiro-cli; then
     if [[ -d "${HOME}/.kiro/skills/caveman" ]]; then
       echo_info "kiro: Caveman is already installed."
     else
       run npx -y skills add JuliusBrussee/caveman --skill caveman -a kiro-cli -g -y || _status=1
     fi
+  fi
+
+  if cmd_exists claude; then
+    echo_info "Claude Code settings..."
+    j-tools-ai-claude-settings || _status=1
   fi
 
   if cmd_exists codex; then
