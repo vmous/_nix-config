@@ -103,3 +103,102 @@ function j-tools-cleanup {
 
   return ${_status}
 }
+
+#
+# AI coding agents
+#
+
+function _j-tools-ai-plugin {
+  # Install the plugin $2 (e.g. `ponytail@ponytail`) from the GitHub
+  # marketplace $3 (e.g. `DietrichGebert/ponytail`) into the client $1 (`claude`
+  # or `codex`), unless it is installed already.
+  local _client="${1}" _plugin="${2}" _repo="${3}"
+  local _install=install
+  [[ "${_client}" == "codex" ]] && _install=add
+
+  if "${_client}" plugin list --json 2>/dev/null | grep -q "\"${_plugin}\""; then
+    echo_info "${_client}: ${_plugin} is already installed."
+    return 0
+  fi
+  if ! "${_client}" plugin marketplace list --json 2>/dev/null | grep -q "${_repo}"; then
+    run "${_client}" plugin marketplace add "${_repo}" || return 1
+  fi
+  run "${_client}" plugin "${_install}" "${_plugin}"
+}
+
+function j-tools-ai-setup {
+  # Install herdr, Ponytail and Caveman into the AI coding agents found on this
+  # machine (Claude Code, Codex, Kiro). Safe to re-run: anything installed
+  # already is skipped. Clients missing here are skipped too.
+  #
+  # Caveman is not installed into Claude Code, whose "Concise" output style
+  # covers the same ground.
+  local _status=0 _client
+  local _codex_home="${CODEX_HOME:-${HOME}/.codex}"
+
+  if [[ $(yes_or_no "Install herdr and the Ponytail and Caveman plugins (third-party code) into the AI agents on this machine?") != "y" ]]; then
+    echo_info "Nothing installed."
+    return 0
+  fi
+
+  echo_info "herdr..."
+  if ! cmd_exists herdr; then
+    if [[ "${JMACHINE}" == "mac" ]]; then
+      run brew install herdr || _status=1
+    else
+      # herdr's installer puts it in ~/.local/bin; `herdr update` keeps it
+      # current afterwards.
+      run sh -c 'curl -fsSL https://herdr.dev/install.sh | sh' && rehash || _status=1
+    fi
+  fi
+  if cmd_exists herdr; then
+    for _client in claude codex; do
+      cmd_exists "${_client}" || continue
+      if herdr integration status 2>/dev/null | grep -q "^${_client}: current"; then
+        echo_info "herdr: the ${_client} integration is already installed."
+      else
+        run herdr integration install "${_client}" || _status=1
+      fi
+    done
+  fi
+
+  echo_info "Ponytail..."
+  if cmd_exists claude; then
+    _j-tools-ai-plugin claude ponytail@ponytail DietrichGebert/ponytail || _status=1
+  fi
+  if cmd_exists codex; then
+    _j-tools-ai-plugin codex ponytail@ponytail DietrichGebert/ponytail || _status=1
+  fi
+  if [[ -d "${HOME}/.kiro" ]]; then
+    if [[ -f "${HOME}/.kiro/steering/ponytail.md" ]]; then
+      echo_info "kiro: Ponytail is already installed."
+    else
+      run mkdir -p "${HOME}/.kiro/steering" \
+        && run curl -fsSL -o "${HOME}/.kiro/steering/ponytail.md" \
+          https://raw.githubusercontent.com/DietrichGebert/ponytail/main/.kiro/steering/ponytail.md \
+        || _status=1
+    fi
+  fi
+
+  echo_info "Caveman..."
+  if cmd_exists codex; then
+    if [[ -d "${_codex_home}/caveman" ]]; then
+      echo_info "codex: Caveman is already installed."
+    else
+      run npx -y github:JuliusBrussee/caveman -- --only codex || _status=1
+    fi
+  fi
+  if [[ -d "${HOME}/.kiro" ]]; then
+    if [[ -d "${HOME}/.kiro/skills/caveman" ]]; then
+      echo_info "kiro: Caveman is already installed."
+    else
+      run npx -y skills add JuliusBrussee/caveman --skill caveman -a kiro-cli -g -y || _status=1
+    fi
+  fi
+
+  if cmd_exists codex; then
+    echo_info yellow "In Codex, open /hooks and trust the Ponytail and Caveman hooks."
+  fi
+  echo_info yellow "Start new sessions in each agent to pick up the changes."
+  return ${_status}
+}
