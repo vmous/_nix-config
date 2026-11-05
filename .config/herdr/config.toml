@@ -11,17 +11,38 @@ name = "catppuccin-latte"
 auto_switch = false
 
 [keys]
+# We try to streamline experiences between tmux and herdr\
+# (see ~/.config/herdr/config.toml).
+# - Session (tmux) / Space or Workspace (herdr)
+# - Window (tmux) / Tab (herdr)
+# - Pane (tmux / herdr)
+
+##
+# Prefix
 # Pressing the prefix twice sends a literal C-a to the pane.
+##
 prefix = "ctrl+a"
 
-last_pane = "prefix+a"
+## Spaces / Workspaces
 detach = ["prefix+q", "prefix+d"]
+rename_workspace = ["prefix+shift+w", "prefix+$"]
+
+## Tabs
 rename_tab = ["prefix+shift+t", "prefix+comma"]
 close_tab = ["prefix+shift+x", "prefix+ampersand"]
+move_tab_previous = "prefix+<"
+move_tab_next = "prefix+>"
+
+## Panes
+last_pane = "prefix+a"
+focus_pane_left = ["prefix+h", "prefix+left"]
+focus_pane_down = ["prefix+j", "prefix+down"]
+focus_pane_up = ["prefix+k", "prefix+up"]
+focus_pane_right = ["prefix+l", "prefix+right"]
 split_vertical = ["prefix+v", "prefix+|"]
 
-# Shift+h/j/k/l resizes panes; Alt+h/j/k/l swaps them (needs the terminal to
-# send Option as Alt).
+# Shift+h/j/k/l resizes panes;
+# Alt+h/j/k/l swaps them (needs the terminal to send Option as Alt).
 resize_pane_left = "prefix+shift+h"
 resize_pane_down = "prefix+shift+j"
 resize_pane_up = "prefix+shift+k"
@@ -30,6 +51,3 @@ swap_pane_left = "prefix+alt+h"
 swap_pane_down = "prefix+alt+j"
 swap_pane_up = "prefix+alt+k"
 swap_pane_right = "prefix+alt+l"
-
-move_tab_previous = "prefix+<"
-move_tab_next = "prefix+>"
