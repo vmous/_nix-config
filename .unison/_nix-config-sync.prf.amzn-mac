@@ -14,6 +14,10 @@ ignore = Name .FBCLockFolder
 # -- MacOSX
 ignore = Name {.Trash*,.VolumeIcon.icns,.HSicon,Temporary*,.Temporary*,TheFindByContentFolder}
 ignore = Name {TheVolumeSettingsFolder,.Metadata,.filler,.idsff,.Spotlight,.DS_Store,.CFUserTextEncoding}
+# -- Claude Code: per-machine state (MCP servers on this machine's localhost,
+# this machine's approvals). Ignored paths are neither synced nor backed up.
+ignore = Path */.mcp.json
+ignore = Path */.claude/settings*.json
 
 # Tell it to automatically sync every 5 seconds
 # Alternatively, you can run the sync from cron (launchd on mac)
