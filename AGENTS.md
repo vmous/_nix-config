@@ -60,6 +60,7 @@ Verify every change before reporting it done, using the checks for its area in R
 - Dotfiles are **symlinked** into `$HOME`, not copied. Edits should happen in this repo.
 - The shell is the single source of truth for environment variables (e.g., `PATH`, `JAVA_HOME`). On the Mac, Emacs imports them from the login shell (see the imported variables in `.emacs.d/environment.el`), so add a new variable there rather than re-detecting it in Elisp.
 - Work-specific configuration lives in `.zsh.d/amzn/`, `.gitconfig.amzn` and `*.amzn-*` files. Personal configuration must work without them.
+- AI coding agent support (the setup in `.zsh.d/tools.zsh`, the agent instructions) covers Claude Code and Codex only. Leave other clients, such as Kiro on the cloud desktop, out.
 
 ### Zsh
 

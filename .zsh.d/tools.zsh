@@ -139,6 +139,10 @@ function j-tools-ai-claude-settings {
     "includeCoAuthoredBy": false,
     "tui": "fullscreen"
   }'
+  # Added to permissions.deny next to the rules already there. Caveman's
+  # `caveman-commit` writes Conventional Commits, which contradict the commit
+  # workflow, and Claude Code can't disable a single skill of a plugin.
+  local _deny='["Skill(caveman:caveman-commit)"]'
 
   if ! cmd_exists claude || ! cmd_exists jq; then
     echo_warning "claude: Claude Code and jq are needed to update ${_settings}. Skipping."
@@ -159,26 +163,61 @@ function j-tools-ai-claude-settings {
   [[ -f "${_settings}" ]] || print '{}' > "${_settings}"
   _wanted=$(jq -c --arg s "${_style}" \
     'if $s != "" then . + {outputStyle: $s} else . end' <<< "${_wanted}") || return 1
-  _changes=$(jq -nr --argjson w "${_wanted}" --arg s "${_style}" --slurpfile cur "${_settings}" \
+  _changes=$(jq -nr --argjson w "${_wanted}" --arg s "${_style}" --argjson d "${_deny}" \
+    --slurpfile cur "${_settings}" \
     '($w | to_entries[] | select(.value != $cur[0][.key])
       | "  \(.key): \($cur[0][.key]) -> \(.value)"),
      (select($s == "" and ($cur[0] | has("outputStyle")))
-      | "  outputStyle: \($cur[0].outputStyle) -> (none)")') || return 1
+      | "  outputStyle: \($cur[0].outputStyle) -> (none)"),
+     ($d - ($cur[0].permissions.deny // []) | .[] | "  permissions.deny: + \(.)")') || return 1
   if [[ -z "${_changes}" ]]; then
     echo_info "claude: the settings are already set."
     return 0
   fi
   echo_info "claude: updating ${_settings}:"
   print -r -- "${_changes}"
-  jq --argjson w "${_wanted}" --arg s "${_style}" \
-    '. + $w | if $s == "" then del(.outputStyle) else . end' \
+  jq --argjson w "${_wanted}" --arg s "${_style}" --argjson d "${_deny}" \
+    '. + $w | if $s == "" then del(.outputStyle) else . end
+     | .permissions.deny = ((.permissions.deny // []) + ($d - (.permissions.deny // [])))' \
     "${_settings}" > "${_settings}.tmp" \
     && mv "${_settings}.tmp" "${_settings}"
 }
 
+function j-tools-ai-codex-settings {
+  # Apply the Codex preferences below to config.toml and leave everything else
+  # alone: AIM, plugins and Codex itself write the rest, so the file is not
+  # linked from this repo. Safe to re-run.
+  #
+  # Caveman's `caveman-commit` skill is disabled: it writes Conventional
+  # Commits, which contradict the commit workflow.
+  local _config="${CODEX_HOME:-${HOME}/.codex}/config.toml"
+  local _skill="${HOME}/.agents/skills/caveman-commit/SKILL.md"
+
+  if ! cmd_exists codex; then
+    echo_warning "codex: Codex is needed to update ${_config}. Skipping."
+    return 1
+  fi
+
+  if grep -A1 -xF "path = \"${_skill}\"" "${_config}" 2>/dev/null | grep -qx 'enabled = false'; then
+    echo_info "codex: the settings are already set."
+    return 0
+  fi
+  # TOML isn't parsed here: an entry in another shape is left for the user.
+  if grep -qF "\"${_skill}\"" "${_config}" 2>/dev/null; then
+    echo_warning "codex: ${_config} already has an entry for ${_skill}; check that it sets \`enabled = false\`."
+    return 1
+  fi
+  echo_info "codex: updating ${_config}:"
+  print -r -- "  [[skills.config]] ${_skill}: enabled -> false"
+  print -r -- "
+[[skills.config]]
+path = \"${_skill}\"
+enabled = false" >> "${_config}"
+}
+
 function j-tools-ai-setup {
   # Install herdr, Ponytail and Caveman into the AI coding agents found on this
-  # machine (Claude Code, Codex, Kiro), and set the Claude Code preferences.
+  # machine (Claude Code, Codex), and set their preferences.
   # Safe to re-run: anything installed already is skipped. Clients missing here
   # are skipped too.
   #
@@ -220,16 +259,6 @@ function j-tools-ai-setup {
   if cmd_exists codex; then
     _j-tools-ai-plugin codex ponytail@ponytail DietrichGebert/ponytail || _status=1
   fi
-  if cmd_exists kiro-cli; then
-    if [[ -f "${HOME}/.kiro/steering/ponytail.md" ]]; then
-      echo_info "kiro: Ponytail is already installed."
-    else
-      run mkdir -p "${HOME}/.kiro/steering" \
-        && run curl -fsSL -o "${HOME}/.kiro/steering/ponytail.md" \
-          https://raw.githubusercontent.com/DietrichGebert/ponytail/main/.kiro/steering/ponytail.md \
-        || _status=1
-    fi
-  fi
 
   echo_info "Caveman..."
   if cmd_exists claude; then
@@ -249,17 +278,14 @@ function j-tools-ai-setup {
       run npx -y github:JuliusBrussee/caveman -- --only codex || _status=1
     fi
   fi
-  if cmd_exists kiro-cli; then
-    if [[ -d "${HOME}/.kiro/skills/caveman" ]]; then
-      echo_info "kiro: Caveman is already installed."
-    else
-      run npx -y skills add JuliusBrussee/caveman --skill caveman -a kiro-cli -g -y || _status=1
-    fi
-  fi
 
   if cmd_exists claude; then
     echo_info "Claude Code settings..."
     j-tools-ai-claude-settings || _status=1
+  fi
+  if cmd_exists codex; then
+    echo_info "Codex settings..."
+    j-tools-ai-codex-settings || _status=1
   fi
 
   if cmd_exists codex; then
