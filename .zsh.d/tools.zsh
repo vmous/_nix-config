@@ -109,9 +109,9 @@ function j-tools-cleanup {
 #
 
 function _j-tools-ai-plugin {
-  # Install the plugin $2 (e.g. `ponytail@ponytail`) from the GitHub
-  # marketplace $3 (e.g. `DietrichGebert/ponytail`) into the client $1 (`claude`
-  # or `codex`), unless it is installed already.
+  # Install the plugin $2 (e.g. `ponytail@ponytail`) from the marketplace $3
+  # (a GitHub repository such as `DietrichGebert/ponytail`, or a local path)
+  # into the client $1 (`claude` or `codex`), unless it is installed already.
   local _client="${1}" _plugin="${2}" _repo="${3}"
   local _install=install
   [[ "${_client}" == "codex" ]] && _install=add
@@ -216,8 +216,9 @@ enabled = false" >> "${_config}"
 }
 
 function j-tools-ai-setup {
-  # Install herdr, Ponytail and Caveman into the AI coding agents found on this
-  # machine (Claude Code, Codex), and set their preferences.
+  # Install herdr, Ponytail, Caveman and this repo's jazzy-dev plugin (agents/)
+  # into the AI coding agents found on this machine (Claude Code, Codex), and
+  # set their preferences.
   # Safe to re-run: anything installed already is skipped. Clients missing here
   # are skipped too.
   #
@@ -226,7 +227,7 @@ function j-tools-ai-setup {
   local _status=0 _client
   local _codex_home="${CODEX_HOME:-${HOME}/.codex}"
 
-  if [[ $(yes_or_no "Install herdr and the Ponytail and Caveman plugins (third-party code) into the AI agents on this machine?") != "y" ]]; then
+  if [[ $(yes_or_no "Install herdr, the Ponytail and Caveman plugins (third-party code) and the jazzy-dev plugin into the AI agents on this machine?") != "y" ]]; then
     echo_info "Nothing installed."
     return 0
   fi
@@ -279,6 +280,13 @@ function j-tools-ai-setup {
     fi
   fi
 
+  echo_info "jazzy-dev..."
+  for _client in claude codex; do
+    cmd_exists "${_client}" || continue
+    _j-tools-ai-plugin "${_client}" jazzy-dev@jazzy-dev \
+      "${HOME}/Workspace/personal/_nix-config/agents" || _status=1
+  done
+
   if cmd_exists claude; then
     echo_info "Claude Code settings..."
     j-tools-ai-claude-settings || _status=1
@@ -289,7 +297,7 @@ function j-tools-ai-setup {
   fi
 
   if cmd_exists codex; then
-    echo_info yellow "In Codex, open /hooks and trust the Ponytail and Caveman hooks."
+    echo_info yellow "In Codex, open /hooks and trust the Ponytail, Caveman and jazzy-dev hooks."
   fi
   echo_info yellow "Start new sessions in each agent to pick up the changes."
   return ${_status}

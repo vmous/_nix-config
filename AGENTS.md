@@ -42,16 +42,15 @@ Each entry says how to verify changes to it (see also Verification).
 - `.unison/` / `Library/LaunchAgents/` — Unison sync profiles between the Mac and the cloud desktop, and the launchd agents that run them. Verify a profile on a copy: drop its `root`, `repeat` (`watch` never exits) and backup lines, point `root` and `backupdir` at temporary directories, and run `UNISON=<dir> unison <profile> -batch` under a timeout; never against the real roots. Verify plists with `plutil -lint`.
 - `.gitconfig` / `.gitconfig-aliases.sh` / `.gitconfig.amzn` — Git aliases and settings. Work-specific overrides are conditionally included from `.gitconfig.amzn` for paths under `~/Workspace/work/`. Verify with `git config --file <file> --list`.
 - `.git-commit-template` — Structured commit message template (used by git via `commit.template`).
-- `.claude/rules/` — Commit and pull request workflows for Claude agents.
+- `agents/` — `jazzy-dev`, a local Claude Code and Codex plugin marketplace that `j-tools-ai-setup` installs: the always-on guidelines for every repository (`skills/jazzy-dev/SKILL.md`, which `hooks/` adds at session start) and the commit and pull request workflow skills. Guidance specific to this repo stays in this file. Commits use the `[ai]` scope. Verify with `claude plugin validate agents`, and run the hook (`CLAUDE_PLUGIN_ROOT=agents python3 agents/hooks/session-start.py`), which must print valid JSON. The clients run a cached copy: on every change bump `version` in both `plugin.json` files (Claude Code ignores a change without it), then on each machine run `claude plugin marketplace update jazzy-dev`, `claude plugin update jazzy-dev@jazzy-dev` and `codex plugin add jazzy-dev@jazzy-dev`.
 - `.rtorrent.rc`, `.i3/`, `.nice-dcv/`, `openvpn`, `sources.list`, `Library/Spelling/` — Configuration for tools that aren't installed on every machine. There is no automated check: review changes against the tool's documentation, check shell scripts (e.g., `.nice-dcv/launch.sh`) with `zsh -n`, and test on a machine where the tool is installed.
 
 ## Verification
 
-Verify every change before reporting it done, using the checks for its area in Repository Structure.
+The checks for each area are in Repository Structure.
 
-- Test against copies, temporary directories and throwaway servers, never against live state: running tmux or herdr sessions, real Unison roots or backups, or real data for destructive commands.
+- Live state, never to test against: running tmux or herdr sessions, real Unison roots or backups, and real data for destructive commands.
 - When a change affects both `mac` and `worklinux`, check it on both, or say which one was not checked.
-- Report what was verified and what wasn't.
 
 ## Key Design Decisions
 
@@ -60,7 +59,7 @@ Verify every change before reporting it done, using the checks for its area in R
 - Dotfiles are **symlinked** into `$HOME`, not copied. Edits should happen in this repo.
 - The shell is the single source of truth for environment variables (e.g., `PATH`, `JAVA_HOME`). On the Mac, Emacs imports them from the login shell (see the imported variables in `.emacs.d/environment.el`), so add a new variable there rather than re-detecting it in Elisp.
 - Work-specific configuration lives in `.zsh.d/amzn/`, `.gitconfig.amzn` and `*.amzn-*` files. Personal configuration must work without them.
-- AI coding agent support (the setup in `.zsh.d/tools.zsh`, the agent instructions) covers Claude Code and Codex only. Leave other clients, such as Kiro on the cloud desktop, out.
+- AI coding agent support (the setup in `.zsh.d/tools.zsh`, the `agents/` plugin) covers Claude Code and Codex only. Leave other clients, such as Kiro on the cloud desktop, out.
 
 ### Zsh
 
@@ -94,9 +93,6 @@ Verify every change before reporting it done, using the checks for its area in R
 
 ## Development Workflow
 
-- Implement what was asked. Propose related improvements instead of folding them into the change.
-- When removing or replacing anything (a tool, package, function, variable, file or setting), also remove what refers to it: configuration, ignore rules, comments, documentation and leftover files.
-- Comments and documentation explain why, not what. At a non-obvious workaround, quote the error it fixes and link the source. Don't enumerate things that go stale (function names, lists of settings); point to the file that defines them. This applies to `AGENTS.md` too.
 - It is recommended that commits follow the `.git-commit-template`. Specific to this repository:
     - The subject starts with the bracketed scope of the area changed, using the scopes in `git log` (e.g., `[emacs]`, `[zsh]`, `[ai]`). When a change spans areas, stack them in alphabetical order (e.g., `[emacs][zsh]`).
     - `QA/TEST` lists the checks from Verification that were run, and says which were not (e.g., the other machine).

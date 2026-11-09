@@ -1,0 +1,15 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "jazzy-dev",
+  "description": "Personal agent guidelines and workflows, for Claude Code and Codex.",
+  "owner": {
+    "name": "Vassilis S. Moustakas"
+  },
+  "plugins": [
+    {
+      "name": "jazzy-dev",
+      "description": "Always-on development guidelines next to Ponytail and Caveman, and the commit and pull request workflows.",
+      "source": "./"
+    }
+  ]
+}
