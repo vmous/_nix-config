@@ -16,7 +16,10 @@ description: Create a git commit the user's way - the user picks the files, the 
      Where the history disagrees with the repository's `AGENTS.md` or
      `CLAUDE.md`, those files win.
    - The staged changes, including changes the agent didn't make.
-3. **Write the message** (details: `references/message-guide.md`).
+3. **Upkeep check** (`references/upkeep-check.md`): propose instruction
+   updates for conventions the work settled. Stage the ones the user
+   includes.
+4. **Write the message** (details: `references/message-guide.md`).
    - The subject states the end impact of the change, not the means.
    - Be crisp; don't repeat yourself. Leave out optional template
      sections you don't use, headers included.
@@ -24,7 +27,7 @@ description: Create a git commit the user's way - the user picks the files, the 
      the history's line limits: when rewrapping, move line breaks only,
      filling each line as far as the limit allows, and never add or remove
      content.
-4. **Agree before committing.** Show the proposed message in a fenced
+5. **Agree before committing.** Show the proposed message in a fenced
    code block. Commit only after the user agrees, with exactly the agreed
    text (`git commit -F <file>`). Don't amend, rewrite or push unless
    asked.
