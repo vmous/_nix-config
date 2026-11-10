@@ -12,6 +12,7 @@ Configuration targets three machine types detected at shell startup via `$JMACHI
 
 - **Secrets:** `.emacs.d/secrets.el` in the repo is a template; the real one is a private, non-symlinked `~/.emacs.d/secrets.el`. Real values (hostnames, credentials, tokens) never go into the repo or into output, and config refers to them only through `jazzy/secrets/...` constants.
 - **Files other tools own:** don't edit employer-managed files such as `~/.ssh/config`. Leave blocks added by tools (e.g. "managed by AIM CLI") alone and out of commits unless asked. The worktree holds many untracked local files, so commit only the files the user selects.
+- **Live sync:** Unison keeps this repo, `.git` included, in sync with the cloud desktop continuously, the newer copy winning (see `.unison/_nix-config-sync.prf.amzn-mac`). Scratch files therefore reach the other machine, and git must never run in this repo on both machines at once.
 - **Both machines:** changes must work on the Apple Silicon Mac (`mac`) and the x86_64 Linux cloud desktop (`worklinux`). Don't assume macOS-only tools such as `/usr/libexec/java_home`, or a single CPU architecture for downloaded binaries.
 
 ## Configuration Management
@@ -30,27 +31,40 @@ Ansible runs locally (`inventory.ini` points to `localhost`). The playbook symli
 
 ## Repository Structure
 
-Each entry says how to verify changes to it (see also Verification).
+Verification lists the checks for each area.
 
-- `ansible/`, `ansible.cfg` — Playbooks (alpha, see Configuration Management). `main.yml` is the entry point; it imports `macos.yml` and `linux.yml` conditionally. Verify with `ansible-playbook --syntax-check ansible/main.yml`, then a `--check` dry run.
-- `.zshrc` / `.zshenv` / `.zsh.d/` — Zsh configuration. Platform-specific blocks are gated on `$JMACHINE`. The `.zsh.d/amzn/` subdirectory holds work-specific shell extensions. Verify syntax with `zsh -n <file>`, the resulting environment in a fresh login shell (`zsh -lic '...'`), and functions against temporary fixtures with stubbed prompts.
-- `.alias` — Shell aliases and utility functions sourced by `.zshrc`. Verify with `zsh -n .alias`.
-- `.bashrc` / `.bash_profile` — Bash configuration. Verify with `bash -n <file>`.
-- `.emacs` / `.emacs.d/` — Emacs configuration split by language/domain (e.g., `core.el`, `python.el`, `scala.el`). Verify by loading the full configuration in batch mode (`emacs --batch --eval '(load "~/.emacs")'`) and checking for errors and warnings. On the Mac, simulate a Dock launch with launchd's minimal environment: `env -i HOME=$HOME USER=$USER SHELL=/bin/zsh PATH=/usr/bin:/bin /Applications/Emacs.app/Contents/MacOS/Emacs --batch ...`.
-- `.tmux.conf` — tmux configuration. `tmux source-file -n <file>` checks syntax only. To also catch invalid options, source a copy without the `run` line (it starts the plugins, and tmux-continuum would save or restore sessions) into a throwaway server: `tmux -L check -f /dev/null new-session -d 'sleep 20'`, then `tmux -L check source-file <copy>` and `tmux -L check kill-server`. Never source it into the running server.
-- `.config/herdr/config.toml` — herdr configuration. Verify with `herdr config check`; to check a copy, place it at `<dir>/herdr/config.toml` and run `XDG_CONFIG_HOME=<dir> herdr config check`. Apply with `herdr server reload-config`.
-- `.unison/` / `Library/LaunchAgents/` — Unison sync profiles between the Mac and the cloud desktop, and the launchd agents that run them. Verify a profile on a copy: drop its `root`, `repeat` (`watch` never exits) and backup lines, point `root` and `backupdir` at temporary directories, and run `UNISON=<dir> unison <profile> -batch` under a timeout; never against the real roots. Verify plists with `plutil -lint`.
-- `.gitconfig` / `.gitconfig-aliases.sh` / `.gitconfig.amzn` — Git aliases and settings. Work-specific overrides are conditionally included from `.gitconfig.amzn` for paths under `~/Workspace/work/`. Verify with `git config --file <file> --list`.
+- `ansible/`, `ansible.cfg` — Playbooks (alpha, see Configuration Management). `main.yml` is the entry point; it imports `macos.yml` and `linux.yml` conditionally.
+- `.zshrc` / `.zshenv` / `.zsh.d/` — Zsh configuration. Platform-specific blocks are gated on `$JMACHINE`. The `.zsh.d/amzn/` subdirectory holds work-specific shell extensions.
+- `.alias` — Shell aliases and utility functions sourced by `.zshrc`.
+- `.bashrc` / `.bash_profile` — Bash configuration.
+- `.emacs` / `.emacs.d/` — Emacs configuration split by language/domain (e.g., `core.el`, `python.el`, `scala.el`).
+- `.tmux.conf` — tmux configuration.
+- `.config/herdr/config.toml` — herdr configuration. Apply with `herdr server reload-config`.
+- `.unison/` / `Library/LaunchAgents/` — Unison sync profiles between the Mac and the cloud desktop, and the launchd agents that run them.
+- `.gitconfig` / `.gitconfig-aliases.sh` / `.gitconfig.amzn` — Git aliases and settings. Work-specific overrides are conditionally included from `.gitconfig.amzn` for paths under `~/Workspace/work/`.
 - `.git-commit-template` — Structured commit message template (used by git via `commit.template`).
-- `agents/` — `jazzy-dev`, a local Claude Code and Codex plugin marketplace that `j-tools-ai-setup` installs: the always-on guidelines for every repository (`skills/jazzy-dev/SKILL.md`, which `hooks/` adds at session start) and the commit and pull request workflow skills. Guidance specific to this repo stays in this file. Commits use the `[ai]` scope. Verify with `claude plugin validate agents`, and run the hook (`CLAUDE_PLUGIN_ROOT=agents python3 agents/hooks/session-start.py`), which must print valid JSON. The clients run a cached copy: on every change bump `version` in both `plugin.json` files (Claude Code ignores a change without it), then on each machine run `claude plugin marketplace update jazzy-dev`, `claude plugin update jazzy-dev@jazzy-dev` and `codex plugin add jazzy-dev@jazzy-dev`.
-- `.rtorrent.rc`, `.i3/`, `.nice-dcv/`, `openvpn`, `sources.list`, `Library/Spelling/` — Configuration for tools that aren't installed on every machine. There is no automated check: review changes against the tool's documentation, check shell scripts (e.g., `.nice-dcv/launch.sh`) with `zsh -n`, and test on a machine where the tool is installed.
+- `agents/` — `jazzy-dev`, a local Claude Code and Codex plugin marketplace that `j-tools-ai-setup` installs: the always-on guidelines for every repository (`skills/jazzy-dev/SKILL.md`, which `hooks/` adds at session start) and the commit and pull request workflow skills. Guidance specific to this repo stays in this file. Commits use the `[ai]` scope. The clients run a cached copy: on every change bump `version` in both `plugin.json` files (Claude Code ignores a change without it), then on each machine run `claude plugin marketplace update jazzy-dev`, `claude plugin update jazzy-dev@jazzy-dev` and `codex plugin add jazzy-dev@jazzy-dev`.
+- `.rtorrent.rc`, `.i3/`, `.nice-dcv/`, `openvpn`, `sources.list`, `Library/Spelling/` — Configuration for tools that aren't installed on every machine.
 
 ## Verification
 
-The checks for each area are in Repository Structure.
+Check every change with the checks for its area below.
 
-- Live state, never to test against: running tmux or herdr sessions, real Unison roots or backups, and real data for destructive commands.
+- Live state, never to test against: running tmux or herdr sessions, real Unison roots or backups, real data for destructive commands, and the real `HOME`, which shell and Emacs startup write to.
 - When a change affects both `mac` and `worklinux`, check it on both, or say which one was not checked.
+
+### Checks by area
+
+- **Ansible:** `ansible-playbook --syntax-check ansible/main.yml`, then a `--check` dry run.
+- **zsh** (`.zshrc`, `.zshenv`, `.zsh.d/`, `.alias`): syntax with `zsh -n <file>`, and functions against temporary fixtures with stubbed prompts. Check the resulting environment in a login shell with a temporary `HOME`, because with the real one startup re-points `~/.ssh/ssh_auth_sock` and writes caches: copy `.zshrc`, `.zshenv`, `.alias`, `.zsh.d/`, `~/.oh-my-zsh` and `~/.local/share/mise/completions.zsh` into `<tmp>`, create an empty `<tmp>/.ssh/`, and run `HOME=<tmp> zsh -lic '...' </dev/null` (two `can't change option: zle` lines are expected). On the cloud desktop, also link `<tmp>/.local/bin` to `~/.local/bin` (mise lives there) and run `SHELL=/apollo/env/EnvImprovement/var/bin/zsh HOME=<tmp> /apollo/env/EnvImprovement/var/bin/zsh -lic '...' </dev/null`: otherwise `/apollo/env/EnvImprovement/dotfiles/zshrc`, which `.zsh.d/amzn/devdsk.zsh` loads, re-runs the shell (`exec $ZSH -$- "$@"`) and drops the command. A `mise WARN … not trusted` line is expected there.
+- **bash** (`.bashrc`, `.bash_profile`, `.gitconfig-aliases.sh`): `bash -n <file>`.
+- **Emacs:** load the full configuration in batch mode with a temporary `HOME`, because with the real one the load writes history, `recentf` and the `eln-cache`: copy `.emacs`, the repo's `.emacs.d/*.el` (the empty `secrets.el` template included) and `~/.emacs.d/elpa` into `<tmp>`, create an empty `<tmp>/.emacs.d/backup/` (without it the load stops at "Directory `…/.emacs.d/backup' does not exist! Create it?"), and run `HOME=<tmp> emacs --batch --eval '(load "\~/.emacs")'`. Check for errors and for warnings from repo files; warnings from packages in `elpa/` don't count. On the Mac, simulate a Dock launch with launchd's minimal environment: `env -i HOME=<tmp> USER=$USER SHELL=/bin/zsh PATH=/usr/bin:/bin /Applications/Emacs.app/Contents/MacOS/Emacs --batch ...`. The import of the shell environment runs only on the hosts named in the real secrets: to include it, link the real `~/.emacs.d/secrets.el` into `<tmp>` in place of the template (never open it) and add the zsh copies above.
+- **tmux:** `tmux source-file -n <file>` checks syntax only. To also catch invalid options, source a copy without the `run` line (it starts the plugins, and tmux-continuum would save or restore sessions) into a throwaway server: `tmux -L check -f /dev/null new-session -d 'sleep 20'`, then `tmux -L check source-file <copy>` and `tmux -L check kill-server`. Never source it into the running server.
+- **herdr:** `herdr config check`; to check a copy, place it at `<dir>/herdr/config.toml` and run `XDG_CONFIG_HOME=<dir> herdr config check`.
+- **Unison:** verify a profile on a copy, never against the real roots: copy `.unison/<name>.prf.amzn-mac` to `<tmp>/<name>.prf` without its `root`, `repeat` (neither `watch` nor a number of seconds ever exits) and `logfile` (the real log, by absolute path) lines, add `root` lines for two temporary directories holding fixtures under the profile's `path`, and run `UNISON=<tmp> timeout 60 unison <name> -batch`. Archives, the log and backups then stay in `<tmp>`. Check the launchd plists with `plutil -lint`.
+- **git config** (`.gitconfig`, `.gitconfig.amzn`): `git config --file <file> --list`.
+- **`agents/`:** `claude plugin validate agents`, and run the hook (`CLAUDE_PLUGIN_ROOT=agents python3 agents/hooks/session-start.py`), which must print valid JSON.
+- **Tools not installed on every machine:** there is no automated check: review changes against the tool's documentation, check shell scripts (e.g., `.nice-dcv/launch.sh`) with `zsh -n`, and test on a machine where the tool is installed.
 
 ## Key Design Decisions
 
