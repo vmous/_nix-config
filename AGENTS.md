@@ -105,6 +105,14 @@ Check every change with the checks for its area below.
 - Changes to the sync rules leave existing backups alone; deleting backups is left to the cleanup tool in `.zsh.d/tools.zsh`, which asks first.
 - Update the ignore rules when adding or retiring a tool that generates files.
 
+### `jazzy-dev` AI agent plugin
+
+- Guidance that holds in every repository goes into the plugin, and guidance specific to one repository into its `AGENTS.md`; neither repeats what Ponytail or Caveman already say. The plugin adds to them and wins where they disagree, and a repository's own `AGENTS.md` wins over the plugin where it is more specific.
+- The always-on guidelines are a skill (`skills/jazzy-dev/SKILL.md`) that the SessionStart hook injects, as Ponytail does with its core, not a rules file: `SKILL.md` is a format Claude Code and Codex share while rules files are Claude Code's own, and a skill still loads where the hook doesn't run (e.g., Codex before its hooks are trusted). The workflows are skills loaded on demand, so their full text costs nothing until a commit or pull request happens.
+- `agents/` is both the marketplace and the plugin root, installed through each client's own plugin system, the mechanism Ponytail and Caveman use too, so there are no links into the clients' directories to maintain. The price is a cached copy per client (see Repository Structure for releasing a change).
+- `agents/` holds no `AGENTS.md`: Codex would load it as instructions for this repository whenever it works in that directory.
+- Caveman's `caveman-commit` stays turned off in both clients (`j-tools-ai-setup` does it), because `commit-workflow` replaces it. Claude Code denies it through `permissions.deny`, since a plugin's skills can't be turned off one by one.
+
 ## Development Workflow
 
 - It is recommended that commits follow the `.git-commit-template`. Specific to this repository:
