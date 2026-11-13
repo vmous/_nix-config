@@ -12,7 +12,9 @@ where they are more specific.
 ## Workflows
 
 - Before creating any commit, including one needed in the middle of a
-  larger task, follow the `commit-workflow` skill.
+  larger task, follow the `commit-workflow` skill. Don't use Caveman's
+  `caveman-commit` on its own: `commit-workflow` loads it to write the
+  message.
 - Before creating or revising a pull request (also called a merge request
   or a code review), follow the `pull-request-workflow` skill.
 

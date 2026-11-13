@@ -43,7 +43,7 @@ Verification lists the checks for each area.
 - `.unison/` / `Library/LaunchAgents/` — Unison sync profiles between the Mac and the cloud desktop, and the launchd agents that run them.
 - `.gitconfig` / `.gitconfig-aliases.sh` / `.gitconfig.amzn` — Git aliases and settings. Work-specific overrides are conditionally included from `.gitconfig.amzn` for paths under `~/Workspace/work/`.
 - `.git-commit-template` — Structured commit message template (used by git via `commit.template`).
-- `agents/` — `jazzy-dev`, a local Claude Code and Codex plugin marketplace that `j-tools-ai-setup` installs: the always-on guidelines for every repository (`skills/jazzy-dev/SKILL.md`, which `hooks/` adds at session start) and the commit and pull request workflow skills. Guidance specific to this repo stays in this file. Commits use the `[ai]` scope. The clients run a cached copy: on every change bump `version` in both `plugin.json` files (Claude Code ignores a change without it), then on each machine run `claude plugin marketplace update jazzy-dev`, `claude plugin update jazzy-dev@jazzy-dev` and `codex plugin add jazzy-dev@jazzy-dev`.
+- `agents/` — `jazzy-dev`, a local Claude Code and Codex plugin marketplace that `j-tools-ai-setup` installs: the always-on guidelines for every repository (`skills/jazzy-dev/SKILL.md`, which `hooks/` adds at session start) and the commit and pull request workflow skills. Guidance specific to this repo stays in this file. Commits use the `ai` scope. The clients run a cached copy: on every change bump `version` in both `plugin.json` files (Claude Code ignores a change without it), then on each machine run `claude plugin marketplace update jazzy-dev`, `claude plugin update jazzy-dev@jazzy-dev` and `codex plugin add jazzy-dev@jazzy-dev`.
 - `.rtorrent.rc`, `.i3/`, `.nice-dcv/`, `openvpn`, `sources.list`, `Library/Spelling/` — Configuration for tools that aren't installed on every machine.
 
 ## Verification
@@ -111,10 +111,10 @@ Check every change with the checks for its area below.
 - The always-on guidelines are a skill (`skills/jazzy-dev/SKILL.md`) that the SessionStart hook injects, as Ponytail does with its core, not a rules file: `SKILL.md` is a format Claude Code and Codex share while rules files are Claude Code's own, and a skill still loads where the hook doesn't run (e.g., Codex before its hooks are trusted). The workflows are skills loaded on demand, so their full text costs nothing until a commit or pull request happens.
 - `agents/` is both the marketplace and the plugin root, installed through each client's own plugin system, the mechanism Ponytail and Caveman use too, so there are no links into the clients' directories to maintain. The price is a cached copy per client (see Repository Structure for releasing a change).
 - `agents/` holds no `AGENTS.md`: Codex would load it as instructions for this repository whenever it works in that directory.
-- Caveman's `caveman-commit` stays turned off in both clients (`j-tools-ai-setup` does it), because `commit-workflow` replaces it. Claude Code denies it through `permissions.deny`, since a plugin's skills can't be turned off one by one.
+- `commit-workflow` runs the commit process and has Caveman's `caveman-commit` write the subject and the body, then adds `REFERENCES` and `QA/TEST`: Caveman keeps the message style, and the workflow keeps the steps `caveman-commit` lacks (picking the files, the upkeep check, agreeing on the message, committing). Neither client can hide a plugin's skill from automatic selection, so the always-on guidelines send every commit to `commit-workflow` first.
 
 ## Development Workflow
 
 - It is recommended that commits follow the `.git-commit-template`. Specific to this repository:
-    - The subject starts with the bracketed scope of the area changed, using the scopes in `git log` (e.g., `[emacs]`, `[zsh]`, `[ai]`). When a change spans areas, stack them in alphabetical order (e.g., `[emacs][zsh]`).
+    - Subjects are Conventional Commits, even though older ones use bracketed scopes (`[emacs]`): don't follow the history's format. Scopes are the area names those older subjects use (e.g., `emacs`, `zsh`, `ai`).
     - `QA/TEST` lists the checks from Verification that were run, and says which were not (e.g., the other machine).

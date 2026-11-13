@@ -1,6 +1,6 @@
 ---
 name: commit-workflow
-description: Create a git commit the user's way - the user picks the files, the message follows the repository's commit template and history, and nothing is committed until the user agrees to the message. Use whenever asked to commit or to write a commit message, when a commit is needed, or when another workflow such as a pull request needs one.
+description: Create a git commit the user's way - the user picks the files, caveman-commit writes the message's subject and body in the repository's format, tests and references are added, and nothing is committed until the user agrees to the message. Use whenever asked to commit or to write a commit message, when a commit is needed, or when another workflow such as a pull request needs one.
 ---
 
 # Commit workflow
@@ -19,14 +19,19 @@ description: Create a git commit the user's way - the user picks the files, the 
 3. **Upkeep check** (`references/upkeep-check.md`): propose instruction
    updates for conventions the work settled. Stage the ones the user
    includes.
-4. **Write the message** (details: `references/message-guide.md`).
-   - The subject states the end impact of the change, not the means.
-   - Be crisp; don't repeat yourself. Leave out optional template
-     sections you don't use, headers included.
-   - Valid markdown; code objects in backticks. Keep the template's and
-     the history's line limits: when rewrapping, move line breaks only,
-     filling each line as far as the limit allows, and never add or remove
-     content.
+4. **Write the message.** A repository whose `AGENTS.md` or history
+   clearly uses another format keeps it; otherwise:
+   - Load Caveman's `caveman-commit` skill (in Claude Code
+     `caveman:caveman-commit`) and write the subject and the body with it,
+     the subject stating the end impact. A change spanning several areas
+     names them all in the scope, alphabetical and comma-separated
+     (`feat(herdr,tmux): …`). Only where Caveman isn't installed, follow
+     `references/message-guide.md` instead.
+   - Then add `REFERENCES:` (optional) and `QA/TEST:` (required), as
+     `references/message-guide.md` describes them.
+   - Valid markdown; code objects in backticks. Keep the line limits:
+     when rewrapping, move line breaks only, filling each line as far as
+     the limit allows, and never add or remove content.
 5. **Agree before committing.** Show the proposed message in a fenced
    code block. Commit only after the user agrees, with exactly the agreed
    text (`git commit -F <file>`). Don't amend, rewrite or push unless

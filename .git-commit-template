@@ -1,13 +1,7 @@
-<1-line summary of the changes - mandatory - oneline - 70 char line suggested or 120 char line max - ends with a '.'>
+<type>(<scope>): <summary - mandatory - Conventional Commits - imperative - 50 char line suggested or 72 char line max - no trailing '.'>
 
-<Details for the change - optional - multiline - 70 char line max>
+<Body - optional - why, not what - multiline - 72 char line max>
 
-IMPACT: <Impact to customer / user - mandatory - multiline - 70 char line max>
-
-ROLLBACK IMPLICATIONS: <What to expect if the change gets rolled back - optional - multiline - 70 char line max>
-
-REFERENCES/ASANA/SIM/TT: <Links to related tracking and/or project information - optional - multiline - itemized only>
+REFERENCES: <Links to related tickets, issues, reviews or documents - optional - itemized only>
 
 QA/TEST: <How was this change tested - mandatory - multiline - itemized>
-
-CR: <Link to the push request or code review>
